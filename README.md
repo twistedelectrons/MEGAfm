@@ -1,4 +1,11 @@
 # MEGAfm
-MEGAfm
 
-this is a test -matt
+Atmega1284 control software for the MEGAfm synthesizer.
+
+## Architecture
+
+(TODO)
+
+## Development Guide
+
+(TODO)

@@ -1,0 +1,4 @@
+bootloaderT
+.pio
+CMakeListsPrivate.txt
+cmake-build-*/ 
