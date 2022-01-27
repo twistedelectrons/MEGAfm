@@ -1,5 +1,5 @@
-
-
+#include <Arduino.h>
+#include "megafm.h"
 
 void digitalPotWrite(byte address, byte value) {
 

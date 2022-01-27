@@ -1,126 +1,162 @@
-void stopTimer(){
+#include <TimerOne.h>
+#include "megafm.h"
+#include "isr.h"
+#include "arp.h"
+#include "lfo.h"
+#include "leds.h"
 
-Timer1.detachInterrupt(); // 
-Timer1.stop(); // attach the service routine here
+void stopTimer() {
+
+  Timer1.detachInterrupt(); //
+  Timer1.stop(); // attach the service routine here
 }
 
-void startTimer(){
-  
-Timer1.initialize(150); // 
-Timer1.attachInterrupt(isr); // attach the service routine here
-  
+void startTimer() {
+
+  Timer1.initialize(150); //
+  Timer1.attachInterrupt(isr); // attach the service routine here
+
 }
 
-void isr(){
+void isr() {
 
 
-if((lfoAt)&&(!fmBase[40])&&(atDest!=at)){
+  if ((lfoAt) && (!fmBase[40]) && (atDest != at)) {
 
-  atGlideCounter++;if(atGlideCounter>5){
-    atGlideCounter=0;
-    if(at>atDest){at--;}else if (at<atDest){at++;}
+    atGlideCounter++;
+    if (atGlideCounter > 5) {
+      atGlideCounter = 0;
+      if (at > atDest) { at--; } else if (at < atDest) { at++; }
+    }
+
+  }
+  if ((voiceHeld) && (setupCounter)) {
+    setupCounter--;
+    if (!setupCounter) {
+      enterSetup();
+    }
   }
 
-}
-if((voiceHeld)&&(setupCounter)){
-  setupCounter--;
-  if(!setupCounter){
-    enterSetup();
+  if (updatePitchCounter < 20)updatePitchCounter++;
+
+  if (ledNumberTimeOut)ledNumberTimeOut--;
+
+  if ((bankCounter) || (sendReceive)) { flashCounter2++; }
+
+  if (arpModeHeld) {
+    if (arpButtCounter < 4000) { arpButtCounter++; }
   }
-}
 
-if(updatePitchCounter<20)updatePitchCounter++;
+  if (((pressedUp) || (pressedDown)) && (scrollDelay)) {
 
-if(ledNumberTimeOut)ledNumberTimeOut--;
+    if (presetTargetMode)presetCounts = 40;
 
-if((bankCounter)||(sendReceive)){flashCounter2++;}
-
-if(arpModeHeld){
-if(arpButtCounter<4000){arpButtCounter++;}
-}
-
-if(((pressedUp)||(pressedDown))&&(scrollDelay)){
-  
-if(presetTargetMode)presetCounts=40;
-
-  scrollDelay--;
-  if(!scrollDelay){
-    scrollDelay=2000-(scrollCounter*200);
-    if(scrollCounter<8)scrollCounter++;
-    if(pressedUp){preset++;if(preset>99){preset=0;}}else{preset--;if(preset<0){preset=99;}}
+    scrollDelay--;
+    if (!scrollDelay) {
+      scrollDelay = 2000 - (scrollCounter * 200);
+      if (scrollCounter < 8)scrollCounter++;
+      if (pressedUp) {
+        preset++;
+        if (preset > 99) { preset = 0; }
+      }
+      else {
+        preset--;
+        if (preset < 0) { preset = 99; }
+      }
+    }
   }
-}
 
-if(shuffleCounter){
-  shuffleCounter2++;
-}
+  if (shuffleCounter) {
+    shuffleCounter2++;
+  }
 
-if(presetTargetMode){
-targetPresetModeTimer++;
-}else{
+  if (presetTargetMode) {
+    targetPresetModeTimer++;
+  } else {
 
-  if(presetFlasher){presetFlasher--;
+    if (presetFlasher) {
+      presetFlasher--;
 
-if(!setupMode){if(presetFlasher==1500){lastNumber=200;ledNumber(preset);}
-if(presetFlasher==750){digit(0,99);digit(1,99);}
-if(!presetFlasher){lastNumber=200;ledNumber(preset);}
-}}
-}
-
-
-
-
-if((resetHeld)&&(shuffleTimer)){
-  shuffleTimer--;
-}
-
-if(seqRec)flashCounter++;
-
-if((arpMode)&&(!seqRec)&&(arpMode!=7)){
-  
-  arpDivider++;if(arpDivider>30){arpDivider=0;arpTick();}
-  
+      if (!setupMode) {
+        if (presetFlasher == 1500) {
+          lastNumber = 200;
+          ledNumber(preset);
+        }
+        if (presetFlasher == 750) {
+          digit(0, 99);
+          digit(1, 99);
+        }
+        if (!presetFlasher) {
+          lastNumber = 200;
+          ledNumber(preset);
+        }
+      }
+    }
   }
 
 
-  
+  if ((resetHeld) && (shuffleTimer)) {
+    shuffleTimer--;
+  }
+
+  if (seqRec)flashCounter++;
+
+  if ((arpMode) && (!seqRec) && (arpMode != 7)) {
+
+    arpDivider++;
+    if (arpDivider > 30) {
+      arpDivider = 0;
+      arpTick();
+    }
+
+  }
+
+
+
 
 
 
 
 //vibrato
-if((!vibratoClockEnable)||(!sync)){
+  if ((!vibratoClockEnable) || (!sync)) {
 
-  //free
-if(fmData[48]){
-vibCounter+=fmData[48];
+    //free
+    if (fmData[48]) {
+      vibCounter += fmData[48];
 
-if(vibCounter>=511){
-  vibCounter-=511;
-  vibIndex++;if(vibIndex>255)vibIndex=0;
+      if (vibCounter >= 511) {
+        vibCounter -= 511;
+        vibIndex++;
+        if (vibIndex > 255)vibIndex = 0;
 
-  
 
-  
-}}}
+      }
+    }
+  }
 
-lfoAdvance();
+  lfoAdvance();
 
-  if(dotTimer){dotOn=true;dotTimer--;}
+  if (dotTimer) {
+    dotOn = true;
+    dotTimer--;
+  }
 
-  
+
   secCounter++;
-  if(secCounter>3000){secCounter=0;everySec();}
+  if (secCounter > 3000) {
+    secCounter = 0;
+    everySec();
+  }
 
-  
+
 }
 
-void everySec(){
+void everySec() {
 
 
-if((chainPressed)&&(linkCounter)){
-  linkCounter--;
-  if(!linkCounter){clearLinks();}
-}
+  if ((chainPressed) && (linkCounter)) {
+    linkCounter--;
+    if (!linkCounter) { clearLinks(); }
+  }
 
 }

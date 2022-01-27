@@ -34,22 +34,18 @@
 
 #define mask(s) (~(~0<<s))
 
-
 typedef struct{
-  uint8_t LFO; 
+  uint8_t LFO;
   uint8_t RESERVED0;
   uint8_t TIMERA0;
   uint8_t TIMERA1;
   uint8_t TIMERB;
-  uint8_t CHAN3_MODE_TIMERS; 
-  uint8_t OP_CHAN; 
+  uint8_t CHAN3_MODE_TIMERS;
+  uint8_t OP_CHAN;
   uint8_t RESERVED1;
   uint8_t DAC;
   uint8_t DAC_EN;
-  
 } Master_t;
-
-
 
 typedef struct
 {
@@ -66,13 +62,13 @@ typedef struct
 } Channels_t;
 
 typedef enum {
-  MONO1x6, 
-  POLY6x1, 
-  POLY3x2, 
-  POLY2x3, 
-  SPLIT_MONO1x3_MONO1x3, 
-  SPLIT_MONO1x3_POLY3x1, 
-  SPLIT_POLY3x1_MONO1x3, 
+  MONO1x6,
+  POLY6x1,
+  POLY3x2,
+  POLY2x3,
+  SPLIT_MONO1x3_MONO1x3,
+  SPLIT_MONO1x3_POLY3x1,
+  SPLIT_POLY3x1_MONO1x3,
   SPLIT_POLY3x1_POLY3x1
 } playmode_t;
 
@@ -102,19 +98,19 @@ class YM2612
                uint8_t data5_pin,
                uint8_t data6_pin,
                uint8_t data7_pin);
-    
-    
-    
+
+
+
     void setAmVib(byte number,int data);
     void setPlaymode(int value);
     void selectChannel(int value) {selected_channel = value;}
 
     void selectOperator(int op, int value) {operators[op] = (value>0);}
-    
+
     //master params
     void setLFO (int value);
     void setChan3Mode           (int value) { setMasterParameter( YM_MA_CH3_M, value);}
-    
+
     //channel params
     void setFeedback            (int value) { setChannelParameter( YM_CH_FB, value);}
     void setAlgorithm           (int value) { setChannelParameter( YM_CH_ALG, value);}
@@ -122,7 +118,7 @@ class YM2612
     void setStereo              (int l, int r) { setStereo((l<<1)|r);}
     void setAMS                 (int value) { setChannelParameter( YM_CH_AMS, value);}
     void setFMS                 (int value) { setChannelParameter( YM_CH_FMS, value);}
-   //operator params
+    //operator params
     void setAmplitudeModulation (int value) { setOperatorParameter( YM_OP_AM, (value>0));}
     void setAttackRate          (int value) { setOperatorParameter( YM_OP_AR, value);}
     void setDecayRate           (int value) { setOperatorParameter( YM_OP_D1R, value);}
@@ -135,24 +131,24 @@ class YM2612
     void setRateScaling         (int value) { setOperatorParameter( YM_OP_RS, value);}
     void setSSG_EG              (int value) { setOperatorParameter( YM_OP_SSG_EG, value);}
 
-   
+
     void noteOn(byte chan);
     void noteOff(byte chan);
     void pitchBend(byte channel, int bend);
     void update();
     void updatePitch();
-    
+
     void updateBend(float input);void setFine(float input);
     void setFrequency3(byte op,uint8_t channel, float frequency);
     void setFrequencySingle(uint8_t channel, float frequency);
     void setStagger(bool data);
-    
+
   private:
   byte chip;float fat;int amVib[4];
   float bendy=1;
   float finey=1;
 bool stag;
-  
+
     voice_t voices[6];
     uint8_t voices_order[6];
     uint8_t voices_order_index = 0;
@@ -164,13 +160,13 @@ bool stag;
     LinkedList<uint8_t> voices_stack1 = LinkedList<uint8_t>();
     uint8_t splitNote = 60;
     int pitchBendValue = 0;
-    
+
     playmode_t playmode;
     uint8_t selected_channel;
     bool operators[4];
-  
+
     Master_t master;
-    Channels_t channels[2];    
+    Channels_t channels[2];
     uint8_t ic_pin;
     uint8_t cs_pin;
     uint8_t wr_pin;
@@ -196,11 +192,11 @@ bool stag;
     void setOperatorParameter(int reg_offset, int val_size, int val_shift,int val);
     void setOperatorParameter(int chan,int reg_offset, int val_size, int val_shift,int val);
     void setOperatorParameter(int chan,int oper, int reg_offset, int val_size, int val_shift, int val);
-    void setFrequency(uint8_t channel, float frequency);     
+    void setFrequency(uint8_t channel, float frequency);
     void setDefaults();
-    
-    
-    
+
+
+
     void setSupplementaryFrequency(uint8_t channel, uint8_t oper, float frequency);
     void keyOn(uint8_t channel);
     void keyOff(uint8_t channel);
@@ -208,8 +204,8 @@ bool stag;
 
 
      float noteToFrequency(int note);
-    
-       
+
+
 };
 
 
