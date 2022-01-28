@@ -9,6 +9,7 @@
 #include "constants.h"
 
 /* Map  pins to YM2612 pins */
+/* RD can be tied to 3.3 V for now */
 #define YM_A0   20
 #define YM_A1   23
 #define YM_CS   10
@@ -18,8 +19,12 @@
 
 
 extern bool secPast;
+extern byte lastSentCC[2];
+extern byte lastSentMega[2];
+extern byte lastSentYm[2];
+extern bool fatSpreadMode;
 extern bool pickupMode;
-extern bool pickup[49];
+extern byte pickup[49];
 extern bool ignoreVolume;
 extern int bendyCounter;
 extern bool arpNotes[128];

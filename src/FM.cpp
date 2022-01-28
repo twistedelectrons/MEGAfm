@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <midiEngine.h>
 #include "FM.h"
 #include "megafm.h"
 #include "leds.h" // showAlgo()
@@ -38,6 +39,10 @@ void fmUpdate() {
 }
 
 void fm(byte number, byte data) {
+  //send to megaChip
+  if ((number < 36) || (number == 42) || (number == 43)) {
+    sendMegaChip(number, data >> fmShifts[number]);
+  }
 
   switch (number) {
     //@formatter:off

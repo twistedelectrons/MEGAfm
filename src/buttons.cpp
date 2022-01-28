@@ -111,7 +111,15 @@ void buttChanged(byte number, bool value) {
             ledSet(23, !mpe);
             break;//MPE mode
 
+          case 10:
+            fatSpreadMode = !fatSpreadMode;
+            ledSet(19, fatSpreadMode);
+            break;//NOISE
+
           case 15:
+            //////////    //////////    //////////    //////////    //////////    //////////
+            //////////    //////////   QUITTING SETUP, SAVING VALUES     //////////    //////////
+            //////////    //////////    //////////    //////////    //////////    //////////
             setupMode = false;//setupExit=true;
             justQuitSetup = true;
 //save setup values here
@@ -135,6 +143,9 @@ void buttChanged(byte number, bool value) {
             bitWrite(temp, 6, bitRead(noiseTableLength[2] - 2, 0));
             bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
             EEPROM.update(3950, temp);
+
+            bitWrite(temp,0,fatSpreadMode);
+            EEPROM.write(3968,fatSpreadMode);
 
             temp = 0;
             bitWrite(temp, 0, lfoClockEnable[0]);
@@ -162,6 +173,7 @@ void buttChanged(byte number, bool value) {
 
         }
       }
+      // END SETUP BUTTONS
     } else if (sendReceive) {
 
       //sendReceive

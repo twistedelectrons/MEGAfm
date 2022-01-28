@@ -6,11 +6,12 @@
 #define MEGAFM_CONSTANTS_H
 
 const byte version0 = 2;
-const byte version1 = 6;
+const byte version1 = 5;
 
 const byte defaultSeq[16] = {0, 0, 0, 0, 12, 12, 12, 12, 0, 0, 12, 0, 0, 12, 12, 0};
 
 const bool allCC = true;
+const bool megaChip = 0;//set to true when testing virtual YM2612 (transmits register changes to MIDI out port)
 
 const byte arpRateDisplay[] = {2, 3, 4, 8, 12, 16, 32, 48}; //show tempo divisions
 const byte midiArpTicks[] = {48, 32, 24, 12, 8, 6, 3, 2}; //arp rates in MIDI ticks

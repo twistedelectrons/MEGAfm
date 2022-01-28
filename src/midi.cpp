@@ -635,45 +635,47 @@ void sendMidiButt(byte number, int value) {
 }
 
 void HandleControlChange(byte channel, byte number, byte val) {
-  leftDot();
-  if (channel == inputChannel) {
-
-    if ((number == 0)) {
-      if (val < 5) {
-        if (bank != val) {
-          bank = val;
-          HandlePc(inputChannel, preset - 1);
+  if((lastSentCC[0]==number)&&(lastSentCC[1]==val)){
+    //ignore same CC and DATA as sent to avoid feedback
+  } else {
+    leftDot();
+    if (channel == inputChannel) {
+      if (number == 0) {
+        if (val < 5) {
+          if (bank != val) {
+            bank = val;
+            HandlePc(inputChannel, preset - 1);
+          }
         }
-      }
-    } else if ((number == 50)) { movedPot(0, val << 1, 1); }
-    else if ((number == 42)) { movedPot(42, val << 5, 1); }
-    else if ((number == 51)) { movedPot(7, val << 1, 1); }
-    else if ((number == 49)) { movedPot(8, val << 1, 1); }
+      } else if (number == 50) { movedPot(0, val << 1, 1); }
+      else if (number == 42) { movedPot(42, val << 5, 1); }
+      else if (number == 51) { movedPot(7, val << 1, 1); }
+      else if (number == 49) { movedPot(8, val << 1, 1); }
 
-    else if ((number == 1)) {
+      else if (number == 1) {
 
-      if (lfoMod) {
-        if (fmBase[38]) {
-          fmBase[39] = val << 1;
-          fmBaseLast[39] = fmBase[39] - 1;
-          ledNumberTimeOut = 20;
-        } else {
-          lfo[1] = val << 1;
-          applyLfo();
+        if (lfoMod) {
+          if (fmBase[38]) {
+            fmBase[39] = val << 1;
+            fmBaseLast[39] = fmBase[39] - 1;
+            ledNumberTimeOut = 20;
+          } else {
+            lfo[1] = val << 1;
+            applyLfo();
+          }
         }
-      }
-    } else if ((number == 7)) { if (allCC) { movedPot(1, val << 1, 1); }}
-    else if (number == 64) {
-      if (val > 63) { pedalDown(); } else { pedalUp(); }
-    } else {
-
-      if (allCC) { movedPot(number, val << 1, 1); }
-      else {
-        if ((number != 19) && (number != 40) && (number != 16) && (number != 38))movedPot(number, val << 1, 1);
+      } else if (number == 7) {
+        if (allCC) { movedPot(1, val << 1, 1); }
+      } else if (number == 64) {
+        if (val > 63) { pedalDown(); } else { pedalUp(); }
+      } else {
+        if (allCC) { movedPot(number, val << 1, 1); }
+        else {
+          if ((number != 19) && (number != 40) && (number != 16) && (number != 38))movedPot(number, val << 1, 1);
+        }
       }
     }
   }
-
 }
 
 void midiOut(byte note) {

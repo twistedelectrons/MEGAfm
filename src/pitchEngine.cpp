@@ -130,12 +130,12 @@ void setNote(uint8_t channel, uint8_t note) {
   } else {
     notey[channel] = note;
 
-    if (fat < .005) {
-      destiFreq[channel] = (noteToFrequency(notey[channel]));
-    } else {
+    if (fat < .005) { destiFreq[channel] = (noteToFrequency(notey[channel])); }
+    else {
       if (voiceMode == 3) {
         switch (channel) {
-          case 0:destiFreq[channel] = noteToFrequency(notey[channel]);
+          case 0:
+            destiFreq[channel] = noteToFrequency(notey[channel]);
             break;
           case 2:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) +
@@ -184,29 +184,11 @@ void setNote(uint8_t channel, uint8_t note) {
             break;
         }
       } else if (voiceMode == 0) {
-        if (fatMode) {
+        if ((fatMode) && (!fatSpreadMode)) {
+          //chip1 down chip2 up
           switch (channel) {
-
-            default:destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
-              break;
-
-            case 1:
-            case 3:
-            case 5:
-            case 7:
-            case 9:
-            case 11:destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
-              break;
-
-          }
-        } else {
-          switch (channel) {
-
-            //1 semi
             default:
-              destiFreq[channel] = noteToFrequency(notey[channel]) +
-                                   (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                    (fat - .005));
+              destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
               break;
 
             case 1:
@@ -215,96 +197,200 @@ void setNote(uint8_t channel, uint8_t note) {
             case 7:
             case 9:
             case 11:
-              destiFreq[channel] = noteToFrequency(notey[channel]) -
-                                   (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                    (fat - .005));
+              destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
+              break;
+          }
+        } else if ((fatMode) && (fatSpreadMode)) {
+          //both up and down (mixed)
+          switch (channel) {
+
+            default:
+              destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
+              break;
+
+            case 0 ... 5:
+              destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
               break;
 
           }
+        } else {
 
+          if (!fatSpreadMode) {
+            switch (channel) {
+              //1 semi
+              default:
+                destiFreq[channel] = noteToFrequency(notey[channel]) +
+                                     (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+                                      (fat - .005));
+                break;
+              case 1:
+              case 3:
+              case 5:
+              case 7:
+              case 9:
+              case 11:
+                destiFreq[channel] = noteToFrequency(notey[channel]) -
+                                     (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+                                      (fat - .005));
+                break;
+            }
+          } else {
+            switch (channel) {
+              //1 semi
+              default:
+                destiFreq[channel] = noteToFrequency(notey[channel]) +
+                                     (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+                                      (fat - .005));
+                break;
+              case 0 ... 5:
+                destiFreq[channel] = noteToFrequency(notey[channel]) -
+                                     (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+                                      (fat - .005));
+                break;
+            }
+          }
         }
       } else if (voiceMode == 1) {
-        if (fatMode) {
+        if ((fatMode) && (!fatSpreadMode)) {
           switch (channel) {
-
-            default:destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
-              break;
-
-            case 6:
-            case 7:
-            case 8:
-            case 9:
-            case 10:
-            case 11:destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
-              break;
-
-          }
-        } else {
-          switch (channel) {
-
-            //1 semi
             default:
-              destiFreq[channel] = noteToFrequency(notey[channel]) +
-                                   (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                    (fat - .005));
+              destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
               break;
-
             case 6:
             case 7:
             case 8:
             case 9:
             case 10:
             case 11:
-              destiFreq[channel] = noteToFrequency(notey[channel]) -
-                                   (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                    (fat - .005));
+              destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
               break;
-
           }
-
-        }
-      } else {
-        if (fatMode) {
+        } else if ((fatMode) && (fatSpreadMode)) {
           switch (channel) {
-
-            default:destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
+            default:
+              destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
               break;
-
-            case 1:
-            case 3:
-            case 5:
-            case 7:
-            case 9:
-            case 11:destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
+            case 0:
+            case 2:
+            case 4:
+            case 6:
+            case 8:
+            case 10:
+              destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
               break;
-
           }
         } else {
-          switch (channel) {
-
-            //1 semi
-            default:
-              destiFreq[channel] = noteToFrequency(notey[channel]) +
-                                   (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                    (fat - .005));
-              break;
-
-            case 1:
-            case 3:
-            case 5:
-            case 7:
-            case 9:
-            case 11:
-              destiFreq[channel] = noteToFrequency(notey[channel]) -
-                                   (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                    (fat - .005));
-              break;
-
+          if (!fatSpreadMode) {
+            switch (channel) {
+              //1 semi
+              default:
+                destiFreq[channel] = noteToFrequency(notey[channel]) +
+                                     (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+                                      (fat - .005));
+                break;
+              case 6:
+              case 7:
+              case 8:
+              case 9:
+              case 10:
+              case 11:
+                destiFreq[channel] = noteToFrequency(notey[channel]) -
+                                     (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+                                      (fat - .005));
+                break;
+            }
+          } else if (fatSpreadMode) {
+            switch (channel) {
+//1 semi
+              default:
+                destiFreq[channel] = noteToFrequency(notey[channel]) +
+                                     (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+                                      (fat - .005));
+                break;
+              case 0:
+              case 2:
+              case 4:
+              case 6:
+              case 8:
+              case 10:
+                destiFreq[channel] = noteToFrequency(notey[channel]) -
+                                     (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+                                      (fat - .005));
+                break;
+            }
           }
-
         }
       }
 
+//voicemides 2 and 3
+      else {
+        if ((fatMode) && (!fatSpreadMode)) {
+          switch (channel) {
+
+            default:
+              destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
+              break;
+
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 9:
+            case 11:
+              destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
+              break;
+
+          }
+        } else if ((fatMode) && (fatSpreadMode)) {
+          switch (channel) {
+
+            default:
+              destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
+              break;
+
+            case 0 ... 5:
+              destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
+              break;
+
+          }
+        } else {
+
+          if (fatSpreadMode) {
+            switch (channel) {
+//1 semi
+              default:
+                destiFreq[channel] = noteToFrequency(notey[channel]) +
+                                     (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+                                      (fat - .005));
+                break;
+              case 1:
+              case 3:
+              case 5:
+              case 7:
+              case 9:
+              case 11:
+                destiFreq[channel] = noteToFrequency(notey[channel]) -
+                                     (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+                                      (fat - .005));
+                break;
+            }
+          } else if (!fatSpreadMode) {
+            switch (channel) {
+//1 semi
+              default:
+                destiFreq[channel] = noteToFrequency(notey[channel]) +
+                                     (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+                                      (fat - .005));
+                break;
+              case 0 ... 5:
+                destiFreq[channel] = noteToFrequency(notey[channel]) -
+                                     (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+                                      (fat - .005));
+                break;
+            }
+          }
+        }
+      }
     }
 
     glideIncrement[channel] = calculateIncrement(freq[channel], destiFreq[channel]);

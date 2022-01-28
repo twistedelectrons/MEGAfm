@@ -1,41 +1,68 @@
-#include <Arduino.h>
 #include "megafm.h"
 #include "midi.h"
+#include "midiEngine.h"
 
 byte mStatus;
 byte mData;
 byte mChannel;
 int midiNoteOffset = -12;
 
+void sendMegaChip(byte number, byte value) {
+  if (megaChip) {
+    if ((lastSentMega[0] == number) && (lastSentMega[1] == value)) {
+//don't repeat send!
+    } else {
+      lastSentMega[0] = number;
+      lastSentMega[1] = value;
+
+      Serial.write(123);
+      Serial.write(number);
+      Serial.write(value);
+    }
+  }
+}
 
 void sendControlChange(byte number, byte value, byte channel) {
   if (!thru) {
-    Serial.write(175 + channel);
-    Serial.write(number);
-    Serial.write(value);
+    lastSentCC[0] = number;
+    lastSentCC[1] = value;
+
+    if (!megaChip) {
+      Serial.write(175 + channel);
+      Serial.write(number);
+      Serial.write(value);
+    }
   }
 }
 
 void sendNoteOff(byte note, byte velocity, byte channel) {
   if (!thru) {
-    Serial.write(127 + channel);
-    Serial.write(note);
-    Serial.write(1);
+    if (!megaChip) {
+      Serial.write(127 + channel);
+      Serial.write(note);
+      Serial.write(1);
+    }
   }
 }
 
 void sendNoteOn(byte note, byte velocity, byte channel) {
   if (!thru) {
-    Serial.write(143 + channel);
-    Serial.write(note);
-    Serial.write(1);
+    if (!megaChip) {
+      Serial.write(143 + channel);
+      Serial.write(note);
+      Serial.write(1);
+    }
   }
 }
 
 void midiRead() {
   while (Serial.available()) {
     byte input = Serial.read();
-    if (thru) Serial.write(input);
+    if (thru) {
+      if (!megaChip) {
+        Serial.write(input);
+      }
+    }
 
     if (input > 127) {
       // Status

@@ -1,8 +1,74 @@
-
 /*
+cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /private/var/hex/MEGAfm.ino.hex /Users/a/Documents/bootloaderT&&python tools/hex2sysex/hex2sysex.py --syx -o firmware.syx MEGAfm.ino.hex
 
-cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /private/var/hex/megaFM_R2.4.ino.hex /Users/a/Documents/bootloaderT&&python tools/hex2sysex/hex2sysex.py --syx -o firmware.syx megaFM_R2.4.ino.hex
+LOG Pickup optimized
+Anti MIDI feedback
 
+
+Algorithm knob doesn't do parameter pickup, and Vibrato depth doesn't display its value on screen
+
+J’ai testé le 2.4 aujourd’hui :
+
+BUG :
+tout les faders sauf detune n’affichent plus leurs valeurs ?
+( NB: le parameter pick up etait OFF quand j’ai vu ca - en l’activant, il ne marche pas sur tout les faders sauf detune )
+
+
+J’ai principalement fait des presets utilisant le fat mode depuis que j’ai cette machine, et surtout en mode 1 octave,
+en utilisant les premiers crans pour colorer le son et le reste de la course du portard pour le faire muter completement quand c’est pertinent
+
+FAT MODE :
+le nouveau fat mode est interessant mais du coup ca ne marche vraiment pas a tout les coups…
+Serait il possible que les 2 “modes” soient switchables ? ( ancient / nouveau )
+Perso j’aurais plus d’usage de l’ancien.
+
+Serait il aussi possible en mode 1 octave, que la courbe de valeur soit (plus) exponentielle ?
+pour avoir plus de finesse sur les premiers pas
+d’abord parce qu’il y a beaucoup de nuances possibles entre les valeurs 1 et 4 ( actuelles ) et que pour le jeu en live c’est super touchy
+
+Legato :
+Je ne comprend pas la necessité d’avoir a activer l’ARP pour que le pitch soit updaté a chaque nouvelle note
+(vu que c’est le mode naturel de jeu ? ), a moins que cela soit une contrainte technique ?
+
+Le glide ON seulement quand jeu legato serait top…
+ca evite d’avoir des notes seule qui ont pas un pitch steady
+
+Autre chose que je remarque est qui manque, c’est ca :
+je presse une note N
+je presse une 2e note N+1, le pitch change, la note N est toujours enfoncée.
+lorsque je lache la note N+1, le pitch est toujours a N+1 et ne revient pas a N, alors que la note N est toujours enfoncée.
+
+ca me semble indispensable pour jouer en mode solo / lead / basslines
+
+ca marche si l’ARP est ON & rate > 0, mais lorsque rate = 0, ca ne marche pas
+
+
+Parameter pickup :
+c’est tres bien pour le live, mais pour la prog de presets, on peut se louper, il faut aller vraiment doucement.
+
+Je me permet de suggerer quelques chose de pratique ( qui pourrait etre caduc si j’arrivais a faire marcher le plugin sous Cubase ) :
+
+ca serait un bouton qui quand il est appuyé, permet d’afficher la valeur du pot / fader manipulé
+( sans envoyer les valeurs modifiées aux chips of course )
+
+du coup quand on veut obtenir une valeur, on appuie & on tourne et on sait ;)
+quand on reprend un preset pour le modifier ou en cours de programmation c’est MEGA utile haha
+
+
+LFO DEPTH :
+Super fan du fait qu’on puisse assigner la velocité / mod wheel / aftertouch a la depth !!
+
+Ca serait vraiment le luxe, si les potards de Depth avaient encore de l’influence comme attenuateurs ?
+Exemple : quand il y 100% d'influence de la velocité sur par exemple le volume d’un Operateur qui est modulateur,
+c’est beaucoup trop, souvent on a besoin de moduler en +/- 5 ou +/- 10, pas FULL.
+
+SETUP MODE :
+Les options choisies dans le setup pourraient etre stockées par presets ?
+
+
+unison legato "follow legato” ou “permanent”
+choose between fat mode down left up right or mixed
+display preset number after program change
 
 Poly12 sustain pedal bug
 I’ve found that when playing with a sustain pedal in Poly12 mode, pressing a key twice does not cause the sustained note to retrigger. Interestingly, it does do this in Wide6 mode. Would it be possible to implement this in a future firmware update, or is there a way to turn this on for Poly12 that I just completely missed?
@@ -51,12 +117,17 @@ When im sequencing the pitchbend cc from my sequencer after a few playback the m
 // Whether one second has elapsed since device boot.
 // Used in: loop.cpp, pots.cpp
 bool secPast = false;
+byte lastSentCC[2];
+byte lastSentMega[2];
+byte lastSentYm[2];
+//0=chip1 down chip2 up 1=both chips go up and down (mixed)
+bool fatSpreadMode;
 // Whether the knobs/sliders should use 'pickup' behavior
 // Used in: buttons.cpp, megafm.cpp, pots.cpp
 bool pickupMode = true;
 // Whether each knob/slider has been picked up.
 // Used in: pickup.cpp, pots.cpp, preset.cpp
-bool pickup[49];
+byte pickup[49];
 // Similar to pickup? Ignore volume knob immediately after loading a preset
 // Used in: buttons.cpp, megafm.cpp, pots.cpp, preset.cpp
 bool ignoreVolume;
@@ -217,9 +288,11 @@ void enterSetup() {
   setupMode = true;
   ledSet(13, thru);
   ledSet(14, pickupMode);
+  ledSet(19,fatSpreadMode);
 }
 
 void setup() {
+  lastSentCC[0]=255;
 
   fillAllLfoTables();
 
@@ -245,7 +318,7 @@ void setup() {
 
 //3950 = bit 0 thru
 //3950 = bit 1 ignore preset volume
-
+//3950 = bit 2-7 noisetableLength
 
 //3951 = midi channel
 //3952 = last preset
@@ -278,19 +351,27 @@ void setup() {
 //3966 = bit 5 inv square3
 //3966 = bit 6 stereoCh3
 
+
 //3967 = note priority 0=low 1=high 2=last
 
-  notePriority = EEPROM.read(3967);
-  if (notePriority > 2)notePriority = 0;
+//3968 = bit 0 fatSpreadMode
 
-  invertedSaw[0] = bitRead(EEPROM.read(3966), 0);
-  invertedSaw[1] = bitRead(EEPROM.read(3966), 1);
-  invertedSaw[2] = bitRead(EEPROM.read(3966), 2);
-  invertedSquare[0] = bitRead(EEPROM.read(3966), 3);
-  invertedSquare[1] = bitRead(EEPROM.read(3966), 4);
-  invertedSquare[2] = bitRead(EEPROM.read(3966), 5);
+  byte input=EEPROM.read(3968);
+  fatSpreadMode=bitRead(input,0);
 
-  stereoCh3 = bitRead(EEPROM.read(3966), 6);
+  notePriority=EEPROM.read(3967);
+  if(notePriority>2)notePriority=0;
+
+  input=EEPROM.read(3966);
+
+  invertedSaw[0]=bitRead(input,0);
+  invertedSaw[1]=bitRead(input,1);
+  invertedSaw[2]=bitRead(input,2);
+  invertedSquare[0]=bitRead(input,3);
+  invertedSquare[1]=bitRead(input,4);
+  invertedSquare[2]=bitRead(input,5);
+
+  stereoCh3=bitRead(input,6);
 
   noiseTableLength[0] = 0;
   bitWrite(noiseTableLength[0], 0, bitRead(EEPROM.read(3950), 2));

@@ -3,9 +3,10 @@
 #include "leds.h"
 #include "pots.h"
 
-void doPickup(byte number, byte data) {
-
+void doPickup(byte number, int data) {
   int target = -1;
+  int targetValue;
+
   switch (number) {
     //@formatter:off
     //OP1
@@ -59,19 +60,35 @@ void doPickup(byte number, byte data) {
   }
 
   if (target != -1) {
+    targetValue = fmBase[target];
 
-    if (fmBase[target] > data + 10) { rightArrow(); }
-    else if (fmBase[target] < data - 10) { leftArrow(); }
-    else {
+    if (data < targetValue - 2) {
+      if (pickup[number] == 1) {
+        rightArrow();
+        pickup[number] = 2;
+      } else if (pickup[number] == 3) {
+        //MATCH we went past
+        pickup[number] = 0;
+        movedPot(number, data, 0);
+      }
+    } else if (data > targetValue + 2) {
+      if (pickup[number] == 1) {
+        leftArrow();
+        pickup[number] = 3;
+      } else if (pickup[number] == 2) {
+        //we were 6 under now we're over so we matched
+        pickup[number] = 0;
+        movedPot(number, data, 0);
+      }
+    } else {
+      //not over nor under = it's a match!
       //MATCH
       pickup[number] = 0;
       movedPot(number, data, 0);
     }
-
   } else {
-    //disable pickup
+    //no pickup on this knob/fader
     pickup[number] = 0;
     movedPot(number, data, 0);
   }
-
 }

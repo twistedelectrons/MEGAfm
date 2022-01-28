@@ -1,3 +1,5 @@
+#include <midiEngine.h>
+#include <constants.h>
 #include "YM2612.h"
 
 byte stagger[]{0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11};
@@ -209,6 +211,12 @@ void YM2612::setFrequency(uint8_t chan, float frequency) {
   }
   freq = (uint16_t) frequency;
 
+  //MegaChip
+  //part1
+  sendMegaChip(110+chan,((freq >> 8) & mask(3)) | ( ( block & mask(3) ) << 3));
+  //part2
+  sendMegaChip(117+chan,freq);
+
   if (chan > 5) {
     chip = 6;
     chan -= 6;
@@ -223,6 +231,15 @@ void YM2612::setFrequency(uint8_t chan, float frequency) {
   chip = 0;
 }
 
+void YM2612::sendMegaChip(byte number, byte data) {
+  if(megaChip){
+    Serial.write(123);
+
+    Serial.write(number);
+    Serial.write(data);
+  }
+}
+
 void YM2612::setFrequency3(byte op, uint8_t chan, float frequency) {
   if (frequency <= 0)frequency = 1;
   int block = 2;
@@ -232,6 +249,12 @@ void YM2612::setFrequency3(byte op, uint8_t chan, float frequency) {
     block++;
   }
   freq = (uint16_t) frequency;
+
+  //MegaChip
+  //part1
+  sendMegaChip(50+((chan*4)+op),((freq >> 8) & mask(3)) | ( ( block & mask(3) ) << 3));
+  //part2
+  sendMegaChip(80+((chan*4)+op),freq);
 
   if (chan > 5) {
     chip = 6;
@@ -274,6 +297,10 @@ Operator 4's frequency is in AA and AE
 
 void YM2612::setFrequencySingle(uint8_t chan, float frequency) {
   setFrequency(chan, frequency);
+}
+
+void YM2612::setMegaChip(boolean input) {
+  megaChip = input;
 }
 
 void YM2612::keyOn(uint8_t chan) {
