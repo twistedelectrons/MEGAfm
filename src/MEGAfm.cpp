@@ -164,21 +164,24 @@ bool justQuitSetup;
 bool invertedSquare[3];
 bool invertedSaw[3];
 
-
 byte muxChannel;
 bool voiceSlots[12];
 byte noteOfVoice[12];
 
-bool lfoVel;//velocity affects lfo1
-bool lfoMod;// mod affect lfo2
-bool lfoAt;//at affect lfo3
+// Velocity affects lfo1
+bool lfoVel;
+// Mod affects lfo2
+bool lfoMod;
+// Aftertouch affects lfo3
+bool lfoAt;
 float mpeBend[12];
 byte bendUp = 12;
 byte bendDown = 12;
 int bendRoot = -1;
 float destiFreq[12];
 float freq[12];
-float freqTotal[12];//freq + vib *bend
+// freqTotal = freq + vib * bend
+float freqTotal[12];
 float freqLast[12];
 float glideIncrement[12];
 int volumeCounter;
@@ -201,10 +204,10 @@ int targetPresetModeTimer;
 bool targetPresetFlasher;
 int scrollDelay, scrollCounter;
 byte noiseTableLength[3];
-byte mem[3950];//buffer for sysex preset dumps
+// Buffer for sysex preset dumps.
+byte mem[3950];
 int notey[12];
 byte arpMode, arpModeLast;
-byte version = 1;
 bool looping[3];
 int arpIndex;
 bool resetHeld;
@@ -257,6 +260,7 @@ int shuffleCounter;
 byte linkCounter;
 byte selectedLfo, selectedLfoLast;
 bool cleared;
+// Which LFO chain button is being pressed. 1, 2, or 3; 0 = none.
 byte chainPressed;
 byte targetPot, targetPotLast;
 byte masterChannelOut = 1;
@@ -288,11 +292,11 @@ void enterSetup() {
   setupMode = true;
   ledSet(13, thru);
   ledSet(14, pickupMode);
-  ledSet(19,fatSpreadMode);
+  ledSet(19, fatSpreadMode);
 }
 
 void setup() {
-  lastSentCC[0]=255;
+  lastSentCC[0] = 255;
 
   fillAllLfoTables();
 
@@ -356,22 +360,22 @@ void setup() {
 
 //3968 = bit 0 fatSpreadMode
 
-  byte input=EEPROM.read(3968);
-  fatSpreadMode=bitRead(input,0);
+  byte input = EEPROM.read(3968);
+  fatSpreadMode = bitRead(input, 0);
 
-  notePriority=EEPROM.read(3967);
-  if(notePriority>2)notePriority=0;
+  notePriority = EEPROM.read(3967);
+  if (notePriority > 2)notePriority = 0;
 
-  input=EEPROM.read(3966);
+  input = EEPROM.read(3966);
 
-  invertedSaw[0]=bitRead(input,0);
-  invertedSaw[1]=bitRead(input,1);
-  invertedSaw[2]=bitRead(input,2);
-  invertedSquare[0]=bitRead(input,3);
-  invertedSquare[1]=bitRead(input,4);
-  invertedSquare[2]=bitRead(input,5);
+  invertedSaw[0] = bitRead(input, 0);
+  invertedSaw[1] = bitRead(input, 1);
+  invertedSaw[2] = bitRead(input, 2);
+  invertedSquare[0] = bitRead(input, 3);
+  invertedSquare[1] = bitRead(input, 4);
+  invertedSquare[2] = bitRead(input, 5);
 
-  stereoCh3=bitRead(input,6);
+  stereoCh3 = bitRead(input, 6);
 
   noiseTableLength[0] = 0;
   bitWrite(noiseTableLength[0], 0, bitRead(EEPROM.read(3950), 2));
@@ -444,7 +448,7 @@ void setup() {
   pinMode(22, INPUT);
   digitalWrite(22, HIGH); //pc6 retrig
 
-  mydisplay.shutdown(0, false);  // turns on display\\
+  mydisplay.shutdown(0, false); // turns on display
 
   byte brightness = EEPROM.read(3965);
   if (brightness > 15)brightness = 10;//default;
@@ -471,17 +475,13 @@ void setup() {
   //check if enter setup mode
   mux(15);
   if (!digitalRead(A1)) {
-
     enterSetup();
-
   }
-
-
 
 
   //mux(5);//preset up
 
-
+  // MIDI port at 31250 baud
   Serial.begin(31250);
   //midiSetup();
 

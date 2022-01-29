@@ -92,7 +92,7 @@ extern bool targetPresetFlasher;
 extern int scrollDelay, scrollCounter;
 extern byte noiseTableLength[3];
 
-extern byte mem[3950];//buffer for sysex preset dumps
+extern byte mem[3950];
 
 extern int notey[12];
 extern byte arpMode, arpModeLast;

@@ -154,7 +154,7 @@ void isr() {
 void everySec() {
 
 
-  if ((chainPressed) && (linkCounter)) {
+  if (chainPressed && linkCounter) {
     linkCounter--;
     if (!linkCounter) { clearLinks(); }
   }

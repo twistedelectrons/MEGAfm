@@ -9,7 +9,6 @@
 #include "midi.h"
 #include "voice.h"
 
-int ledTest = 0;
 bool resetFunction = false;
 
 void buttChanged(byte number, bool value) {
@@ -36,7 +35,6 @@ void buttChanged(byte number, bool value) {
               digit(1, 14);
               delay(800);
             } else {
-
               digit(0, 19);
               digit(1, 27);
               delay(400);
@@ -44,9 +42,7 @@ void buttChanged(byte number, bool value) {
               digit(1, 14);
               delay(400);
             }
-
             break;//chain 2
-
 
           case 18:
             notePriority++;
@@ -170,19 +166,13 @@ void buttChanged(byte number, bool value) {
             digit(1, 21);
 
             break;
-
         }
       }
       // END SETUP BUTTONS
     } else if (sendReceive) {
-
-      //sendReceive
-
-
       if (!value) {
         //Pressed
         switch (number) {
-
           case 0:
             if (bank == 0) { ab = !ab; }
             bank = 0;
@@ -226,23 +216,18 @@ void buttChanged(byte number, bool value) {
             showSendReceive();
             break;//loop
 
-
           case 14:
             if ((millis() > 2000) && (sendReceive == 2))sendDump();
             break;
           case 5:
             if ((millis() > 2000) && (sendReceive == 1))recieveDump();
             break;
-
         }
       }
-
     } else {
-
       if (!value) {
         //Pressed
         switch (number) {
-
           case 7:
             changedChannel = false;
             arpModeHeld = true;
@@ -283,7 +268,6 @@ void buttChanged(byte number, bool value) {
             }
             break;//preset up
 
-
           case 14:
             if (!seqRec) {
               if (arpModeHeld) {
@@ -317,9 +301,7 @@ void buttChanged(byte number, bool value) {
             shuffleTimer = 4000;
             break;//reset
 
-
           case 3:
-
             if (presetTargetMode) {
               presetTargetMode = false;
               savePreset();
@@ -360,8 +342,6 @@ void buttChanged(byte number, bool value) {
             selectedLfo = 2;
             cleared = false;
             break;//chain3
-
-
 
           case 0:
             if (bankCounter) {
@@ -447,7 +427,6 @@ void buttChanged(byte number, bool value) {
             }
             break;//saw
 
-
           case 10:
             if (bankCounter) {
               bank = 3;
@@ -462,7 +441,6 @@ void buttChanged(byte number, bool value) {
               }
               bankCounter = 20;
             } else {
-
               //Change LFOLENGTH
               if (lfoShape[selectedLfo] == 3) {
                 noiseTableLength[selectedLfo]++;
@@ -489,6 +467,7 @@ void buttChanged(byte number, bool value) {
               showLfo();
             }
             break;//noise
+
           case 18:
             if (bankCounter) {
               bank = 4;
@@ -527,10 +506,6 @@ void buttChanged(byte number, bool value) {
               sendCC(58, looping[selectedLfo]);
             }
             break;//loop
-
-
-
-
         }
       } else {
 
@@ -734,7 +709,7 @@ void buttChanged(byte number, bool value) {
 
           case 4:
             chainPressed = 0;
-            if ((targetPot != 36) && (targetPot != 37)) {//prevent lfo linking to itsef
+            if ((targetPot != 36) && (targetPot != 37)) { // prevent lfo linking to itself
               if (!cleared) {
                 linked[0][targetPot] = !linked[0][targetPot];
                 showLink();
@@ -744,7 +719,7 @@ void buttChanged(byte number, bool value) {
 
           case 9:
             chainPressed = 0;
-            if ((targetPot != 38) && (targetPot != 39)) {//prevent lfo linking to itsef
+            if ((targetPot != 38) && (targetPot != 39)) { // prevent lfo linking to itself
               if (!cleared) {
                 linked[1][targetPot] = !linked[1][targetPot];
                 showLink();
@@ -754,7 +729,7 @@ void buttChanged(byte number, bool value) {
 
           case 8:
             chainPressed = 0;
-            if ((targetPot != 40) && (targetPot != 41)) {//prevent lfo linking to itsef
+            if ((targetPot != 40) && (targetPot != 41)) { // prevent lfo linking to itself
               if (!cleared) {
                 linked[2][targetPot] = !linked[2][targetPot];
                 showLink();

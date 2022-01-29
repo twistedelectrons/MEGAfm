@@ -41,16 +41,17 @@ void resetVoices() {
 
     setNote(i, 0);
     skipGlide(i);
-
   }
 
   heldKeys = 0;
   clearNotes();
+  // TODO: clearKeys has no effect
   clearKeys();
   for (int i = 0; i < 128; i++) { noteOrder[i] = 0; }
   for (int i = 0; i < 40; i++) { lastNotey[i] = 0; }
 }
 
+// TODO: unused
 void killVoice(byte note) {
   //scan through the noteOfVoices and kill the voice associated to it
   for (int i = 0; i < 12; i++) {
@@ -63,6 +64,7 @@ void killVoice(byte note) {
   }
 }
 
+// TODO: unused
 byte noteToVoice(byte note) {
   for (int i = 0; i < 12; i++) {
     if (noteOfVoice[i] == note) {
@@ -70,6 +72,7 @@ byte noteToVoice(byte note) {
       return (i);
     }
   }
+  return 0;
 }
 
 void clearKeys() {
@@ -88,14 +91,15 @@ void clearStack() {
 }
 
 byte getLast() {
-  int8_t noteIndx;
+  int8_t noteIndex;
 
   for (int i = 0; i < 128; i++) {
-    noteIndx = noteOrder[mod(orderIndx - i, 128)];
-    if (arpNotes[noteIndx]) {
-      return (noteIndx);
+    noteIndex = noteOrder[mod(orderIndx - i, 128)];
+    if (arpNotes[noteIndex]) {
+      return noteIndex;
     }
   }
+  return 0;
 }
 
 int mod(int a, int b) {
@@ -105,7 +109,7 @@ int mod(int a, int b) {
 
 byte getHigh() {
   int topNote = 0;
-  bool noteActive = false;
+  // bool noteActive = false; // unused?
 
   for (int i = 0; i < 128; i++) {
     if (arpNotes[i]) {
