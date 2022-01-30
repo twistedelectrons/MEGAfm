@@ -7,15 +7,21 @@
 const byte range = 7;
 const byte range2 = 10;
 
-void readMux() {
+void Aon() { PORTB |= _BV (0); }
+void Aoff() { PORTB &= ~_BV (0); }
+void Bon() { PORTB |= _BV (1); }
+void Boff() { PORTB &= ~_BV (1); }
+void Con() { PORTB |= _BV (2); }
+void Coff() { PORTB &= ~_BV (2); }
+void Don() { PORTB |= _BV (3); }
+void Doff() { PORTB &= ~_BV (3); }
 
+void readMux() {
   muxChannel++;
   if (muxChannel > 15) { muxChannel = 0; }
   mux(muxChannel);
 
   int pot;
-
-  //pots
 
   pot = analogRead(A0) >> 1;
   if ((pot > potLast[muxChannel] + range) || (pot < potLast[muxChannel] - range)) {
@@ -24,7 +30,6 @@ void readMux() {
   }
 
   pot = analogRead(A2) >> 1;
-
   if ((pot > potLast[muxChannel + 16] + range) || (pot < potLast[muxChannel + 16] - range)) {
     potLast[muxChannel + 16] = pot;
     movedPot(muxChannel + 16, pot >> 1, 0);
@@ -189,19 +194,3 @@ void mux(byte number) {
       break;
   }
 }
-
-void Aon() { PORTB |= _BV (0); }
-
-void Aoff() { PORTB &= ~_BV (0); }
-
-void Bon() { PORTB |= _BV (1); }
-
-void Boff() { PORTB &= ~_BV (1); }
-
-void Con() { PORTB |= _BV (2); }
-
-void Coff() { PORTB &= ~_BV (2); }
-
-void Don() { PORTB |= _BV (3); }
-
-void Doff() { PORTB &= ~_BV (3); }
