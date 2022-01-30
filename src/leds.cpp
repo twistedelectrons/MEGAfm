@@ -61,7 +61,6 @@ void updateLedNumber() {
 
     switch (ledNumberIndex) {
 
-
       case 2:
       case 11:
       case 20:
@@ -73,7 +72,6 @@ void updateLedNumber() {
         if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 2) {
           fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 2;
           theNumber = (fmBaseLastNumber[ledNumberIndex]);
-
 
         }
         break;//>>2
@@ -162,10 +160,8 @@ void updateLedNumber() {
     }
   }
 
-
   if ((theNumber != -1) && (!ledNumberTimeOut)) { ledNumber(theNumber); }
 }
-
 
 void clearLfoLeds() {//hide the lfo leds
 
@@ -176,7 +172,6 @@ void clearLfoLeds() {//hide the lfo leds
   ledSet(20, 0);
   ledSet(21, 0);
 }
-
 
 void showLfo() {
   if (!bankCounter) {
@@ -191,7 +186,6 @@ void showLfo() {
   }
 }
 
-
 void showLink() {
   ledSet(13, linked[0][targetPot]);
   ledSet(14, linked[1][targetPot]);
@@ -199,9 +193,7 @@ void showLink() {
 
 }
 
-
 void showVoiceMode() {
-
 
   if (mpe) {
 
@@ -213,7 +205,6 @@ void showVoiceMode() {
   } else {
 
     if (voiceMode == 1) { ym.setStagger(0); } else { ym.setStagger(1); }
-
 
     if (voiceMode == 2) {
       ym.setChan3Mode(1);
@@ -244,15 +235,12 @@ void showVoiceMode() {
 
     resetVoices();
 
-
   }
 }
 
 void rightDot() {
 
-
   mydisplay.setLed(0, 7, 7, 1);
-
 
   dotTimer = 50;
 }
@@ -262,7 +250,6 @@ void leftDot() {
   mydisplay.setLed(0, 7, 6, 1);
   dotTimer = 50;
 }
-
 
 void showSendReceive() {
 
@@ -276,9 +263,7 @@ void showSendReceive() {
   if (sendReceive == 1) { digit(0, 16); } else { digit(0, 5); }
   if (ab) { digit(1, 25); } else { digit(1, 17); }
 
-
 }
-
 
 void ledNumber(int value) {
 
@@ -315,7 +300,6 @@ void ledNumberForced(int value) {
   digit(0, value / 10);
   digit(1, value - ((value / 10) * 10));
 }
-
 
 /*
   0
@@ -450,7 +434,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 3, 6 + channel, 0);
       break;
 
-
     case 19://n
       mydisplay.setLed(0, 0, 6 + channel, 0);
       mydisplay.setLed(0, 5, 6 + channel, 0);
@@ -490,7 +473,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 2, 6 + channel, 0);
       mydisplay.setLed(0, 3, 6 + channel, 0);
 
-
       break;
 
     case 15://d
@@ -501,7 +483,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 4, 6 + channel, 1);
       mydisplay.setLed(0, 2, 6 + channel, 1);
       mydisplay.setLed(0, 3, 6 + channel, 1);
-
 
       break;
 
@@ -514,7 +495,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 2, 6 + channel, 0);
       mydisplay.setLed(0, 3, 6 + channel, 0);
 
-
       break;
 
     case 13://U
@@ -525,7 +505,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 4, 6 + channel, 1);
       mydisplay.setLed(0, 2, 6 + channel, 1);
       mydisplay.setLed(0, 3, 6 + channel, 1);
-
 
       break;
 
@@ -538,7 +517,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 2, 6 + channel, 0);
       mydisplay.setLed(0, 3, 6 + channel, 0);
 
-
       break;
     case 11://L
       mydisplay.setLed(0, 0, 6 + channel, 0);
@@ -548,7 +526,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 4, 6 + channel, 1);
       mydisplay.setLed(0, 2, 6 + channel, 0);
       mydisplay.setLed(0, 3, 6 + channel, 1);
-
 
       break;
 
@@ -560,7 +537,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 4, 6 + channel, 1);
       mydisplay.setLed(0, 2, 6 + channel, 0);
       mydisplay.setLed(0, 3, 6 + channel, 1);
-
 
       break;
 
@@ -671,7 +647,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 2, 6 + channel, 1);
       mydisplay.setLed(0, 3, 6 + channel, 1);
 
-
       break;
 
     case 99://BLANK
@@ -682,7 +657,6 @@ void digit(byte channel, byte number) {
       mydisplay.setLed(0, 4, 6 + channel, 0);
       mydisplay.setLed(0, 2, 6 + channel, 0);
       mydisplay.setLed(0, 3, 6 + channel, 0);
-
 
       break;
 
@@ -696,7 +670,6 @@ void showAlgo(byte number) {
   ledSet(number + 1, 1);
 
 }
-
 
 void ledSet(byte number, bool value) {
 
@@ -803,7 +776,5 @@ void ledSet(byte number, bool value) {
     case 31:
       mydisplay.setLed(0, 6, 4, value);
       break;
-
-
   }
 }

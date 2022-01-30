@@ -317,48 +317,48 @@ void setup() {
 
 
 
-// LOAD SETTINGS
+  // LOAD SETTINGS
 
 
-//3950 = bit 0 thru
-//3950 = bit 1 ignore preset volume
-//3950 = bit 2-7 noisetableLength
+  //3950 = bit 0 thru
+  //3950 = bit 1 ignore preset volume
+  //3950 = bit 2-7 noisetableLength
 
-//3951 = midi channel
-//3952 = last preset
-//3953 bit0  =  midi clock lfo1
-// 3953 bit1    midi clock lfo2
-// 3953 bit2 =  midi clock lfo3
-// 3953 bit3 =  midi clock vibra
-// 3953 bit4 =  midi clock  arp
-// 3953 bit5 =  fatMode
+  //3951 = midi channel
+  //3952 = last preset
+  //3953 bit0  =  midi clock lfo1
+  // 3953 bit1    midi clock lfo2
+  // 3953 bit2 =  midi clock lfo3
+  // 3953 bit3 =  midi clock vibra
+  // 3953 bit4 =  midi clock  arp
+  // 3953 bit5 =  fatMode
 
-//3954 = pickup mode (0=on)
+  //3954 = pickup mode (0=on)
 
-//3958 =bendDown
-//3959 =bendUp
-//3960 =mpe mode
+  //3958 =bendDown
+  //3959 =bendUp
+  //3960 =mpe mode
 
-//3961 =vel >lfo1 depth
-//3962 =mod >lfo2 depth
-//3963 =at >lfo3 depth
+  //3961 =vel >lfo1 depth
+  //3962 =mod >lfo2 depth
+  //3963 =at >lfo3 depth
 
-//3964 lastbank
+  //3964 lastbank
 
-//3965 brightness.
+  //3965 brightness.
 
-//3966 = bit 0 inv saw1
-//3966 = bit 1 inv saw2
-//3966 = bit 2 inv saw3
-//3966 = bit 3 inv square1
-//3966 = bit 4 inv square2
-//3966 = bit 5 inv square3
-//3966 = bit 6 stereoCh3
+  //3966 = bit 0 inv saw1
+  //3966 = bit 1 inv saw2
+  //3966 = bit 2 inv saw3
+  //3966 = bit 3 inv square1
+  //3966 = bit 4 inv square2
+  //3966 = bit 5 inv square3
+  //3966 = bit 6 stereoCh3
 
 
-//3967 = note priority 0=low 1=high 2=last
+  //3967 = note priority 0=low 1=high 2=last
 
-//3968 = bit 0 fatSpreadMode
+  //3968 = bit 0 fatSpreadMode
 
   byte input = EEPROM.read(3968);
   fatSpreadMode = bitRead(input, 0);

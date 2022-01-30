@@ -14,7 +14,7 @@ byte bankTp;
 uint16_t index;
 
 void loadZero() {
-//the default preset when reset is pressed or blank/invalid preset slot
+  //the default preset when reset is pressed or blank/invalid preset slot
   bankTp = bank;
   bank = 0;
   presetTp = preset;
@@ -53,17 +53,17 @@ void loadPreset() {
 
   setIndex();
 
-//detach all LFO
+  //detach all LFO
   for (int i = 0; i < 51; i++) {
     linked[0][i] = 0;
     linked[1][i] = 0;
     linked[2][i] = 0;
   }
 
-//clear all fmBase
+  //clear all fmBase
   for (int i = 0; i < 51; i++) { fmBase[i] = 0; }
 
-//load operators
+  //load operators
   for (int i = 0; i < 4; i++) {
     temp = getByte();
     bitWrite(fmBase[0 + offset], 0, bitRead(temp, 4));//detune
@@ -83,8 +83,8 @@ void loadPreset() {
     bitWrite(fmBase[4 + offset], 3, bitRead(temp, 3));
     bitWrite(fmBase[4 + offset], 4, bitRead(temp, 4));
     temp = getByte();
-//if(i==0){invertedSquare[0]=bitRead(temp,5);invertedSquare[1]=bitRead(temp,6);invertedSquare[2]=bitRead(temp,7);}
-//if(i==1){invertedSaw[0]=bitRead(temp,5);invertedSaw[1]=bitRead(temp,6);invertedSaw[2]=bitRead(temp,7);}
+    //if(i==0){invertedSquare[0]=bitRead(temp,5);invertedSquare[1]=bitRead(temp,6);invertedSquare[2]=bitRead(temp,7);}
+    //if(i==1){invertedSaw[0]=bitRead(temp,5);invertedSaw[1]=bitRead(temp,6);invertedSaw[2]=bitRead(temp,7);}
     bitWrite(fmBase[5 + offset], 0, bitRead(temp, 0));//D1R
     bitWrite(fmBase[5 + offset], 1, bitRead(temp, 1));
     bitWrite(fmBase[5 + offset], 2, bitRead(temp, 2));
@@ -109,12 +109,12 @@ void loadPreset() {
 
   }
 
-//load the others
+  //load the others
   for (int i = 36; i < 51; i++) {
     fmBase[i] = getByte();
   }
 
-//boost all to 8bit
+  //boost all to 8bit
   for (int i = 0; i < 44; i++) {
     fmBase[i] = fmBase[i] << fmShifts[i];
   }
@@ -303,7 +303,7 @@ void loadPreset() {
   linked[2][50] = bitRead(temp, 6);
 
 
-//54 bytes used so far
+  //54 bytes used so far
 
   for (int i = 0; i < 16; i++) {
     seq[i] = getByte();
@@ -324,7 +324,7 @@ void loadPreset() {
 
 
 
-//75 bytes used so far
+  //75 bytes used so far
 
 
   fine = getByte();
@@ -343,7 +343,7 @@ void loadPreset() {
 
 
 
-//}
+  //}
 
   ledNumberTimeOut = 200;
 
@@ -441,12 +441,12 @@ void savePreset() {
   }
 
 
-//save the others
+  //save the others
   for (int i = 36; i < 51; i++) {
     store(fmBase[i]);
   }
 
-//shift all back to 8bit
+  //shift all back to 8bit
   for (int i = 0; i < 44; i++) {
     fmBase[i] = fmBase[i] << fmShifts[i];
   }

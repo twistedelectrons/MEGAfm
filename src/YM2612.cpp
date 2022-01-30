@@ -5,7 +5,6 @@
 byte stagger[]{0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11};
 
 void YM2612::setStagger(bool data) {
-
   stag = data;
 }
 
@@ -213,9 +212,9 @@ void YM2612::setFrequency(uint8_t chan, float frequency) {
 
   //MegaChip
   //part1
-  sendMegaChip(110+chan,((freq >> 8) & mask(3)) | ( ( block & mask(3) ) << 3));
+  sendMegaChip(110 + chan, ((freq >> 8) & mask(3)) | ((block & mask(3)) << 3));
   //part2
-  sendMegaChip(117+chan,freq);
+  sendMegaChip(117 + chan, freq);
 
   if (chan > 5) {
     chip = 6;
@@ -232,7 +231,7 @@ void YM2612::setFrequency(uint8_t chan, float frequency) {
 }
 
 void YM2612::sendMegaChip(byte number, byte data) {
-  if(megaChip){
+  if (megaChip) {
     Serial.write(123);
 
     Serial.write(number);
@@ -252,22 +251,22 @@ void YM2612::setFrequency3(byte op, uint8_t chan, float frequency) {
 
   //MegaChip
   //part1
-  sendMegaChip(50+((chan*4)+op),((freq >> 8) & mask(3)) | ( ( block & mask(3) ) << 3));
+  sendMegaChip(50 + ((chan * 4) + op), ((freq >> 8) & mask(3)) | ((block & mask(3)) << 3));
   //part2
-  sendMegaChip(80+((chan*4)+op),freq);
+  sendMegaChip(80 + ((chan * 4) + op), freq);
 
   if (chan > 5) {
     chip = 6;
     chan -= 6;
   } else { chip = 2; }
 
-/*
-If Channel 3 is in special mode:
-Operator 1's frequency is in A2 and A6
-Operator 2's frequency is in A8 and AC
-Operator 3's frequency is in A9 and AD
-Operator 4's frequency is in AA and AE
-*/
+  /*
+  If Channel 3 is in special mode:
+  Operator 1's frequency is in A2 and A6
+  Operator 2's frequency is in A8 and AC
+  Operator 3's frequency is in A9 and AD
+  Operator 4's frequency is in AA and AE
+  */
 
 
   switch (op) {

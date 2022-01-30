@@ -30,7 +30,6 @@ bool arpClearFlag = false;
 void HandleAt(byte channel, byte val) {
   leftDot();
   if (channel == inputChannel) {
-
     if (lfoAt) {
       if (fmBase[40]) {
         fmBase[41] = val << 1;
@@ -47,19 +46,14 @@ void HandleAt(byte channel, byte val) {
 
 void handleClock() {
   if (sync) {
-
-////////////////////////////////////
-
-////////      VIBRATO        ///////
-
-///////////////////////////////////
+    ////////////////////////////////////
+    ////////      VIBRATO        ///////
+    ///////////////////////////////////
     if (vibratoClockEnable) {
       if (fmData[48]) {
-
         vibIndexF += vibIncrements[fmData[48] >> 5];
         if (vibIndexF > 255) { vibIndexF -= 256; }
         vibIndex = int(vibIndexF);
-
       }
     }
 
@@ -85,15 +79,11 @@ void handleClock() {
           }
         }
       }
-
     }
 
-
-////////////////////////////////////
-
-////////        ARP          ///////
-
-///////////////////////////////////
+    ////////////////////////////////////
+    ////////        ARP          ///////
+    ///////////////////////////////////
 
     if ((arpClockEnable) && (arpMode) && (voiceMode == 3) && (arpMode != 7)) {
       arpClockCounter++;
@@ -103,10 +93,7 @@ void handleClock() {
       }
     }
 
-
-
     //if Any LFOClock Enable
-
     if ((lfoClockEnable[0]) || (lfoClockEnable[1]) || (lfoClockEnable[2])) {
 
       //activate the LFO
@@ -138,8 +125,10 @@ void handleBendy(byte channel, int bend) {
   leftDot();
 
   if (mpe) {
-    if (channel > 12)channel = 12;
+    if (channel > 12) channel = 12;
+
     bendy = 0;
+
     if (bend != 0) {
       if (bend < 0) {
         mpeBend[channel - 1] = bend;
@@ -151,8 +140,8 @@ void handleBendy(byte channel, int bend) {
         mpeBend[channel - 1] *= bendUp;
       }
     }
-    setNote(channel - 1, notey[channel - 1]);
 
+    setNote(channel - 1, notey[channel - 1]);
   } else {
     if (channel == inputChannel) {
       //-8192 to 8191
@@ -175,13 +164,11 @@ void handleBendy(byte channel, int bend) {
 }
 
 void handleStop() {
-
   sync = false;
 }
 
 void handleStart() {
-
-  if (vibratoClockEnable)vibIndex = 0;
+  if (vibratoClockEnable) vibIndex = 0;
 
   absoluteClockCounter = 0;
   seqStep = 0;
@@ -190,7 +177,6 @@ void handleStart() {
 }
 
 void HandlePc(byte channel, byte program) {
-
   if ((program < 99) && (channel == inputChannel)) {
 
     preset = program;
@@ -200,8 +186,7 @@ void HandlePc(byte channel, byte program) {
 }
 
 void handleNoteOn(byte channel, byte note, byte velocity) {
-
-  byte distanceFromNewNote;
+  // byte distanceFromNewNote; // unused
 
   if (setupMode) {
 
@@ -245,9 +230,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
         delay(750);
       }
     }
-
   } else {
-
     if (lfoVel) {
       if (fmBase[36]) {
         fmBase[37] = velocity << 1;
@@ -281,18 +264,19 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
           for (int i = 0; i < 3; i++) {
             if ((retrig[i]) || ((!retrig[i]) && (!looping[i]) && (heldKeys == 0))) { lfoStep[i] = 0; }
           }
-//reset ARP
+          //reset ARP
           if (arpMode == 6) {
             arpStep = seqStep = 0;
             arpIndex = 0;
           } else if (arpMode == 7) { arpCounter = 1023; }//next manual arp step
 
           switch (voiceMode) {
-////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-            case 0:// poly12
+            case 0:
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              // poly12
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               voiceSlots[voiceSlot] = 1;
-//if gliding jump to last pitch associated to keycounter 
+              //if gliding jump to last pitch associated to keycounter
               if (glide) {
                 setNote(voiceSlot, lastNotey[heldKeys]);
                 skipGlide(voiceSlot);
@@ -311,12 +295,13 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
               break;
 
-////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-            case 1:// wide6
+            case 1:
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              // wide6
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 
               voiceSlots[voiceSlot] = 1;
-//if gliding jump to last pitch associated to keycounter 
+              //if gliding jump to last pitch associated to keycounter
               if (glide) {
                 setNote(voiceSlot, lastNotey[heldKeys]);
                 skipGlide(voiceSlot);
@@ -339,21 +324,21 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
               break;
 
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             case 2:
-// dual CH3
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              // dual CH3
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 
               if (stereoCh3) {
-//fire at the same time
+                //fire at the same time
 
-//                noteToChannel[note] = 4; unused?
+                //                noteToChannel[note] = 4; unused?
                 ym.noteOff(4);
                 setNote(4, note);
                 ym.noteOn(4);//CHIP1
                 setNote(2, note);
 
-//                noteToChannel[note] = 5; unused?
+                //                noteToChannel[note] = 5; unused?
                 ym.noteOff(5);
                 setNote(5, note);
                 ym.noteOn(5);//CHIP2
@@ -364,7 +349,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
                 if (ch3Alt) {
 
-//                  noteToChannel[note] = 4; // unused?
+                  //                  noteToChannel[note] = 4; // unused?
                   ym.noteOff(4);
                   setNote(4, note);
                   ym.noteOn(4);//CHIP1
@@ -372,7 +357,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
                 } else {
 
-//                  noteToChannel[note] = 5; // unused?
+                  //                  noteToChannel[note] = 5; // unused?
                   ym.noteOff(5);
                   setNote(5, note);
                   ym.noteOn(5);//CHIP2
@@ -383,8 +368,9 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
               break;
 
+            case 3:
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-            case 3:// unison
+              // unison
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               if ((arpMode) && (fmData[46])) {
                 //ARP
@@ -403,7 +389,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
                 addNote(note);
 
               } else {
-//NO ARP
+                //NO ARP
 
                 heldKeys++;
 
@@ -468,8 +454,9 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
         note += 3;
 
         switch (voiceMode) {
-////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-          case 0:// poly12
+          case 0:
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+            // poly12
             ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             heldKeys--;
             if (heldKeys < 0)heldKeys = 0;
@@ -484,7 +471,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
             } else {
 
-//scan through the noteOfVoices and kill the voice associated to it
+              //scan through the noteOfVoices and kill the voice associated to it
               for (int i = 0; i < 12; i++) {
                 if ((voiceSlots[i]) && (noteOfVoice[i] == note)) {
                   voiceSlots[i] = 0;
@@ -496,9 +483,9 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
             break;
 
-
-////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-          case 1:// wide6
+          case 1:
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+            // wide6
             ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             heldKeys--;
             if (heldKeys < 0)heldKeys = 0;
@@ -514,7 +501,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
             } else {
 
-//scan through the noteOfVoices and kill the voice associated to it
+              //scan through the noteOfVoices and kill the voice associated to it
               for (int i = 0; i < 6; i++) {
                 if ((voiceSlots[i]) && (noteOfVoice[i] == note)) {
                   voiceSlots[i] = 0;
@@ -531,7 +518,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
           case 2://dual CH3
 
             if (stereoCh3) {
-//fire at the same time
+              //fire at the same time
 
               ym.noteOff(4);//CHIP1
               ym.noteOff(5);//CHIP2
@@ -555,10 +542,9 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
           case 3:// unison
             if (arpMode) {
-
-// ARP
+              // ARP
               if (pedal) {
-//here we must prepare to erase arp stack
+                //here we must prepare to erase arp stack
                 arpClearFlag = true;
                 heldKeysMinus++;
               } else {
@@ -574,14 +560,13 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
                 }
               }
             } else {
-
-// NO ARP
+              // NO ARP
 
               heldKeys--;
               removeNote(note);
 
 
-//LAST KEY UP?
+              //LAST KEY UP?
               if (heldKeys < 1) {
 
                 heldKeys = 0;
@@ -612,9 +597,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
             break;
 
             leftDot();
-
         }
-
       }
     }
   }
@@ -635,7 +618,7 @@ void sendMidiButt(byte number, int value) {
 }
 
 void HandleControlChange(byte channel, byte number, byte val) {
-  if((lastSentCC[0]==number)&&(lastSentCC[1]==val)){
+  if ((lastSentCC[0] == number) && (lastSentCC[1] == val)) {
     //ignore same CC and DATA as sent to avoid feedback
   } else {
     leftDot();
@@ -680,8 +663,8 @@ void HandleControlChange(byte channel, byte number, byte val) {
 
 void midiOut(byte note) {
   rightDot();
-// midiB.sendNoteOff(lastNote+1,127,masterChannelOut);
-// midiB.sendNoteOn(note+1,velocityLast,masterChannelOut);
+  // midiB.sendNoteOff(lastNote+1,127,masterChannelOut);
+  // midiB.sendNoteOn(note+1,velocityLast,masterChannelOut);
   lastNote = note;
 }
 

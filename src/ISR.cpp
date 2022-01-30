@@ -54,8 +54,7 @@ void isr() {
       if (pressedUp) {
         preset++;
         if (preset > 99) { preset = 0; }
-      }
-      else {
+      } else {
         preset--;
         if (preset < 0) { preset = 99; }
       }
@@ -90,7 +89,6 @@ void isr() {
     }
   }
 
-
   if ((resetHeld) && (shuffleTimer)) {
     shuffleTimer--;
   }
@@ -113,7 +111,7 @@ void isr() {
 
 
 
-//vibrato
+  //vibrato
   if ((!vibratoClockEnable) || (!sync)) {
 
     //free
@@ -124,7 +122,6 @@ void isr() {
         vibCounter -= 511;
         vibIndex++;
         if (vibIndex > 255)vibIndex = 0;
-
 
       }
     }
@@ -137,18 +134,15 @@ void isr() {
     dotTimer--;
   }
 
-
   secCounter++;
   if (secCounter > 3000) {
     secCounter = 0;
     everySec();
   }
 
-
 }
 
 void everySec() {
-
 
   if (chainPressed && linkCounter) {
     linkCounter--;

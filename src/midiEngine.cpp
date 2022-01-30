@@ -10,7 +10,7 @@ int midiNoteOffset = -12;
 void sendMegaChip(byte number, byte value) {
   if (megaChip) {
     if ((lastSentMega[0] == number) && (lastSentMega[1] == value)) {
-//don't repeat send!
+      //don't repeat send!
     } else {
       lastSentMega[0] = number;
       lastSentMega[1] = value;

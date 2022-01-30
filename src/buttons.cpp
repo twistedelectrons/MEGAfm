@@ -116,7 +116,7 @@ void buttChanged(Button number, bool value) {
             //////////    //////////    //////////    //////////    //////////    //////////
             setupMode = false;//setupExit=true;
             justQuitSetup = true;
-//save setup values here
+            //save setup values here
 
             ledSet(9, 0);
             ledSet(13, 0);
@@ -138,8 +138,8 @@ void buttChanged(Button number, bool value) {
             bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
             EEPROM.update(3950, temp);
 
-            bitWrite(temp,0,fatSpreadMode);
-            EEPROM.write(3968,fatSpreadMode);
+            bitWrite(temp, 0, fatSpreadMode);
+            EEPROM.write(3968, fatSpreadMode);
 
             temp = 0;
             bitWrite(temp, 0, lfoClockEnable[0]);
@@ -524,7 +524,7 @@ void buttChanged(Button number, bool value) {
                   showVoiceMode();
                   sendCC(51, voiceMode);
 
-//Reset notes after a voiceChange
+                  //Reset notes after a voiceChange
                   resetVoices();
 
                 } else {
@@ -628,7 +628,6 @@ void buttChanged(Button number, bool value) {
                   ledSet(23, 1);
                   arpMode = arpModeLast;
                   switch (arpMode) {
-
                     case 1:
                       digit(0, 13);
                       digit(1, 14);

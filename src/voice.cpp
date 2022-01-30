@@ -13,7 +13,7 @@ void addNote(byte note) {
   arpNotes[note] = 1;
 
 
-//sort lastNotePriority
+  //sort lastNotePriority
   if (notePriority == 2) {
     orderIndx = (orderIndx + 1) % 20;
     noteOrder[orderIndx] = note;
@@ -36,7 +36,7 @@ void resetVoices() {
 
   for (int i = 0; i < 12; i++) {
     handleBendy(i, 0);
-    voiceSlots[i] = noteOfVoice[i] = 0;
+    voiceSlots[i] = (noteOfVoice[i] = 0); // TODO: verify the intention of this assignment
     ym.noteOff(i);
 
     setNote(i, 0);

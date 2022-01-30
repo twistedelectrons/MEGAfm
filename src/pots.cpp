@@ -27,8 +27,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               arpClockEnable = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               arpClockEnable = 0;
               digit(0, 0);
               digit(1, 12);
@@ -40,8 +39,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               lfoClockEnable[0] = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               lfoClockEnable[0] = 0;
               digit(0, 0);
               digit(1, 12);
@@ -53,8 +51,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               lfoClockEnable[1] = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               lfoClockEnable[1] = 0;
               digit(0, 0);
               digit(1, 12);
@@ -66,8 +63,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               lfoClockEnable[2] = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               lfoClockEnable[2] = 0;
               digit(0, 0);
               digit(1, 12);
@@ -79,8 +75,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               vibratoClockEnable = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               ledSet(9, 0);
               vibratoClockEnable = 0;
               digit(0, 0);
@@ -94,8 +89,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               lfoVel = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               lfoVel = 0;
               digit(0, 0);
               digit(1, 12);
@@ -108,8 +102,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               if (data > 127) {
                 digit(0, 0);
                 digit(1, 19);
-              }
-              else {
+              } else {
                 digit(0, 0);
                 digit(1, 12);
               }
@@ -122,8 +115,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               lfoMod = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               lfoMod = 0;
               digit(0, 0);
               digit(1, 12);
@@ -136,8 +128,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               if (data > 127) {
                 digit(0, 0);
                 digit(1, 19);
-              }
-              else {
+              } else {
                 digit(0, 0);
                 digit(1, 12);
               }
@@ -150,8 +141,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               lfoAt = 1;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               lfoAt = 0;
               digit(0, 0);
               digit(1, 12);
@@ -164,8 +154,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               if (data > 127) {
                 digit(0, 0);
                 digit(1, 19);
-              }
-              else {
+              } else {
                 digit(0, 0);
                 digit(1, 12);
               }
@@ -178,8 +167,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               fatMode = 0;
               digit(0, 1);
               digit(1, 5);
-            }
-            else {
+            } else {
               fatMode = 1;
               digit(0, 1);
               digit(1, 27);
@@ -192,8 +180,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               ignoreVolume = 0;
               digit(0, 0);
               digit(1, 19);
-            }
-            else {
+            } else {
               ignoreVolume = 1;
               digit(0, 0);
               digit(1, 12);
@@ -212,10 +199,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 
       } else {
 
-// not setup mode
+        // not setup mode
 
         if ((pickupMode) && (pickup[number])) {
-//param hasn't been picked up yet, tel user if its too high or low
+          //param hasn't been picked up yet, tel user if its too high or low
           doPickup(number, data);
 
         } else {
@@ -578,8 +565,7 @@ void movedPot(byte number, byte data, bool isMidi) {
                 updateGlideIncrements();
                 fineChanged = true;
                 ledNumber(data >> 2);
-              }
-              else {
+              } else {
                 fmBase[50] = data;
                 updateFMifNecessary(50);
                 dontShow[50] = isMidi;
@@ -597,8 +583,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               if ((lfoVel) && (!data)) {
                 digit(0, 13);
                 digit(1, 18);
-              }
-              else {
+              } else {
                 dontShow[36] = isMidi;
                 selectedLfo = 0;
                 if ((lfoClockEnable[0]) && (sync)) { ledNumber(arpRateDisplay[data >> 5]); }
@@ -629,8 +614,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               if ((lfoMod) && (!data)) {
                 digit(0, 10);
                 digit(1, 1);
-              }
-              else {
+              } else {
                 dontShow[38] = isMidi;
                 selectedLfo = 1;
                 if ((lfoClockEnable[1]) && (sync)) { ledNumber(arpRateDisplay[data >> 5]); }
@@ -660,8 +644,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               if ((lfoAt) && (data < 1)) {
                 digit(0, 17);
                 digit(1, 26);
-              }
-              else {
+              } else {
                 dontShow[40] = isMidi;
                 selectedLfo = 2;
                 if ((lfoClockEnable[2]) && (sync)) { ledNumber(arpRateDisplay[data >> 5]); }
@@ -693,8 +676,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               if (sync) {
                 ledNumber(arpRateDisplay[data >> 5]);
                 arpMidiSpeedPending = data >> 5;
-              }
-              else { ledNumber(data >> 2); }
+              } else { ledNumber(data >> 2); }
               if (!isMidi) {
                 targetPot = 46;
                 sendCC(number, data >> 1);
@@ -736,7 +718,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 
 
 
-//update display
+        //update display
         if (targetPotLast != targetPot) {
           targetPotLast = targetPot;
           showLink();

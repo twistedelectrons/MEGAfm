@@ -46,7 +46,7 @@ void sendDump() {
 
   }
 
-/// SEND
+  /// SEND
 
   byte nill = 0;
 
@@ -93,12 +93,10 @@ void recieveDump() {
 
       if (dumpCounter == 0) { if (dump == 240) { dumpCounter++; } else { dump = 247; }}//must be sysex or cancel
       else if (dumpCounter == 1) {
+        //must be 100 manuCode or cancel
         if (dump == 100) { dumpCounter++; }
         else { dump = 247; }
-      }//must be 100 manuCode or cancel
-
-      else {
-
+      } else {
         alternator = !alternator;
 
         if (alternator) {
@@ -109,13 +107,11 @@ void recieveDump() {
           mem[dumpCounter - 2] = flash;
           dumpCounter++;
         }
-
       }
     }
-
   }
 
-  byte ledLast;
+  // byte ledLast; // unused
 
   ledNumber(1);
 
@@ -135,8 +131,7 @@ void recieveDump() {
             ledNumberForced(count2);
           }
         }
-      }
-      else {
+      } else {
         for (int i = 0; i < 3950; i++) {
           eWrite(i, mem[i]);
           delay(2);

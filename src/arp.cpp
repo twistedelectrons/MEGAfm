@@ -69,8 +69,7 @@ void arpTick() {
 int arpRootNote;
 
 void arpFire() {
-
-  byte nextNote = 0;
+  //  byte nextNote = 0; // unused
 
   if ((heldKeys) || (pedal)) {
     if (retrig[0])lfoStep[0] = 0;

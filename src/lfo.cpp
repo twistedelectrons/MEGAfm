@@ -7,9 +7,7 @@ int lfoCalculated[3];
 bool notRandomed[3];
 
 void applyLfo() {
-
-
-// calculate the 3 lfos
+  // calculate the 3 lfos
   for (int number = 0; number < 3; number++) {
     int lfoModifier = lfo[number] - 128;
     lfoModifier *= 2;// set to +/- 256 range
@@ -19,7 +17,7 @@ void applyLfo() {
     lfoCalculated[number] = lfoModifier;
   }
 
-//APPLY
+  //APPLY
   for (int i = 0; i < 51; i++) {
     // IF the number is linked to either lfo grab base
     if ((linked[0][i]) || (linked[1][i]) || (linked[2][i])) {
@@ -33,11 +31,10 @@ void applyLfo() {
     } else { fmData[i] = fmBase[i]; }
     fmData[i] = constrain(fmData[i], 0, 255);
   }
-
 }
 
 void lfoBlink() {
-//called when lfo resets to blink the LED
+  //called when lfo resets to blink the LED
   if (!bankCounter) {
     ledSet(16 + lfoShape[selectedLfo], 0);
     if (lfoLedCounter < 15) {
@@ -70,7 +67,6 @@ void lfoTick() {
           else { lfo[i] = 255 - lfoStep[i]; }
           break;//saw
 
-
         case 3:
           if ((sync) && (lfoClockEnable[i])) {
             if (lfoNewRand[i]) {
@@ -84,7 +80,6 @@ void lfoTick() {
               lfo[i] = getRandom(i);
             }
           }
-
           break;//noise
       }
     }

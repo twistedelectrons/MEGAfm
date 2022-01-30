@@ -170,7 +170,7 @@ void loop() {
 
     readMux();
 
-// SEND RECEIVE
+    // SEND RECEIVE
     if (flashCounter2 > 800) {
       flasher = !flasher;
       clearLfoLeds();
@@ -310,7 +310,7 @@ void loop() {
     lfoDepth[1] = fmData[39];
     lfoDepth[2] = fmData[41];
 
-// only fire LFO if the step changed
+    // only fire LFO if the step changed
     if ((lfoStepLast[0] != lfoStep[0]) || (lfoStepLast[1] != lfoStep[1]) || (lfoStepLast[2] != lfoStep[2])) {
       lfoStepLast[0] = lfoStep[0];
       lfoStepLast[1] = lfoStep[1];
@@ -319,7 +319,7 @@ void loop() {
     }
 
 
-//fire lfo anyway if some base values changed via CC
+    //fire lfo anyway if some base values changed via CC
     bool fmBaseChanged = false;
     for (int i = 0; i < 51; i++) {
       if (fmBase[i] != fmBaseLast[i]) {

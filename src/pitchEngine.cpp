@@ -301,7 +301,7 @@ void setNote(uint8_t channel, uint8_t note) {
             }
           } else if (fatSpreadMode) {
             switch (channel) {
-//1 semi
+              //1 semi
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
@@ -320,10 +320,8 @@ void setNote(uint8_t channel, uint8_t note) {
             }
           }
         }
-      }
-
-//voicemides 2 and 3
-      else {
+      } else {
+        //voicemides 2 and 3
         if ((fatMode) && (!fatSpreadMode)) {
           switch (channel) {
 
@@ -354,10 +352,9 @@ void setNote(uint8_t channel, uint8_t note) {
 
           }
         } else {
-
           if (fatSpreadMode) {
             switch (channel) {
-//1 semi
+              //1 semi
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
@@ -376,7 +373,7 @@ void setNote(uint8_t channel, uint8_t note) {
             }
           } else if (!fatSpreadMode) {
             switch (channel) {
-//1 semi
+              //1 semi
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
