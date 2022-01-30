@@ -19,17 +19,14 @@ void startTimer() {
 }
 
 void isr() {
-
-
   if ((lfoAt) && (!fmBase[40]) && (atDest != at)) {
-
     atGlideCounter++;
     if (atGlideCounter > 5) {
       atGlideCounter = 0;
       if (at > atDest) { at--; } else if (at < atDest) { at++; }
     }
-
   }
+
   if ((voiceHeld) && (setupCounter)) {
     setupCounter--;
     if (!setupCounter) {
@@ -41,14 +38,13 @@ void isr() {
 
   if (ledNumberTimeOut)ledNumberTimeOut--;
 
-  if ((bankCounter) || (sendReceive)) { flashCounter2++; }
+  if (bankCounter || sendReceive) { flashCounter2++; }
 
   if (arpModeHeld) {
     if (arpButtCounter < 4000) { arpButtCounter++; }
   }
 
-  if (((pressedUp) || (pressedDown)) && (scrollDelay)) {
-
+  if ((pressedUp || pressedDown) && scrollDelay) {
     if (presetTargetMode)presetCounts = 40;
 
     scrollDelay--;

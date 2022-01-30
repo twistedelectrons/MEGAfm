@@ -42,6 +42,7 @@ void readMux() {
   }
 
   if (muxChannel == 15) {
+    // ADC7 (pin 30) is hard-wired to pot 48
     pot = analogRead(A7) >> 1;
     if ((pot > potLast[48] + range) || (pot < potLast[48] - range)) {
       potLast[48] = pot;
@@ -53,14 +54,15 @@ void readMux() {
   pot = digitalRead(A1);
   if (pot != buttLast[muxChannel]) {
     buttLast[muxChannel] = pot;
-    buttChanged(muxChannel, buttLast[muxChannel]);
+    buttChanged(static_cast<Button>(muxChannel), buttLast[muxChannel]);
   }
 
   if (muxChannel == 15) {
+    // PCINT22 (pin 25) is hard-wired to Retrig
     pot = digitalRead(22);
-    if (pot != buttLast[18]) {
-      buttLast[18] = pot;
-      buttChanged(18, buttLast[18]);
+    if (pot != buttLast[kButtonRetrig]) {
+      buttLast[kButtonRetrig] = pot;
+      buttChanged(kButtonRetrig, buttLast[kButtonRetrig]);
     }
   }
 

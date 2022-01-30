@@ -11,12 +11,14 @@
 
 bool resetFunction = false;
 
-void buttChanged(byte number, bool value) {
+void buttChanged(Button number, bool value) {
   if (millis() > 1000) {
     if (setupMode) {
-      if ((!value) && (millis() > 2000)) {
+      if (!value && millis() > 2000) {
+        byte temp;
+
         switch (number) {
-          case 4:
+          case kButtonChainLfo1:
             thru = !thru;
             ledSet(13, thru);
 
@@ -26,7 +28,7 @@ void buttChanged(byte number, bool value) {
 
             break;//chain1
 
-          case 9:
+          case kButtonChainLfo2:
             pickupMode = !pickupMode;
             ledSet(14, pickupMode);
 
@@ -44,11 +46,10 @@ void buttChanged(byte number, bool value) {
             }
             break;//chain 2
 
-          case 18:
+          case kButtonRetrig:
             notePriority++;
             if (notePriority > 2)notePriority = 0;
             switch (notePriority) {
-
               case 0:
                 digit(0, 11);
                 digit(1, 27);
@@ -66,12 +67,9 @@ void buttChanged(byte number, bool value) {
                 break;//LA
 
             }
-
             break;//retrig
 
-
-          case 8:
-
+          case kButtonChainLfo3:
             stereoCh3 = !stereoCh3;
             ledSet(15, stereoCh3);
 
@@ -87,7 +85,7 @@ void buttChanged(byte number, bool value) {
 
             break;//chain 3
 
-          case 7:
+          case kButtonArpMode:
             setupChanged = true;
             mpe = !mpe;
             if (mpe) {
@@ -107,12 +105,12 @@ void buttChanged(byte number, bool value) {
             ledSet(23, !mpe);
             break;//MPE mode
 
-          case 10:
+          case kButtonNoise:
             fatSpreadMode = !fatSpreadMode;
             ledSet(19, fatSpreadMode);
             break;//NOISE
 
-          case 15:
+          case kButtonVoiceMode:
             //////////    //////////    //////////    //////////    //////////    //////////
             //////////    //////////   QUITTING SETUP, SAVING VALUES     //////////    //////////
             //////////    //////////    //////////    //////////    //////////    //////////
@@ -129,7 +127,7 @@ void buttChanged(byte number, bool value) {
 
             EEPROM.write(3967, notePriority);
 
-            byte temp = EEPROM.read(3950);
+            temp = EEPROM.read(3950);
             bitWrite(temp, 0, !thru);
             bitWrite(temp, 1, ignoreVolume);
             bitWrite(temp, 2, bitRead(noiseTableLength[0] - 2, 0));
@@ -166,6 +164,8 @@ void buttChanged(byte number, bool value) {
             digit(1, 21);
 
             break;
+          default:
+            break;
         }
       }
       // END SETUP BUTTONS
@@ -173,54 +173,55 @@ void buttChanged(byte number, bool value) {
       if (!value) {
         //Pressed
         switch (number) {
-          case 0:
+          case kButtonSquare:
             if (bank == 0) { ab = !ab; }
             bank = 0;
             ledSet(16 + bank, 1);
             flashCounter2 = 0;
             showSendReceive();
             break;//square
-          case 1:
+          case kButtonTriangle:
             if (bank == 1) { ab = !ab; }
             bank = 1;
             ledSet(16 + bank, 1);
             flashCounter2 = 0;
             showSendReceive();
             break;//triangle
-          case 6:
+          case kButtonSaw:
             if (bank == 2) { ab = !ab; }
             bank = 2;
             ledSet(16 + bank, 1);
             flashCounter2 = 0;
             showSendReceive();
             break;//saw
-          case 10:
+          case kButtonNoise:
             if (bank == 3) { ab = !ab; }
             bank = 3;
             ledSet(16 + bank, 1);
             flashCounter2 = 0;
             showSendReceive();
             break;//noise
-          case 18:
+          case kButtonRetrig:
             if (bank == 4) { ab = !ab; }
             bank = 4;
             ledSet(16 + bank, 1);
             flashCounter2 = 0;
             showSendReceive();
             break;//retrig
-          case 11:
+          case kButtonLoop:
             if (bank == 5) { ab = !ab; }
             bank = 5;
             ledSet(16 + bank, 1);
             flashCounter2 = 0;
             showSendReceive();
             break;//loop
-
-          case 14:
+          case kButtonPresetDown:
             if ((millis() > 2000) && (sendReceive == 2))sendDump();
             break;
-          case 5:
+          case kButtonPresetUp:
             if ((millis() > 2000) && (sendReceive == 1))recieveDump();
+            break;
+          default:
             break;
         }
       }
@@ -228,20 +229,20 @@ void buttChanged(byte number, bool value) {
       if (!value) {
         //Pressed
         switch (number) {
-          case 7:
+          case kButtonArpMode:
             changedChannel = false;
             arpModeHeld = true;
             arpButtCounter = 0;
             break;//arp mode
 
-          case 15:
+          case kButtonVoiceMode:
             justQuitSetup = false;
             fineChanged = false;
             voiceHeld = true;
             setupCounter = 16000;
             break;//voice mode
 
-          case 5:
+          case kButtonPresetUp:
             if (!seqRec) {
               if (arpModeHeld) {
                 changedChannel = true;
@@ -268,7 +269,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//preset up
 
-          case 14:
+          case kButtonPresetDown:
             if (!seqRec) {
               if (arpModeHeld) {
                 changedChannel = true;
@@ -295,13 +296,13 @@ void buttChanged(byte number, bool value) {
             }
             break;//preset down
 
-          case 13:
+          case kButtonPresetReset:
             shuffled = false;
             resetHeld = true;
             shuffleTimer = 4000;
             break;//reset
 
-          case 3:
+          case kButtonArpRec:
             if (presetTargetMode) {
               presetTargetMode = false;
               savePreset();
@@ -324,26 +325,26 @@ void buttChanged(byte number, bool value) {
             }
             break;//arp rec
 
-          case 4:
+          case kButtonChainLfo1:
             chainPressed = 1;
             linkCounter = 3;
             selectedLfo = 0;
             cleared = false;
             break;//chain1
-          case 9:
+          case kButtonChainLfo2:
             chainPressed = 2;
             linkCounter = 3;
             selectedLfo = 1;
             cleared = false;
             break;//chain2
-          case 8:
+          case kButtonChainLfo3:
             chainPressed = 3;
             linkCounter = 3;
             selectedLfo = 2;
             cleared = false;
             break;//chain3
 
-          case 0:
+          case kButtonSquare:
             if (bankCounter) {
               bank = 0;
               ledSet(16 + bank, 1);
@@ -368,7 +369,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//square
 
-          case 1:
+          case kButtonTriangle:
             if (bankCounter) {
               bank = 1;
               ledSet(16 + bank, 1);
@@ -388,7 +389,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//triangle
 
-          case 6:
+          case kButtonSaw:
             if (bankCounter) {
               bank = 2;
               ledSet(16 + bank, 1);
@@ -427,7 +428,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//saw
 
-          case 10:
+          case kButtonNoise:
             if (bankCounter) {
               bank = 3;
               ledSet(16 + bank, 1);
@@ -468,7 +469,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//noise
 
-          case 18:
+          case kButtonRetrig:
             if (bankCounter) {
               bank = 4;
               ledSet(16 + bank, 1);
@@ -487,7 +488,7 @@ void buttChanged(byte number, bool value) {
               sendCC(57, retrig[selectedLfo]);
             }
             break;//retrig
-          case 11:
+          case kButtonLoop:
             if (bankCounter) {
               bank = 5;
               ledSet(16 + bank, 1);
@@ -506,13 +507,13 @@ void buttChanged(byte number, bool value) {
               sendCC(58, looping[selectedLfo]);
             }
             break;//loop
+          default:
+            break;
         }
       } else {
-
         //Released
         switch (number) {
-
-          case 15:
+          case kButtonVoiceMode:
             voiceHeld = false;
             if (!justQuitSetup) {
               if (!fineChanged) {
@@ -537,7 +538,7 @@ void buttChanged(byte number, bool value) {
             break;//voice mode
 
 
-          case 5:
+          case kButtonPresetUp:
             pressedUp = false;
             if (seqRec) {
               if (seqLength < 16) {
@@ -569,7 +570,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//preset up
 
-          case 14:
+          case kButtonPresetDown:
             pressedDown = false;
             if (seqRec) {
               if (seqLength > 1) {
@@ -600,8 +601,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//preset down
 
-
-          case 13:
+          case kButtonPresetReset:
             if (!shuffled) {
               if (!resetFunction) {
                 loadZero();
@@ -613,7 +613,7 @@ void buttChanged(byte number, bool value) {
             resetHeld = false;
             break;//reset
 
-          case 7:
+          case kButtonArpMode:
             arpModeHeld = false;
 
             if (!mpe) {
@@ -704,10 +704,8 @@ void buttChanged(byte number, bool value) {
             }
 
             break;//arp mode
-          case 3://arp rec
-
-
-          case 4:
+          case kButtonArpRec:
+          case kButtonChainLfo1:
             chainPressed = 0;
             if ((targetPot != 36) && (targetPot != 37)) { // prevent lfo linking to itself
               if (!cleared) {
@@ -717,7 +715,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//chain1
 
-          case 9:
+          case kButtonChainLfo2:
             chainPressed = 0;
             if ((targetPot != 38) && (targetPot != 39)) { // prevent lfo linking to itself
               if (!cleared) {
@@ -727,7 +725,7 @@ void buttChanged(byte number, bool value) {
             }
             break;//chain2
 
-          case 8:
+          case kButtonChainLfo3:
             chainPressed = 0;
             if ((targetPot != 40) && (targetPot != 41)) { // prevent lfo linking to itself
               if (!cleared) {
@@ -737,12 +735,12 @@ void buttChanged(byte number, bool value) {
             }
             break;//chain3
 
-          case 0: //square
-          case 1: //triangle
-          case 6: //saw
-          case 10: //noise
-          case 18: //retrig
-          case 11: //loop
+          case kButtonSquare: //square
+          case kButtonTriangle: //triangle
+          case kButtonSaw: //saw
+          case kButtonNoise: //noise
+          case kButtonRetrig: //retrig
+          case kButtonLoop: //loop
           default:
             break;
         }
