@@ -4,7 +4,11 @@
 
 #ifndef MEGAFM_CMAKE_FM_H
 #define MEGAFM_CMAKE_FM_H
-
+/**
+ * All the parameters are initially treated and modulated as bytes (0-255).
+ * Most registers of the YM2612 are less than 8 bits wide, so fmShifts is used
+ * to shift them before pushing to the FM chip.
+ */
 const byte fmShifts[] = {5, 4, 1, 6, 3, 3, 3, 4, 4, 5, 4, 1, 6, 3, 3, 3, 4, 4, 5, 4, 1, 6, 3, 3, 3, 4, 4, 5, 4, 1, 6, 3,
                          3, 3, 4, 4, 0, 0, 0, 0, 0, 0, 5, 5};
 

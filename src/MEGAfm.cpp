@@ -140,13 +140,22 @@ bool arpNotes[128];
 // Note priority: lowest (0), highest (1), or last (2).
 // Used in: buttons.cpp, megafm.cpp, midi.cpp, voice.cpp
 byte notePriority = 2;
-// Track the last note for glide
+// Track the last note for glide.
+// Distance to go from last note to future.
 // Used in: midi.cpp, voice.cpp
 byte lastNotey[40];
-// When the arp needs to be resynced; MIDI clock changes or arp mode change
-// Used in: buttons.cpp, midi.cpp
+/**
+ * When the arp needs to be resynced; MIDI clock changes or arp mode change
+ * Used in: buttons.cpp, midi.cpp
+*/
 bool resyncArp = false;
 bool stereoCh3;
+/**
+ * We have 100 presets arranged in 6 banks. Change the bank by pressing
+ * an LFO waveform during the preset loading processes (blinking display).
+ * FYI presets 0-50 are in the internal EEPROM, presets 50-99 of bank 1
+ * and all presets of banks 2-6 are in the external SPI EEPROM.
+ */
 byte bank;
 int lfoLedCounter;
 byte seq[16];
@@ -155,7 +164,18 @@ byte seqLength;
 bool seqRec;
 bool flasher;
 int flashCounter, flashCounter2, bankCounter;
+/**
+ * When set to true, megaFM boots in test mode (hold reset sat startup 
+ * to enter test mode after a factory reset) : (plays some chords at 
+ * various volumes and fires a note on every channel in a loop). This 
+ * is used for me to check that the chips and volume control circuits 
+ * are ok.
+ */
 bool test;
+/**
+ * This mode is used for sending and receiving preset sysex dumps.
+ * Hold preset up or down at startup to boot in send or receive modes.
+ */
 byte sendReceive;
 byte rootNote, rootNote1;
 bool thru = true;
@@ -215,6 +235,9 @@ bool shuffled;
 bool voiceHeld;
 int lastNumber = 255;
 byte lfoClockSpeed[3];
+// To keep the lfo beat in sync with the MIDI master clock, 
+// this is used to store a new lfo rate until the incoming MIDI clock counter resets, 
+// whereas changing immediately would make it go out of sync.
 byte lfoClockSpeedPending[3];
 byte absoluteClockCounter;
 YM2612 ym;
@@ -227,9 +250,18 @@ byte inputChannel = 1;
 bool changedChannel;
 bool pedalOff[12];
 bool pedal;
+/**
+ * Used to track if any notes are stored in the arpeggiator stack/array (true=empty).
+ * Notes are added or removed from the stack when MIDI notes on/off are parsed.
+ */
 bool emptyStack;
 bool fatMode;
 int arpButtCounter;
+
+/**
+ * Used to adjust the global tuning of MEGAfm (when voice mode button is held
+ * and volume knob is turned) by multiplying it by a range of 1 to 2 (1 octave)
+ */
 float finey = 1;
 int ledNumberTimeOut;
 LedControl mydisplay = LedControl(13, 29, 12, 1);
@@ -239,12 +271,26 @@ int vibIndex, vibIndexLast;
 int arpDivider;
 byte voiceMode = 0;
 bool sync;
+/**
+ * Banks of 100 presets are sent and received in 2 halves (A=presets 0-49. B=presets 50-99).
+ * I'm unsure why I chose to do this, from memory the serial USART had trouble buffering
+ * more than 50 presets at a time.
+ */
 bool ab;
 int potLast[64];
 int lfoDepth[3];
 bool buttLast[19];
 int algoLast;
+/**
+ * These are all the parameters before they get modulated by LFO
+ * (they are loaded by the preset and changed by MIDI CC or knob/fader movements).
+ * Basically it's all the stuff we can modulate to change things.
+ */
 byte fmBase[51], fmBaseLast[51], fmBaseLastNumber[51];
+/**
+ * These are the same values as fmBase but after LFO modulation,
+ * before being shifted and sent to the FM chips.
+ */
 int fmData[51], fmDataLast[51];
 bool linked[3][51];
 bool dontShow[50];
@@ -260,7 +306,7 @@ int shuffleCounter;
 byte linkCounter;
 byte selectedLfo, selectedLfoLast;
 bool cleared;
-// Which LFO chain button is being pressed. 1, 2, or 3; 0 = none.
+/** Which LFO chain button is being pressed. 1, 2, or 3; 0 = none. */
 byte chainPressed;
 byte targetPot, targetPotLast;
 byte masterChannelOut = 1;
@@ -269,7 +315,16 @@ byte lfoShape[3];
 byte lfo[3], lfoLast[3];
 int lfoStep[3];
 int lfoStepLast[3];
-int at, atDest, atLast, atGlideCounter;
+/**
+ * incoming MIDI aftertouch (the at can be assigned to one of the LFO)
+ */
+int at;
+/**
+ * These are aftertouch values. I interpolate between last (current) and
+ * dest (next) values with some gliding so the aftertouch response isn't too choppy.
+ * FYI aftertouch can override one of the LFOs.
+ */
+int atDest, atLast, atGlideCounter;
 bool lfoNewRand[3];
 int lfoCounter[3], lfoSpeed[3];
 bool retrig[3];
@@ -314,11 +369,7 @@ void setup() {
   pinMode(18, OUTPUT); //data
   pinMode(21, OUTPUT); //latch
 
-
-
-
   // LOAD SETTINGS
-
 
   //3950 = bit 0 thru
   //3950 = bit 1 ignore preset volume
@@ -354,7 +405,6 @@ void setup() {
   //3966 = bit 4 inv square2
   //3966 = bit 5 inv square3
   //3966 = bit 6 stereoCh3
-
 
   //3967 = note priority 0=low 1=high 2=last
 
@@ -463,8 +513,6 @@ void setup() {
   mydisplay.setLed(0, 7, 6, 0);
   Timer1.initialize(150); //
   Timer1.attachInterrupt(isr); // attach the service routine here
-
-
 
   inputChannel = EEPROM.read(3951);
   if ((inputChannel > 16) || (inputChannel < 1)) {
