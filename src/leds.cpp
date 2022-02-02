@@ -193,7 +193,7 @@ void showLink() {
 
 }
 
-void showVoiceMode() {
+void showVoiceMode(VoiceMode voiceMode) {
 
   if (mpe) {
 

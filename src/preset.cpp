@@ -119,11 +119,18 @@ void loadPreset() {
     fmBase[i] = fmBase[i] << fmShifts[i];
   }
 
-  voiceMode = arpMode = lfoShape[0] = lfoShape[1] = lfoShape[2] = 0;
+  voiceMode = kVoicingPoly12;
+  arpMode = 0;
+  lfoShape[0] = 0;
+  lfoShape[1] = 0;
+  lfoShape[2] = 0;
   temp = getByte();
-  bitWrite(voiceMode, 0, bitRead(temp, 0));
-  bitWrite(voiceMode, 1, bitRead(temp, 1));
-  bitWrite(voiceMode, 2, bitRead(temp, 2));
+
+  byte b = 0;
+  bitWrite(b, 0, bitRead(temp, 0));
+  bitWrite(b, 1, bitRead(temp, 1));
+  bitWrite(b, 2, bitRead(temp, 2));
+  voiceMode = static_cast<VoiceMode>(b);
   bitWrite(arpMode, 0, bitRead(temp, 3));
   bitWrite(arpMode, 1, bitRead(temp, 4));
   bitWrite(arpMode, 2, bitRead(temp, 5));
@@ -357,7 +364,7 @@ void loadPreset() {
   resetVoices();
   vibPitch = 0;
   clearLfoLeds();
-  showVoiceMode();
+  showVoiceMode(voiceMode);
   Serial.begin(31250);
   fmResetValues();
   dumpPreset();
@@ -662,7 +669,7 @@ void shuffle() {
     fmBase[i] = fmData[i] = random(255);
     fmDataLast[i] = 32;
   }
-  voiceMode = random(4);
+  voiceMode = static_cast<VoiceMode>(random(4));
   for (int i = 0; i < 51; i++) {
     linked[0][i] = random(20) / 18;
     linked[1][i] = random(20) / 18;
@@ -674,7 +681,7 @@ void shuffle() {
     seq[i] = random(25);
   }
   if ((random(2)) && (random(2)) && (random(2))) { arpMode = random(6); } else { arpMode = 0; }
-  showVoiceMode();
+  showVoiceMode(voiceMode);
 }
 
 byte getByte() {

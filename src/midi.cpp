@@ -271,7 +271,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
           } else if (arpMode == 7) { arpCounter = 1023; }//next manual arp step
 
           switch (voiceMode) {
-            case 0:
+            case kVoicingPoly12:
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // poly12
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
@@ -295,7 +295,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
               break;
 
-            case 1:
+            case kVoicingWide6:
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // wide6
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
@@ -324,7 +324,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
               break;
 
-            case 2:
+            case kVoicingDualCh3:
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // dual CH3
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
@@ -368,7 +368,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
               break;
 
-            case 3:
+            case kVoicingUnison:
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // unison
               ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
@@ -421,10 +421,13 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
               }
 
               break;
-
+            default:
+              break;
           }
 
-        } else { handleNoteOff(channel, note, velocity); }
+        } else {
+          handleNoteOff(channel, note, velocity);
+        }
         leftDot();
       }
     }
@@ -454,7 +457,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
         note += 3;
 
         switch (voiceMode) {
-          case 0:
+          case kVoicingPoly12:
             ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             // poly12
             ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
@@ -483,7 +486,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
             break;
 
-          case 1:
+          case kVoicingWide6:
             ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             // wide6
             ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
@@ -515,7 +518,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
             break;
 
-          case 2://dual CH3
+          case kVoicingDualCh3://dual CH3
 
             if (stereoCh3) {
               //fire at the same time
@@ -540,7 +543,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
             break;
 
-          case 3:// unison
+          case kVoicingUnison:// unison
             if (arpMode) {
               // ARP
               if (pedal) {
@@ -669,20 +672,18 @@ void midiOut(byte note) {
 }
 
 void pedalUp() {
-  if (voiceMode == 3) {
+  if (voiceMode == kVoicingUnison) {
     if (heldKeysMinus) {
       heldKeys -= heldKeysMinus;
       if (heldKeys < 1) {
         heldKeys = 0;
         for (int i = 0; i < 12; i++) { ym.noteOff(i); }
-
       }
       heldKeysMinus = 0;
     }
 
     if (!heldKeys)clearNotes();
   } else {
-
     for (int i = 0; i < 12; i++) {
       if (pedalOff[i]) {
 
@@ -691,16 +692,17 @@ void pedalUp() {
 
         switch (voiceMode) {
 
-          case 0:
+          case kVoicingPoly12:
 
             ym.noteOff(i);
+            // TODO(montag): note will be terminated when the pedal is lifted, even if note is held down.
             pedalOff[i] = 0;
             if (heldKeys) { heldKeys--; }
             break;//poly
 
-          case 1:
-          case 2:
-          case 3:
+          case kVoicingWide6:
+          case kVoicingDualCh3:
+          case kVoicingUnison:
 
             ym.noteOff(i);
             pedalOff[i] = 0;
@@ -708,7 +710,6 @@ void pedalUp() {
             break;
         }
       }
-
     }
   }
   pedal = false;

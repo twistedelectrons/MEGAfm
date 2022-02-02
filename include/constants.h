@@ -18,6 +18,13 @@ const byte midiArpTicks[] = {48, 32, 24, 12, 8, 6, 3, 2}; //arp rates in MIDI ti
 const float lfoClockRates[] = {5.3125, 7.96875, 10.625, 21.25, 31.875, 42.5, 85, 127.5};
 const uint16_t bankOffsets[] = {0, 7900, 15800, 23700, 31600, 39500};
 
+enum VoiceMode {
+  kVoicingPoly12 = 0,
+  kVoicingWide6 = 1,
+  kVoicingDualCh3 = 2,
+  kVoicingUnison = 3,
+};
+const int kVoiceModeCount = 4;
 
 const byte factoryPresets[] = {105, 22, 43, 52, 63, 5, 68, 91, 16, 31, 31, 243, 182, 78, 32, 62, 63, 3, 8, 127, 16, 21,
                                16, 213, 89, 15, 73, 0, 4, 74, 7, 7, 6, 31, 0, 0, 255, 0, 0, 73, 8, 2, 0, 0, 0, 0, 0, 0,

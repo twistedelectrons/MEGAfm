@@ -158,7 +158,7 @@ void buttChanged(Button number, bool value) {
 
             storeInvert();
 
-            showVoiceMode();
+            showVoiceMode(voiceMode);
 
             digit(0, 21);
             digit(1, 21);
@@ -309,9 +309,9 @@ void buttChanged(Button number, bool value) {
             } else {
               if (!seqRec) {
                 seqLength = 0;
-                if (voiceMode != 3) {
-                  voiceMode = 3;
-                  showVoiceMode();
+                if (voiceMode != kVoicingUnison) {
+                  voiceMode = kVoicingUnison;
+                  showVoiceMode(voiceMode);
                 }
                 seqRec = true;
                 arpMode = 6;
@@ -519,9 +519,11 @@ void buttChanged(Button number, bool value) {
               if (!fineChanged) {
 
                 if (!mpe) {
-                  voiceMode++;
-                  if (voiceMode > 3) { voiceMode = 0; }
-                  showVoiceMode();
+                  voiceMode = static_cast<VoiceMode>(voiceMode + 1);
+                  if (voiceMode >= kVoiceModeCount) {
+                    voiceMode = kVoicingPoly12;
+                  }
+                  showVoiceMode(voiceMode);
                   sendCC(51, voiceMode);
 
                   //Reset notes after a voiceChange
@@ -662,9 +664,9 @@ void buttChanged(Button number, bool value) {
                   }
                   arpModeLast = arpMode;
 
-                  if ((arpMode) && (voiceMode != 3) && (!mpe)) {
-                    voiceMode = 3;
-                    showVoiceMode();
+                  if ((arpMode) && (voiceMode != kVoicingUnison) && (!mpe)) {
+                    voiceMode = kVoicingUnison;
+                    showVoiceMode(voiceMode);
                     sendCC(51, voiceMode);
                   }
 

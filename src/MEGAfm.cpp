@@ -269,7 +269,7 @@ int presetLast;
 int secCounter;
 int vibIndex, vibIndexLast;
 int arpDivider;
-byte voiceMode = 0;
+VoiceMode voiceMode = kVoicingPoly12;
 bool sync;
 /**
  * Banks of 100 presets are sent and received in 2 halves (A=presets 0-49. B=presets 50-99).

@@ -132,7 +132,7 @@ extern int secCounter;
 extern int vibIndex, vibIndexLast;
 extern int arpDivider;
 
-extern byte voiceMode;
+extern VoiceMode voiceMode;
 extern bool sync;
 extern bool ab;
 extern int potLast[64];

@@ -39,7 +39,7 @@ float freqLast[12];
 
 void updatePitch() {
 
-  if (voiceMode == 2) {
+  if (voiceMode == kVoicingDualCh3) {
 
     ch3x[0] = fmData[27];
     ch3x[1] = fmData[9];
@@ -132,7 +132,7 @@ void setNote(uint8_t channel, uint8_t note) {
 
     if (fat < .005) { destiFreq[channel] = (noteToFrequency(notey[channel])); }
     else {
-      if (voiceMode == 3) {
+      if (voiceMode == kVoicingUnison) {
         switch (channel) {
           case 0:
             destiFreq[channel] = noteToFrequency(notey[channel]);
@@ -183,7 +183,7 @@ void setNote(uint8_t channel, uint8_t note) {
                                    (noteToFrequency(notey[channel] + 19) / 2) * (fat - .01)));
             break;
         }
-      } else if (voiceMode == 0) {
+      } else if (voiceMode == kVoicingPoly12) {
         if ((fatMode) && (!fatSpreadMode)) {
           //chip1 down chip2 up
           switch (channel) {
@@ -250,7 +250,7 @@ void setNote(uint8_t channel, uint8_t note) {
             }
           }
         }
-      } else if (voiceMode == 1) {
+      } else if (voiceMode == kVoicingWide6) {
         if ((fatMode) && (!fatSpreadMode)) {
           switch (channel) {
             default:
