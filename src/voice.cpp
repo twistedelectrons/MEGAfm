@@ -31,12 +31,12 @@ void removeNote(byte note) {
 }
 
 void resetVoices() {
-
-  clearStack();
+  arpIndex = 0;
 
   for (int i = 0; i < 12; i++) {
     handleBendy(i, 0);
-    voiceSlots[i] = (noteOfVoice[i] = 0); // TODO: verify the intention of this assignment
+    voiceSlots[i] = 0;
+    noteOfVoice[i] = 0;
     ym.noteOff(i);
 
     setNote(i, 0);
@@ -45,49 +45,9 @@ void resetVoices() {
 
   heldKeys = 0;
   clearNotes();
-  // TODO: clearKeys has no effect
-  clearKeys();
+
   for (int i = 0; i < 128; i++) { noteOrder[i] = 0; }
   for (int i = 0; i < 40; i++) { lastNotey[i] = 0; }
-}
-
-// TODO: unused
-void killVoice(byte note) {
-  //scan through the noteOfVoices and kill the voice associated to it
-  for (int i = 0; i < 12; i++) {
-    if (noteOfVoice[i] == note) {
-      noteOfVoice[i] = 0;
-      voiceSlots[i] = 0;
-      ym.noteOff(i);
-      i = 99;//abort loop
-    }
-  }
-}
-
-// TODO: unused
-byte noteToVoice(byte note) {
-  for (int i = 0; i < 12; i++) {
-    if (noteOfVoice[i] == note) {
-      i = 99;//abort loop
-      return (i);
-    }
-  }
-  return 0;
-}
-
-void clearKeys() {
-  for (int i = 0; i < 128; i++) {
-    // keyOn[i] = 0; // unused?
-    // noteToChannel[i] = 0; // unused?
-  }
-}
-
-void clearStack() {
-  for (int i = 0; i < 128; i++) {
-    // stack[i] = 0; // unused?
-  }
-
-  arpIndex = 0;
 }
 
 byte getLast() {

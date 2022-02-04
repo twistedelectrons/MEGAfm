@@ -8,10 +8,6 @@
 void addNote(byte note);
 void removeNote(byte note);
 void resetVoices();
-void killVoice(byte note);
-byte noteToVoice(byte note);
-void clearKeys();
-void clearStack();
 byte getLast();
 int mod(int a, int b) ;
 byte getHigh();
