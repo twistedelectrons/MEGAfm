@@ -2,3 +2,4 @@ bootloaderT
 .pio
 CMakeListsPrivate.txt
 cmake-build-*/ 
+firmware.syx
