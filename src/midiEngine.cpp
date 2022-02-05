@@ -98,11 +98,11 @@ void midiRead() {
             }
             mData=255;
             break;//noteOn
-          case 2: handleNoteOff(mChannel,mData+midiNoteOffset,input); mData=255; break; //noteOff
-          case 3: HandleControlChange(mChannel,mData,input);          mData=255; break; //CC
-          case 4: handleBendy(mChannel,(input<<7)+mData-8192);        mData=255; break; //bend
-          case 5: HandleAt(mChannel,input);                           mData=255; break; //AT
-          case 6: HandlePc(mChannel,input);                           mData=255; break; //PC
+          case 2: handleNoteOff(mChannel,mData+midiNoteOffset,input); mData=255; break;
+          case 3: HandleControlChange(mChannel,mData,input);          mData=255; break;
+          case 4: handleBendy(mChannel,(input<<7)+mData-8192);        mData=255; break;
+          case 5: handleAftertouch(mChannel,input);                   mData=255; break;
+          case 6: handleProgramChange(mChannel,input);                mData=255; break;
           default: break;
           //@formatter:on
         }

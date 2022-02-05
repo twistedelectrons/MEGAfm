@@ -27,7 +27,7 @@ bool clockAlternator;
 int heldKeysMinus = 0;
 bool arpClearFlag = false;
 
-void HandleAt(byte channel, byte val) {
+void handleAftertouch(byte channel, byte val) {
   leftDot();
   if (channel == inputChannel) {
     if (lfoAt) {
@@ -41,14 +41,13 @@ void HandleAt(byte channel, byte val) {
       }
     }
   }
-
 }
 
 void handleClock() {
   if (sync) {
     ////////////////////////////////////
     ////////      VIBRATO        ///////
-    ///////////////////////////////////
+    ////////////////////////////////////
     if (vibratoClockEnable) {
       if (fmData[48]) {
         vibIndexF += vibIncrements[fmData[48] >> 5];
@@ -176,7 +175,7 @@ void handleStart() {
   sync = true;
 }
 
-void HandlePc(byte channel, byte program) {
+void handleProgramChange(byte channel, byte program) {
   if ((program < 99) && (channel == inputChannel)) {
 
     preset = program;
@@ -274,9 +273,9 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
           switch (voiceMode) {
             case kVoicingPoly12:
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // poly12
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               voiceSlots[voiceSlot] = 1;
               //if gliding jump to last pitch associated to keycounter
               if (glide) {
@@ -299,9 +298,9 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
               break;
 
             case kVoicingWide6:
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // wide6
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 
               voiceSlots[voiceSlot] = 1;
               //if gliding jump to last pitch associated to keycounter
@@ -329,10 +328,9 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
               break;
 
             case kVoicingDualCh3:
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // dual CH3
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               if (stereoCh3) {
                 //fire at the same time
 
@@ -373,9 +371,9 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
               break;
 
             case kVoicingUnison:
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               // unison
-              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+              ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
               if ((arpMode) && (fmData[46])) {
                 //ARP
 
@@ -438,9 +436,6 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
   }
 }
 
-///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /
-///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /   ///// /// // /
-
 void handleNoteOff(byte channel, byte note, byte velocity) {
 
   if (setupMode) {
@@ -462,9 +457,9 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
         switch (voiceMode) {
           case kVoicingPoly12:
-            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             // poly12
-            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             heldKeys--;
             if (heldKeys < 0)heldKeys = 0;
 
@@ -491,9 +486,9 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
             break;
 
           case kVoicingWide6:
-            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             // wide6
-            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             heldKeys--;
             if (heldKeys < 0)heldKeys = 0;
 
@@ -523,7 +518,9 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
             break;
 
           case kVoicingDualCh3://dual CH3
-
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
+            // dual CH3
+            ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
             if (stereoCh3) {
               //fire at the same time
 
@@ -634,7 +631,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
         if (val < 5) {
           if (bank != val) {
             bank = val;
-            HandlePc(inputChannel, preset - 1);
+            handleProgramChange(inputChannel, preset - 1);
           }
         }
       } else if (number == 50) { movedPot(0, val << 1, 1); }

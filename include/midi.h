@@ -1,12 +1,12 @@
 #ifndef MEGAFM_CMAKE_MIDI_H
 #define MEGAFM_CMAKE_MIDI_H
 
-void HandleAt(byte channel,byte val);
+void handleAftertouch(byte channel, byte val);
 void handleClock();
 void handleBendy(byte channel, int bend) ;
 void handleStop();
 void handleStart();
-void HandlePc(byte channel,byte program);
+void handleProgramChange(byte channel, byte program);
 void handleNoteOn(byte channel,byte note,byte velocity);
 void handleNoteOff(byte channel,byte note,byte velocity);
 void sendCC(byte number,int value);
