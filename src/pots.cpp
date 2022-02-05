@@ -586,7 +586,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               } else {
                 dontShow[36] = isMidi;
                 selectedLfo = 0;
-                if ((lfoClockEnable[0]) && (sync)) { ledNumber(arpRateDisplay[data >> 5]); }
+                if ((lfoClockEnable[0]) && (sync)) { ledNumber(kArpRateDisplay[data >> 5]); }
                 else {
                   ledNumber(data >> 2);
                 }
@@ -617,7 +617,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               } else {
                 dontShow[38] = isMidi;
                 selectedLfo = 1;
-                if ((lfoClockEnable[1]) && (sync)) { ledNumber(arpRateDisplay[data >> 5]); }
+                if ((lfoClockEnable[1]) && (sync)) { ledNumber(kArpRateDisplay[data >> 5]); }
                 else {
                   ledNumber(data >> 2);
                 }
@@ -647,7 +647,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               } else {
                 dontShow[40] = isMidi;
                 selectedLfo = 2;
-                if ((lfoClockEnable[2]) && (sync)) { ledNumber(arpRateDisplay[data >> 5]); }
+                if ((lfoClockEnable[2]) && (sync)) { ledNumber(kArpRateDisplay[data >> 5]); }
                 else {
                   ledNumber(data >> 2);
                 }
@@ -674,7 +674,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               updateFMifNecessary(46);
               dontShow[46] = isMidi;
               if (sync) {
-                ledNumber(arpRateDisplay[data >> 5]);
+                ledNumber(kArpRateDisplay[data >> 5]);
                 arpMidiSpeedPending = data >> 5;
               } else { ledNumber(data >> 2); }
               if (!isMidi) {

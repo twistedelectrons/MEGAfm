@@ -39,7 +39,7 @@ void sendDump() {
 
     case 1 ... 5:
 
-      uint16_t offset = bankOffsets[bank - 1] + 3950;
+      uint16_t offset = kBankOffsets[bank - 1] + 3950;
       if (ab)offset += 3950;
       for (int i = 0; i < 3950; i++) { mem[i] = eRead(offset + i); }
       break;
@@ -150,7 +150,7 @@ void recieveDump() {
     case 3:
     case 4:
     case 5:
-      uint16_t offset = bankOffsets[bank - 1] + 3950;
+      uint16_t offset = kBankOffsets[bank - 1] + 3950;
       if (ab)offset += 3950;
       for (int i = 0; i < 3950; i++) {
         eWrite(i + offset, mem[i]);

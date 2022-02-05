@@ -508,8 +508,8 @@ void setup() {
   mydisplay.setIntensity(0, brightness); // 15 = brightest
 
   //show version
-  digit(0, version0);
-  digit(1, version1);
+  digit(0, kVersion0);
+  digit(1, kVersion1);
   //show dot
   mydisplay.setLed(0, 7, 6, 1);
   delay(500);
@@ -557,7 +557,7 @@ void setup() {
     digit(1, 18);
 
     for (int i = 0; i < 4000; i++) {
-      EEPROM.write(i, factoryPresets[i]);
+      EEPROM.write(i, kFactoryPresets[i]);
     }
 
     loadPreset();

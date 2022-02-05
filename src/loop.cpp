@@ -198,7 +198,7 @@ void loop() {
 
     if (vibIndex != vibIndexLast) {
       vibIndexLast = vibIndex;
-      vibPitch = sine[vibIndex] - 127;
+      vibPitch = kSineTable[vibIndex] - 127;
       float vibPitchDepth = fmData[49] >> 3;
       vibPitchDepth /= 48;
       vibPitch = vibPitch * vibPitchDepth;

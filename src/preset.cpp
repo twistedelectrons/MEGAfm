@@ -37,7 +37,7 @@ void panel() {
 
 void setIndex() {
 
-  index = (preset * 79) + bankOffsets[bank];
+  index = (preset * 79) + kBankOffsets[bank];
 }
 
 void loadPreset() {
@@ -356,7 +356,7 @@ void loadPreset() {
 
   //load default seq if it's empty
   if (seq[0] == 255) {
-    for (int i = 0; i < 16; i++) { seq[i] = defaultSeq[i]; }
+    for (int i = 0; i < 16; i++) { seq[i] = kDefaultSeq[i]; }
   }
 
   if ((vol == 0) || (vol > 128)) { loadZero(); }

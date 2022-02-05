@@ -86,7 +86,7 @@ void handleClock() {
 
     if ((arpClockEnable) && (arpMode) && (voiceMode == 3) && (arpMode != 7)) {
       arpClockCounter++;
-      if ((arpClockCounter >= midiArpTicks[arpMidiSpeed])) {
+      if ((arpClockCounter >= kMidiArpTicks[arpMidiSpeed])) {
         arpClockCounter = 0;
         if (!emptyStack) { arpFire(); }
       }
@@ -105,7 +105,7 @@ void handleClock() {
 
       for (int i = 0; i < 3; i++) {
         if (lfoClockEnable[i]) {
-          lfoStepF[i] += lfoClockRates[lfoClockSpeed[i]];
+          lfoStepF[i] += kLfoClockRates[lfoClockSpeed[i]];
           if (lfoStepF[i] >= 255) {
             if (looping[i]) {
               if (selectedLfo == i) { lfoBlink(); }
@@ -652,11 +652,11 @@ void HandleControlChange(byte channel, byte number, byte val) {
           }
         }
       } else if (number == 7) {
-        if (allCC) { movedPot(1, val << 1, 1); }
+        if (kAllCC) { movedPot(1, val << 1, 1); }
       } else if (number == 64) {
         if (val > 63) { pedalDown(); } else { pedalUp(); }
       } else {
-        if (allCC) { movedPot(number, val << 1, 1); }
+        if (kAllCC) { movedPot(number, val << 1, 1); }
         else {
           if ((number != 19) && (number != 40) && (number != 16) && (number != 38))movedPot(number, val << 1, 1);
         }
