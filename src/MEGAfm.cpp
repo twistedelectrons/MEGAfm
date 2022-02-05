@@ -248,6 +248,9 @@ float lfoStepF[3];
 bool arpModeHeld;
 byte inputChannel = 1;
 bool changedChannel;
+/**
+ * Whether to turn off the voice slot when the pedal is lifted.
+ */
 bool pedalOff[12];
 bool pedal;
 /**

@@ -261,10 +261,12 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
         if (velocity) {
 
+          // Retrigger LFOs
           for (int i = 0; i < 3; i++) {
             if ((retrig[i]) || ((!retrig[i]) && (!looping[i]) && (heldKeys == 0))) { lfoStep[i] = 0; }
           }
-          //reset ARP
+
+          // Reset Arpeggiator
           if (arpMode == 6) {
             arpStep = seqStep = 0;
             arpIndex = 0;
@@ -288,6 +290,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
               ym.noteOff(voiceSlot);
               ym.noteOn(voiceSlot);
 
+              // TODO(montag): This will take a voice slot regardless of whether it is being used (i.e., note is held down).
               voiceSlot++;
               if (voiceSlot > 11)voiceSlot = 0;
 
@@ -318,6 +321,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
               ym.noteOn(voiceSlot + 6);
 
               voiceSlot++;
+              // Only lower 6 voice slots are used, then mirrored into upper 6.
               if (voiceSlot > 5)voiceSlot = 0;
 
               if (heldKeys < 30)heldKeys++;
