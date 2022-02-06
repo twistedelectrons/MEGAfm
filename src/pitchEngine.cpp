@@ -1,32 +1,34 @@
 #include "megafm.h"
 #include "pitchEngine.h"
 
+float innerNoteToFreq(float note) {
+  static float baseFreq = 440.f / 32.f;
+  return baseFreq * float(pow(2, ((note - 9) / 12)));
+}
+
 float noteToFrequency(int note) {
-  if (note <= 0)note = 1;
+  if (note <= 0) {
+    note = 1;
+  }
   note += 5;
 
-  float tempF1 = note + bendy;
-  float tempF2 = (440 / 32) * (pow(2, ((tempF1 - 9) / 12)));
-
-  return (tempF2);
+  return innerNoteToFreq(note + bendy);
 }
 
 float noteToFrequencyMpe(int note, int channel) {
-  if (note <= 0)note = 1;
+  if (note <= 0) {
+    note = 1;
+  }
   note += 5;
 
   if (bendy == 666666) {
-
     static float freq[] = {261.63f, 277.18f, 293.66f, 311.13f, 329.63f, 349.23f, 369.99f, 392.00f, 415.30f, 440.00f,
                            466.16f, 493.88f,};
     static float multiplier[] = {0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.0f, 2.0f, 4.0f, 8.0f, 16.0f, 32.0f,};
 
     return (freq[note % 12] * multiplier[note / 12]);
   } else {
-    float tempF1 = note + mpeBend[channel];
-    float tempF2 = (440 / 32) * (pow(2, ((tempF1 - 9) / 12)));
-
-    return (tempF2);
+    return innerNoteToFreq(note + mpeBend[channel]);
   }
 }
 
@@ -95,92 +97,101 @@ void updatePitch() {
 
   } else {
 
-    //ALL VOICES
+    // ALL VOICES
     for (byte i = 0; i < 12; i++) {
 
-      //glide
+      // glide
       if (freq[i] < destiFreq[i]) {
         freq[i] += glideIncrement[i];
-        if (freq[i] >= destiFreq[i]) { freq[i] = destiFreq[i]; }
+        if (freq[i] >= destiFreq[i]) {
+          freq[i] = destiFreq[i];
+        }
       } else if (freq[i] > destiFreq[i]) {
         freq[i] -= glideIncrement[i];
-        if (freq[i] <= destiFreq[i]) { freq[i] = destiFreq[i]; }
+        if (freq[i] <= destiFreq[i]) {
+          freq[i] = destiFreq[i];
+        }
       }
 
-      if ((fmData[48]) && (fmData[49])) { freqTotal[i] = (freq[i] + vibPitch) * finey; }
-      else {
-        freqTotal[i] = (freq[i]) * finey;
-      }//apply vib and bend
+      // Apply vibrato and tuning
+      if (fmData[48] && fmData[49]) {
+        freqTotal[i] = (freq[i] + vibPitch) * finey;
+      } else {
+        freqTotal[i] = freq[i] * finey;
+      }
 
 
+      // Send
       if (freqTotal[i] != freqLast[i]) {
         freqLast[i] = freqTotal[i];
         ym.setFrequencySingle(i, freqTotal[i]);
-      }//send
-
+      }
     }
   }
 }
 
 void setNote(uint8_t channel, uint8_t note) {
+  notey[channel] = note;
   if (mpe) {
-    notey[channel] = note;
     destiFreq[channel] = (noteToFrequencyMpe(notey[channel], channel));
     freq[channel] = destiFreq[channel];
   } else {
-    notey[channel] = note;
-
     if (fat < .005) { destiFreq[channel] = (noteToFrequency(notey[channel])); }
     else {
       if (voiceMode == kVoicingUnison) {
         switch (channel) {
+          /**
+           * Here is where the unison spread "THX" chord is implemented.
+           */
           case 0:
             destiFreq[channel] = noteToFrequency(notey[channel]);
             break;
           case 2:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) +
-                                   (noteToFrequency(notey[channel] + 12)) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 12)) * (fat - .01f)));
             break;
           case 4:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) +
-                                   (noteToFrequency(notey[channel] + 4)) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 4)) * (fat - .01f)));
             break;
           case 6:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) +
-                                   (noteToFrequency(notey[channel] + 7)) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 7)) * (fat - .01f)));
             break;
           case 8:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) +
-                                   (noteToFrequency(notey[channel] + 16)) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 16)) * (fat - .01f)));
             break;
           case 10:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) +
-                                   (noteToFrequency(notey[channel] + 19)) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 19)) * (fat - .01f)));
             break;
 
           case 1:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) -
-                                   (noteToFrequency(notey[channel]) / 2) * (fat - .01)));
+                                   (noteToFrequency(notey[channel]) / 2) * (fat - .01f)));
             break;
           case 3:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) -
-                                   (noteToFrequency(notey[channel] + 12) / 2) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 12) / 2) * (fat - .01f)));
             break;
           case 5:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) -
-                                   (noteToFrequency(notey[channel] + 4) / 2) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 4) / 2) * (fat - .01f)));
             break;
           case 7:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) -
-                                   (noteToFrequency(notey[channel] + 7) / 2) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 7) / 2) * (fat - .01f)));
             break;
           case 9:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) -
-                                   (noteToFrequency(notey[channel] + 16) / 2) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 16) / 2) * (fat - .01f)));
             break;
           case 11:
             destiFreq[channel] = ((noteToFrequency(notey[channel]) -
-                                   (noteToFrequency(notey[channel] + 19) / 2) * (fat - .01)));
+                                   (noteToFrequency(notey[channel] + 19) / 2) * (fat - .01f)));
+            break;
+          default:
             break;
         }
       } else if (voiceMode == kVoicingPoly12) {
@@ -221,7 +232,7 @@ void setNote(uint8_t channel, uint8_t note) {
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
               case 1:
               case 3:
@@ -231,7 +242,7 @@ void setNote(uint8_t channel, uint8_t note) {
               case 11:
                 destiFreq[channel] = noteToFrequency(notey[channel]) -
                                      (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
             }
           } else {
@@ -240,12 +251,12 @@ void setNote(uint8_t channel, uint8_t note) {
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
               case 0 ... 5:
                 destiFreq[channel] = noteToFrequency(notey[channel]) -
                                      (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
             }
           }
@@ -286,7 +297,7 @@ void setNote(uint8_t channel, uint8_t note) {
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
               case 6:
               case 7:
@@ -296,7 +307,7 @@ void setNote(uint8_t channel, uint8_t note) {
               case 11:
                 destiFreq[channel] = noteToFrequency(notey[channel]) -
                                      (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
             }
           } else if (fatSpreadMode) {
@@ -305,7 +316,7 @@ void setNote(uint8_t channel, uint8_t note) {
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
               case 0:
               case 2:
@@ -315,7 +326,7 @@ void setNote(uint8_t channel, uint8_t note) {
               case 10:
                 destiFreq[channel] = noteToFrequency(notey[channel]) -
                                      (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
             }
           }
@@ -358,7 +369,7 @@ void setNote(uint8_t channel, uint8_t note) {
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
               case 1:
               case 3:
@@ -368,7 +379,7 @@ void setNote(uint8_t channel, uint8_t note) {
               case 11:
                 destiFreq[channel] = noteToFrequency(notey[channel]) -
                                      (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
             }
           } else if (!fatSpreadMode) {
@@ -377,12 +388,12 @@ void setNote(uint8_t channel, uint8_t note) {
               default:
                 destiFreq[channel] = noteToFrequency(notey[channel]) +
                                      (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
               case 0 ... 5:
                 destiFreq[channel] = noteToFrequency(notey[channel]) -
                                      (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-                                      (fat - .005));
+                                      (fat - .005f));
                 break;
             }
           }
@@ -410,18 +421,25 @@ void updateGlideIncrements() {
 float calculateIncrement(float present, float future) {
   if (present < future) {
     return ((future - present) / (glide << 4));
-  } else if (present > future) { return ((present - future) / (glide << 4)); } else { return (0); }
+  } else if (present > future) {
+    return ((present - future) / (glide << 4));
+  } else {
+    return 0;
+  }
 }
 
 void setFat(int number) {
-  if (mpe)fat = 0;
+  // TODO(montag): missing 'else'? This will have no effect since 'fat' gets assigned again below.
+  if (mpe) {
+    fat = 0;
+  }
   if (fatLast != number) {
     fatLast = number;
     if (number < 64) {
       fat = number;
       fat /= 512;
     } else {
-      fat = map(number, 64, 255, 64, 512);
+      fat = float(map(number, 64, 255, 64, 512));
       fat /= 512;
     }
 
