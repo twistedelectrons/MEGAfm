@@ -2,7 +2,7 @@
 #include <constants.h>
 #include "YM2612.h"
 
-byte stagger[]{0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11};
+static byte stagger[]{0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11};
 
 void YM2612::setStagger(bool data) {
   stag = data;

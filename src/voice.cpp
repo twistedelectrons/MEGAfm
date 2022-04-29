@@ -5,8 +5,8 @@
 #include "pitchEngine.h"
 #include "arp.h"
 
-int orderIndx;
-byte noteOrder[128];
+static int orderIndx;
+static byte noteOrder[128];
 
 void addNote(byte note) {
   emptyStack = false;

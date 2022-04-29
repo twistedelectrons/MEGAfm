@@ -5,12 +5,12 @@
 #include "megafm.h"
 #include "preset.h"
 
-int dumpCounter = 0;
-byte dump;
-bool alternator;
-byte flash;
+static int dumpCounter = 0;
+static byte dump;
+static bool alternator;
+static byte flash;
 
-byte val[] = {0, 128};
+static byte val[] = {0, 128};
 
 /*
 const uint16_t bankOffsets[]={0,7900,15800,23700,31600,39500};
@@ -20,7 +20,7 @@ void setIndex(){
 }
 */
 
-void (*main_entry_point)(void) = 0x0000;
+static void (*main_entry_point)(void) = 0x0000;
 
 void sendDump() {
 

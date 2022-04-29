@@ -2,10 +2,10 @@
 #include "midi.h"
 #include "midiEngine.h"
 
-byte mStatus;
-byte mData;
-byte mChannel;
-int midiNoteOffset = -12;
+static byte mStatus;
+static byte mData;
+static byte mChannel;
+static int midiNoteOffset = -12;
 
 void sendMegaChip(byte number, byte value) {
   if (kMegaChip) {

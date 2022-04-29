@@ -4,24 +4,17 @@
 #include "pots.h"
 #include "buttons.h"
 
-const byte range = 7;
-const byte range2 = 10;
+static const byte range = 7;
+static const byte range2 = 10;
 
-void Aon() { PORTB |= _BV (0); }
-
-void Aoff() { PORTB &= ~_BV (0); }
-
-void Bon() { PORTB |= _BV (1); }
-
-void Boff() { PORTB &= ~_BV (1); }
-
-void Con() { PORTB |= _BV (2); }
-
-void Coff() { PORTB &= ~_BV (2); }
-
-void Don() { PORTB |= _BV (3); }
-
-void Doff() { PORTB &= ~_BV (3); }
+static void Aon() { PORTB |= _BV (0); }
+static void Aoff() { PORTB &= ~_BV (0); }
+static void Bon() { PORTB |= _BV (1); }
+static void Boff() { PORTB &= ~_BV (1); }
+static void Con() { PORTB |= _BV (2); }
+static void Coff() { PORTB &= ~_BV (2); }
+static void Don() { PORTB |= _BV (3); }
+static void Doff() { PORTB &= ~_BV (3); }
 
 void readMux() {
   muxChannel++;

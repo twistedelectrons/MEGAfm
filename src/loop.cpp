@@ -13,7 +13,7 @@
 #include "midiEngine.h"
 #include "FM.h"
 
-byte testCounts;
+static byte testCounts;
 
 void loop() {
 

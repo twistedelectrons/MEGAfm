@@ -3,8 +3,7 @@
 #include "megafm.h"
 #include "pitchEngine.h"
 
-bool xy = false;
-bool arpAlternator = false;
+static bool arpAlternator = false;
 
 void clearNotes() {
   arpIndex = 0;
@@ -66,7 +65,7 @@ void arpTick() {
   }
 }
 
-int arpRootNote;
+static int arpRootNote;
 
 void arpFire() {
   //  byte nextNote = 0; // unused

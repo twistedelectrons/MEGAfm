@@ -11,21 +11,18 @@
 #include "midiEngine.h"
 #include "pots.h"
 
-byte voiceSlot;
-bool ch3Alt;
-const float vibIncrements[8] = {5.312, 7.968, 10.625, 14.166, 15.937, 31.875, 42.5, 63.75};
-float vibIndexF;
+static byte voiceSlot;
+static bool ch3Alt;
+static const float vibIncrements[8] = {5.312, 7.968, 10.625, 14.166, 15.937, 31.875, 42.5, 63.75};
+static float vibIndexF;
 
-byte lastCC[60];
+static byte lastCC[60];
 
-byte freeVoice = 99;
+static int arpClockCounter;
+static byte syncLfoCounter;
 
-int arpClockCounter;
-byte syncLfoCounter;
-
-bool clockAlternator;
-int heldKeysMinus = 0;
-bool arpClearFlag = false;
+static int heldKeysMinus = 0;
+static bool arpClearFlag = false;
 
 void handleAftertouch(byte channel, byte val) {
   leftDot();

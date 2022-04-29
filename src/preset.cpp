@@ -10,8 +10,8 @@
 #include "mux.h"
 #include "voice.h"
 
-byte bankTp;
-uint16_t index;
+static byte bankTp;
+static uint16_t index;
 
 void loadZero() {
   //the default preset when reset is pressed or blank/invalid preset slot
