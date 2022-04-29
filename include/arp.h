@@ -2,7 +2,6 @@
 #define MEGAFM_CMAKE_ARP_H
 
 void clearNotes();
-byte getHighestArp();
 void arpReset();
 void nextArpStep();
 void arpTick();

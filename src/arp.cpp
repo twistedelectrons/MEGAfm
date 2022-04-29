@@ -22,14 +22,6 @@ void clearNotes() {
   emptyStack = true;
 }
 
-byte getHighestArp() {
-  byte highest;
-  for (int i = 0; i < 128; i++) {
-    if (arpNotes[i]) highest = i;
-  }
-  return (highest);
-}
-
 void arpReset() {
 
   if (arpMode == 2) {

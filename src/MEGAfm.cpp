@@ -296,7 +296,7 @@ byte fmBase[51], fmBaseLast[51], fmBaseLastNumber[51];
  */
 int fmData[51], fmDataLast[51];
 bool linked[3][51];
-bool dontShow[50];
+bool dontShow[51];
 byte lfoRandom[3][32];
 byte randomIndex[3];
 bool pressedUp, pressedDown;
