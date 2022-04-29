@@ -188,6 +188,19 @@ void handleProgramChange(byte channel, byte program) {
 	}
 }
 
+/// Try to find the next free voice slot. If there is none, returns the next voice slot, independent of whether it's
+/// free or not. Considers only the first `nSlots` slots for search.
+static byte findNextFreeVoiceSlot(byte prevSlot, bool voiceSlots[], byte nSlots) {
+	for (byte i = 0; i < nSlots; i++) {
+		byte slot = (prevSlot + 1 + i) % nSlots;
+		if (voiceSlots[slot] == false) {
+			return slot;
+		}
+	}
+
+	return (prevSlot + 1) % nSlots;
+}
+
 void handleNoteOn(byte channel, byte note, byte velocity) {
 	// byte distanceFromNewNote; // unused
 
@@ -291,6 +304,8 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 							// poly12
 							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 							///////   ////
+
+							voiceSlot = findNextFreeVoiceSlot(voiceSlot, voiceSlots, 12);
 							voiceSlots[voiceSlot] = 1;
 							// if gliding jump to last pitch associated to keycounter
 							if (glide) {
@@ -304,12 +319,6 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 							ym.noteOff(voiceSlot);
 							ym.noteOn(voiceSlot);
 
-							// TODO(montag): This will take a voice slot regardless of whether it is being used (i.e.,
-							// note is held down).
-							voiceSlot++;
-							if (voiceSlot > 11)
-								voiceSlot = 0;
-
 							if (heldKeys < 30)
 								heldKeys++;
 
@@ -322,6 +331,8 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 							///////   ////
 
+							// Only lower 6 voice slots are used, then mirrored into upper 6.
+							voiceSlot = findNextFreeVoiceSlot(voiceSlot, voiceSlots, 6);
 							voiceSlots[voiceSlot] = 1;
 							// if gliding jump to last pitch associated to keycounter
 							if (glide) {
@@ -338,11 +349,6 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 							ym.noteOff(voiceSlot + 6);
 							ym.noteOn(voiceSlot);
 							ym.noteOn(voiceSlot + 6);
-
-							voiceSlot++;
-							// Only lower 6 voice slots are used, then mirrored into upper 6.
-							if (voiceSlot > 5)
-								voiceSlot = 0;
 
 							if (heldKeys < 30)
 								heldKeys++;
