@@ -133,8 +133,10 @@ bool secPast = false;
 byte lastSentCC[2];
 byte lastSentMega[2];
 byte lastSentYm[2];
+
 // 0=chip1 down chip2 up 1=both chips go up and down (mixed)
 bool fatSpreadMode;
+
 // Whether the knobs/sliders should use 'pickup' behavior
 // Used in: buttons.cpp, megafm.cpp, pots.cpp
 bool pickupMode = true;
@@ -271,7 +273,7 @@ bool pedal;
  * Notes are added or removed from the stack when MIDI notes on/off are parsed.
  */
 bool emptyStack;
-bool fatMode;
+bool fatMode; // false == 1 semitone; true == 1 octave
 int arpButtCounter;
 
 /**

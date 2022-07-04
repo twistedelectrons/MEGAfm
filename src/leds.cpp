@@ -204,13 +204,13 @@ void showVoiceMode(VoiceMode voiceMode) {
 
 	} else {
 
-		if (voiceMode == 1) {
+		if (voiceMode == kVoicingWide6) {
 			ym.setStagger(0);
 		} else {
 			ym.setStagger(1);
 		}
 
-		if (voiceMode == 2) {
+		if (voiceMode == kVoicingDualCh3) {
 			ym.setChan3Mode(1);
 
 			/*

@@ -164,11 +164,11 @@ void movedPot(byte number, byte data, bool isMidi) {
 					case 28:
 						setupChanged = true;
 						if (data < 128) {
-							fatMode = 0;
+							fatMode = FAT_MODE_SEMITONE;
 							digit(0, 1);
 							digit(1, 5);
 						} else {
-							fatMode = 1;
+							fatMode = FAT_MODE_OCTAVE;
 							digit(0, 1);
 							digit(1, 27);
 						}
