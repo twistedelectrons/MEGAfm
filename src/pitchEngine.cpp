@@ -154,15 +154,27 @@ void updatePitch() {
 void setNote(uint8_t channel, uint8_t note) {
 	notey[channel] = note;
 
-	enum UpDown { UP, DOWN };
-
-	UpDown fat_updown;
-	// only kVoicingWide6 has ymf's staggering disabled.
-	if ((voiceMode != kVoicingWide6 && fatSpreadMode == FAT_SPREAD_MODE_1DOWN2UP) ||
-	    (voiceMode == kVoicingWide6 && fatSpreadMode == FAT_SPREAD_MODE_MIXED)) {
-		fat_updown = (channel % 2 == 0) ? UP : DOWN;
+	float detune;
+	if (fatSpreadMode == FAT_SPREAD_MODE_1DOWN2UP) {
+		detune = (channel % 2 == 0) ? fat : -fat;
 	} else {
-		fat_updown = (channel < 6) ? DOWN : UP;
+		detune = (channel < 6) ? -fat : fat;
+	}
+
+	switch (voiceMode) {
+		case kVoicingWide4:
+			if (channel % 3 == 0)
+				detune = 0;
+			break;
+		case kVoicingWide3:
+			if (channel % 4 >= 2)
+				detune /= 2.f;
+			break;
+		case kVoicingWide6:
+		case kVoicingPoly12:
+		case kVoicingDualCh3:
+		case kVoicingUnison:
+			break;
 	}
 
 	if (mpe) {
@@ -180,29 +192,19 @@ void setNote(uint8_t channel, uint8_t note) {
 				destiFreq[channel] = noteToFrequencyFloat(notey[channel] + thx_chord[channel] * (fat - 0.01f));
 			} else {
 				if (fatMode == FAT_MODE_OCTAVE) {
-					switch (fat_updown) {
-						case UP:
-							destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
-							break;
-						case DOWN:
-							destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
-							break;
-					}
+					if (detune >= 0)
+						destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + detune);
+					else
+						destiFreq[channel] = noteToFrequency(notey[channel]) / (1 - detune);
 				} else {
-					switch (fat_updown) {
-						case UP:
-							destiFreq[channel] =
-							    noteToFrequency(notey[channel]) +
-							    (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
-							     (fat - .005f));
-							break;
-						case DOWN:
-							destiFreq[channel] =
-							    noteToFrequency(notey[channel]) -
-							    (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
-							     (fat - .005f));
-							break;
-					}
+					if (detune >= 0)
+						destiFreq[channel] =
+						    noteToFrequency(notey[channel]) +
+						    (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) * detune);
+					else
+						destiFreq[channel] =
+						    noteToFrequency(notey[channel]) -
+						    (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) * (-detune));
 				}
 			}
 		}

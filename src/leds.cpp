@@ -203,40 +203,21 @@ void showVoiceMode(VoiceMode voiceMode) {
 		ledSet(12, 0);
 
 	} else {
-
-		if (voiceMode == kVoicingWide6) {
-			ym.setStagger(0);
-		} else {
-			ym.setStagger(1);
-		}
-
+		// FIXME clean this up, too!
 		if (voiceMode == kVoicingDualCh3) {
-			ym.setChan3Mode(1);
-
-			/*
-			op(0);ym.setMultiply(2);
-			op(1);ym.setMultiply(2);
-			op(2);ym.setMultiply(2);
-			op(3);ym.setMultiply(2);
-			*/
+			ym.setChan3Mode(1); // FIXME clean this up!
 		} else {
 			ym.setChan3Mode(0);
-
-			/*
-			op(0);ym.setMultiply(fmData[27]>>4);
-			op(1);ym.setMultiply(fmData[32]>>4);
-			op(2);ym.setMultiply(fmData[24]>>4);
-			op(3);ym.setMultiply(fmData[39]>>4);
-			*/
 		}
+		//              kVoicingPoly12, kVoicingWide6, kVoicingDualCh3, kVoicingUnison, kVoicingWide4, kVoicingWide3
+		uint8_t leds[] = {0x1, 0x2, 0x4, 0x8, 0xF, 0xE};
 
-		ledSet(9, 0);
-		ledSet(10, 0);
-		ledSet(11, 0);
-		ledSet(12, 0);
-		ledSet(9 + voiceMode, 1);
+		ledSet(9, leds[voiceMode] & 1);
+		ledSet(10, leds[voiceMode] & 2);
+		ledSet(11, leds[voiceMode] & 4);
+		ledSet(12, leds[voiceMode] & 8);
 
-		resetVoices();
+		resetVoices(); // What does this do here?! FIXME clean this up!
 	}
 }
 

@@ -549,8 +549,13 @@ void buttChanged(Button number, bool value) {
 							if (!fineChanged) {
 
 								if (!mpe) {
-									voiceMode = static_cast<VoiceMode>(voiceMode + 1);
-									if (voiceMode >= kVoiceModeCount) {
+									//                             Poly12         Wide6          dualCh3          unison
+									//                             Wide4          Wide3
+									VoiceMode nextVoiceMode[6] = {kVoicingWide6,  kVoicingWide4, kVoicingUnison,
+									                              kVoicingPoly12, kVoicingWide3, kVoicingDualCh3};
+									if (voiceMode < kVoiceModeCount) {
+										voiceMode = nextVoiceMode[voiceMode];
+									} else {
 										voiceMode = kVoicingPoly12;
 									}
 									showVoiceMode(voiceMode);

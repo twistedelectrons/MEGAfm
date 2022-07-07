@@ -212,7 +212,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 						case 18:
 							fmBase[0] = data;
 							updateFMifNecessary(0);
-							if (voiceMode == 2) {
+							if (voiceMode == kVoicingDualCh3) {
 								ledNumber(data >> 2);
 							} else {
 								ledNumber(-3 + (data >> 5));
@@ -292,7 +292,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[18] = data;
 							updateFMifNecessary(18);
 							dontShow[18] = isMidi;
-							if (voiceMode == 2) {
+							if (voiceMode == kVoicingDualCh3) {
 								ledNumber(data >> 2);
 							} else {
 								ledNumber(-3 + (data >> 5));
@@ -371,7 +371,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[9] = data;
 							updateFMifNecessary(9);
 							dontShow[9] = isMidi;
-							if (voiceMode == 2) {
+							if (voiceMode == kVoicingDualCh3) {
 								ledNumber(data >> 2);
 							} else {
 								ledNumber(-3 + (data >> 5));
@@ -450,7 +450,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[27] = data;
 							updateFMifNecessary(27);
 							dontShow[27] = isMidi;
-							if (voiceMode == 2) {
+							if (voiceMode == kVoicingDualCh3) {
 								ledNumber(data >> 2);
 							} else {
 								ledNumber(-3 + (data >> 5));
