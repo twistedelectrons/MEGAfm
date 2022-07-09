@@ -186,10 +186,9 @@ void setNote(uint8_t channel, uint8_t note) {
 		} else {
 			if (voiceMode == kVoicingUnison) {
 				// Here is where the unison spread "THX" chord is implemented.
-				// FIXME: why the 0.01?
 				// FIXME: bug-to-bug compat mode?
 				const int thx_chord[] = {-20, -17, -12, -8, -5, 0, 0, 4, 7, 12, 16, 19};
-				destiFreq[channel] = noteToFrequencyFloat(notey[channel] + thx_chord[channel] * (fat - 0.01f));
+				destiFreq[channel] = noteToFrequencyFloat(notey[channel] + thx_chord[channel] * fat);
 			} else {
 				if (fatMode == FAT_MODE_OCTAVE) {
 					if (detune >= 0)
