@@ -3,3 +3,4 @@ bootloaderT
 CMakeListsPrivate.txt
 cmake-build-*/ 
 firmware.syx
+__pycache__
