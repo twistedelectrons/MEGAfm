@@ -9,7 +9,7 @@
 #include "midi.h"
 #include "voice.h"
 
-bool resetFunction = false;
+static bool resetFunction = false;
 
 void buttChanged(Button number, bool value) {
   if (millis() > 1000) {

@@ -2,9 +2,8 @@
 #include "lfo.h"
 #include "leds.h"
 
-float multiplier[] = {6, 11, 22, 32, 42, 85, 127, 170};
-int lfoCalculated[3];
-bool notRandomed[3];
+static int lfoCalculated[3];
+static bool notRandomed[3];
 
 void applyLfo() {
   // calculate the 3 lfos

@@ -10,8 +10,8 @@
 #include "mux.h"
 #include "voice.h"
 
-byte bankTp;
-uint16_t index;
+static byte bankTp;
+static uint16_t index;
 
 void loadZero() {
   //the default preset when reset is pressed or blank/invalid preset slot
@@ -49,7 +49,7 @@ void loadPreset() {
   stopTimer();
 
   byte temp;
-  byte offset;
+  byte offset = 0;
 
   setIndex();
 
@@ -384,7 +384,7 @@ void savePreset() {
   stopTimer();
 
   byte temp;
-  byte offset;
+  byte offset = 0;
 
   setIndex();
 
@@ -403,7 +403,7 @@ void savePreset() {
     bitWrite(temp, 3, bitRead(fmBase[1 + offset], 3));//
     store(temp);
 
-    store(fmBase[2 + offset]);;//total level
+    store(fmBase[2 + offset]);//total level
 
     temp = 0;
     bitWrite(temp, 6, bitRead(fmBase[3 + offset], 0));//rate scale
@@ -735,7 +735,7 @@ uint8_t eRead(uint16_t theMemoryAddress) {
 }
 
 void storeInvert() {
-  byte invertTemp;
+  byte invertTemp = 0;
   bitWrite(invertTemp, 0, invertedSaw[0]);
   bitWrite(invertTemp, 1, invertedSaw[1]);
   bitWrite(invertTemp, 2, invertedSaw[2]);

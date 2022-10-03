@@ -144,7 +144,7 @@ extern int algoLast;
 extern byte fmBase[51], fmBaseLast[51], fmBaseLastNumber[51];
 extern int fmData[51], fmDataLast[51];
 extern bool linked[3][51];
-extern bool dontShow[50];
+extern bool dontShow[51];
 extern byte lfoRandom[3][32];
 extern byte randomIndex[3];
 

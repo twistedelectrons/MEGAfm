@@ -3,8 +3,7 @@
 #include "megafm.h"
 #include "pitchEngine.h"
 
-bool xy = false;
-bool arpAlternator = false;
+static bool arpAlternator = false;
 
 void clearNotes() {
   arpIndex = 0;
@@ -21,14 +20,6 @@ void clearNotes() {
   for (int i = 0; i < 128; i++) { arpNotes[i] = 0; }
 
   emptyStack = true;
-}
-
-byte getHighestArp() {
-  byte highest;
-  for (int i = 0; i < 128; i++) {
-    if (arpNotes[i]) highest = i;
-  }
-  return (highest);
 }
 
 void arpReset() {
@@ -66,7 +57,7 @@ void arpTick() {
   }
 }
 
-int arpRootNote;
+static int arpRootNote;
 
 void arpFire() {
   //  byte nextNote = 0; // unused
