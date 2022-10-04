@@ -164,11 +164,11 @@ void movedPot(byte number, byte data, bool isMidi) {
           case 28:
             setupChanged = true;
             if (data < 128) {
-              fatMode = 0;
+              fatMode = FAT_MODE_SEMITONE;
               digit(0, 1);
               digit(1, 5);
             } else {
-              fatMode = 1;
+              fatMode = FAT_MODE_OCTAVE;
               digit(0, 1);
               digit(1, 27);
             }
@@ -213,7 +213,7 @@ void movedPot(byte number, byte data, bool isMidi) {
             case 18:
               fmBase[0] = data;
               updateFMifNecessary(0);
-              if (voiceMode == 2) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
+              if (voiceMode == kVoicingDualCh3) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
               if (!isMidi) {
                 targetPot = 0;
                 sendCC(number, data >> 1);
@@ -290,7 +290,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               fmBase[18] = data;
               updateFMifNecessary(18);
               dontShow[18] = isMidi;
-              if (voiceMode == 2) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
+              if (voiceMode == kVoicingDualCh3) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
               if (!isMidi) {
                 targetPot = 18;
                 sendCC(number, data >> 1);
@@ -366,7 +366,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               fmBase[9] = data;
               updateFMifNecessary(9);
               dontShow[9] = isMidi;
-              if (voiceMode == 2) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
+              if (voiceMode == kVoicingDualCh3) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
               if (!isMidi) {
                 targetPot = 9;
                 sendCC(number, data >> 1);
@@ -443,7 +443,7 @@ void movedPot(byte number, byte data, bool isMidi) {
               fmBase[27] = data;
               updateFMifNecessary(27);
               dontShow[27] = isMidi;
-              if (voiceMode == 2) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
+              if (voiceMode == kVoicingDualCh3) { ledNumber(data >> 2); } else { ledNumber(-3 + (data >> 5)); }
               if (!isMidi) {
                 targetPot = 27;
                 sendCC(number, data >> 1);
