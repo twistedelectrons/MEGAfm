@@ -27,6 +27,7 @@ your contribution adheres to the following:
 
 - Please update [CHANGELOG.md](CHANGELOG.md) to contain a brief description of your changes.
 - Ensure you do not break loading of old patches.
+- Format your code using `make fmt` before submitting.
 
 Thank you, we are looking forward to your contribution! :)
 
