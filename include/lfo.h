@@ -11,4 +11,4 @@ void fillRandomLfo(byte number);
 void lfoLedOn();
 void fillAllLfoTables();
 
-#endif //MEGAFM_CMAKE_LFO_H
+#endif // MEGAFM_CMAKE_LFO_H

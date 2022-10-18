@@ -3,4 +3,4 @@
 
 void doPickup(byte number, int data);
 
-#endif //MEGAFM_CMAKE_PICKUP_H
+#endif // MEGAFM_CMAKE_PICKUP_H

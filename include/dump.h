@@ -4,4 +4,4 @@
 void sendDump();
 void recieveDump();
 
-#endif //MEGAFM_CMAKE_DUMP_H
+#endif // MEGAFM_CMAKE_DUMP_H

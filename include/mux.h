@@ -13,4 +13,4 @@ void readMux();
  */
 void mux(byte number);
 
-#endif //MEGAFM_CMAKE_MUX_H
+#endif // MEGAFM_CMAKE_MUX_H

@@ -9,4 +9,4 @@ void sendNoteOff(byte note, byte velocity, byte channel);
 void sendNoteOn(byte note, byte velocity, byte channel);
 void midiRead();
 
-#endif //MEGAFM_CMAKE_MIDIENGINE_H
+#endif // MEGAFM_CMAKE_MIDIENGINE_H
