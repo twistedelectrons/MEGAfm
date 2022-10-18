@@ -3,6 +3,9 @@ all: firmware.syx
 fmt:
 	find src/ -type f -exec clang-format -i '{}' +
 
+check_fmt:
+	find src/ -type f -exec clang-format --dry-run --Werror '{}' +
+
 .pio/build/ATmega1284P/firmware.hex: $(wildcard src/* include/*)
 	platformio run
 	touch $@ # because platformio is strange
@@ -14,4 +17,4 @@ clean:
 	platformio run -t clean
 	rm -f firmware.syx
 
-.PHONY: clean fmt
+.PHONY: clean fmt check_fmt
