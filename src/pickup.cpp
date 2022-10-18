@@ -8,7 +8,6 @@ void doPickup(byte number, int data) {
   int targetValue;
 
   switch (number) {
-    //@formatter:off
     //OP1
     case 18: target=0;  break; //detune
     case 27: target=1;  break; //multiple
@@ -56,7 +55,6 @@ void doPickup(byte number, int data) {
     case 6:  target=46; break; ///arp rate
     case 5:  target=47; break; //arp range
     case 48: target=48; break; //vibrato rate WAS 7
-    //@formatter:on
   }
 
   if (target != -1) {

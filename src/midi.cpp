@@ -720,7 +720,6 @@ void pedalDown() {
 void dumpPreset() {
   for (int number = 0; number < 58; number++) {
     switch (number) {
-      //@formatter:off
       //OP1
       case 18: sendCC(number, fmBase[0] >> 1);          break; //detune
       case 27: sendCC(number, fmBase[1] >> 1);          break; //multiple
@@ -772,7 +771,6 @@ void dumpPreset() {
       case 5:  sendCC(number, fmBase[47] >> 1);         break; //arp range
       case 48: sendCC(number, fmBase[48] >> 1);         break; //vibrato rate WAS 7
       case 13: sendCC(number, fmBase[49] >> 1);         break; //vibrato depth
-      //@formatter:on
     }
   }
 }

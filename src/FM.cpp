@@ -45,7 +45,6 @@ void fm(byte number, byte data) {
   }
 
   switch (number) {
-    //@formatter:off
     //OP1
     case 0:  op(0); ym.setDetune(detuneFix[data]>>fmShifts[number]); break; //detune
     case 1:  op(0); ym.setMultiply(data>>fmShifts[number]);          break; //multiple
@@ -100,7 +99,6 @@ void fm(byte number, byte data) {
       break; //algo
     case 43: ym.setFeedback(data>>5); break; //feedback
     case 50: setFat(data);            break; //fat
-  //@formatter:on
   }
 
 }

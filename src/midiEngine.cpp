@@ -67,7 +67,6 @@ void midiRead() {
     if (input > 127) {
       // Status
       switch (input) {
-        //@formatter:off
         case 248: handleClock(); break; //clock
         case 250: handleStart(); break; //start
         case 251:                break; //continue
@@ -81,7 +80,6 @@ void midiRead() {
         case 224 ... 239: mChannel=input-223; mStatus=4; mData=255; break; //Pitch Bend
 
         default: mStatus=0; mData=255; break;
-        //@formatter:on
       }
     } else {
       // Data
@@ -89,7 +87,6 @@ void midiRead() {
       else {
         //data byte 2
         switch (mStatus) {
-          //@formatter:off
           case 1:
             if(input) {
               handleNoteOn(mChannel,mData+midiNoteOffset,input);
@@ -104,7 +101,6 @@ void midiRead() {
           case 5: handleAftertouch(mChannel,input);                   mData=255; break;
           case 6: handleProgramChange(mChannel,input);                mData=255; break;
           default: break;
-          //@formatter:on
         }
       }
     }
