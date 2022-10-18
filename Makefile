@@ -2,9 +2,11 @@ all: firmware.syx
 
 fmt:
 	find src/ -type f -exec clang-format -i '{}' +
+	find include/ -type f -exec clang-format -i '{}' +
 
 check_fmt:
 	find src/ -type f -exec clang-format --dry-run --Werror '{}' +
+	find include/ -type f -exec clang-format --dry-run --Werror '{}' +
 
 .pio/build/ATmega1284P/firmware.hex: $(wildcard src/* include/*)
 	platformio run
