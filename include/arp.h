@@ -7,4 +7,4 @@ void nextArpStep();
 void arpTick();
 void arpFire();
 
-#endif //MEGAFM_CMAKE_ARP_H
+#endif // MEGAFM_CMAKE_ARP_H

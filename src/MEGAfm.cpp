@@ -1,5 +1,6 @@
 /*
-cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /private/var/hex/MEGAfm.ino.hex /Users/a/Documents/bootloaderT&&python tools/hex2sysex/hex2sysex.py --syx -o firmware.syx MEGAfm.ino.hex
+cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /private/var/hex/MEGAfm.ino.hex
+/Users/a/Documents/bootloaderT&&python tools/hex2sysex/hex2sysex.py --syx -o firmware.syx MEGAfm.ino.hex
 
 LOG Pickup optimized
 Anti MIDI feedback
@@ -11,11 +12,13 @@ J’ai testé le 2.4 aujourd’hui :
 
 BUG :
 tout les faders sauf detune n’affichent plus leurs valeurs ?
-( NB: le parameter pick up etait OFF quand j’ai vu ca - en l’activant, il ne marche pas sur tout les faders sauf detune )
+( NB: le parameter pick up etait OFF quand j’ai vu ca - en l’activant, il ne marche pas sur tout les faders sauf detune
+)
 
 
 J’ai principalement fait des presets utilisant le fat mode depuis que j’ai cette machine, et surtout en mode 1 octave,
-en utilisant les premiers crans pour colorer le son et le reste de la course du portard pour le faire muter completement quand c’est pertinent
+en utilisant les premiers crans pour colorer le son et le reste de la course du portard pour le faire muter completement
+quand c’est pertinent
 
 FAT MODE :
 le nouveau fat mode est interessant mais du coup ca ne marche vraiment pas a tout les coups…
@@ -24,7 +27,8 @@ Perso j’aurais plus d’usage de l’ancien.
 
 Serait il aussi possible en mode 1 octave, que la courbe de valeur soit (plus) exponentielle ?
 pour avoir plus de finesse sur les premiers pas
-d’abord parce qu’il y a beaucoup de nuances possibles entre les valeurs 1 et 4 ( actuelles ) et que pour le jeu en live c’est super touchy
+d’abord parce qu’il y a beaucoup de nuances possibles entre les valeurs 1 et 4 ( actuelles ) et que pour le jeu en live
+c’est super touchy
 
 Legato :
 Je ne comprend pas la necessité d’avoir a activer l’ARP pour que le pitch soit updaté a chaque nouvelle note
@@ -36,7 +40,8 @@ ca evite d’avoir des notes seule qui ont pas un pitch steady
 Autre chose que je remarque est qui manque, c’est ca :
 je presse une note N
 je presse une 2e note N+1, le pitch change, la note N est toujours enfoncée.
-lorsque je lache la note N+1, le pitch est toujours a N+1 et ne revient pas a N, alors que la note N est toujours enfoncée.
+lorsque je lache la note N+1, le pitch est toujours a N+1 et ne revient pas a N, alors que la note N est toujours
+enfoncée.
 
 ca me semble indispensable pour jouer en mode solo / lead / basslines
 
@@ -46,7 +51,8 @@ ca marche si l’ARP est ON & rate > 0, mais lorsque rate = 0, ca ne marche pas
 Parameter pickup :
 c’est tres bien pour le live, mais pour la prog de presets, on peut se louper, il faut aller vraiment doucement.
 
-Je me permet de suggerer quelques chose de pratique ( qui pourrait etre caduc si j’arrivais a faire marcher le plugin sous Cubase ) :
+Je me permet de suggerer quelques chose de pratique ( qui pourrait etre caduc si j’arrivais a faire marcher le plugin
+sous Cubase ) :
 
 ca serait un bouton qui quand il est appuyé, permet d’afficher la valeur du pot / fader manipulé
 ( sans envoyer les valeurs modifiées aux chips of course )
@@ -71,12 +77,16 @@ choose between fat mode down left up right or mixed
 display preset number after program change
 
 Poly12 sustain pedal bug
-I’ve found that when playing with a sustain pedal in Poly12 mode, pressing a key twice does not cause the sustained note to retrigger. Interestingly, it does do this in Wide6 mode. Would it be possible to implement this in a future firmware update, or is there a way to turn this on for Poly12 that I just completely missed?
+I’ve found that when playing with a sustain pedal in Poly12 mode, pressing a key twice does not cause the sustained note
+to retrigger. Interestingly, it does do this in Wide6 mode. Would it be possible to implement this in a future firmware
+update, or is there a way to turn this on for Poly12 that I just completely missed?
 
 
 Hey again! So when i was in setup mode (SE), after activating ‘midi thru’ on LFO 1 link button ..
 it seems that i couldn’t exit SE mode by pushing voice 1 time, and i could not flip thru different voice modes…
-and i believe the screen was blank… perhaps im not doing something right. because it took me about 4 tries to successfully activate midi thru… i didn’t want to try and replicate the problem again because it’s working now… but like i said i may have pushed a button or hit another knob, or did something wrong.
+and i believe the screen was blank… perhaps im not doing something right. because it took me about 4 tries to
+successfully activate midi thru… i didn’t want to try and replicate the problem again because it’s working now… but like
+i said i may have pushed a button or hit another knob, or did something wrong.
 
 
 DONE
@@ -90,12 +100,15 @@ figure out issue with detun3
 check tuning?!
 
 Was playing around with the dual ch3 mode and found some odd behaviour, that I'm guessing is not intentional?
-Firstly, seems like the detune sliders are affecting the wrong operators. OP1 detune slider detunes OP4, OP2 slider detunes OP1, OP3 slider detunes OP3 and OP4 slider detunes OP1.
-Secondly, detuning an operator only has effect while playing the same note. Playing different notes seems to reset the detune again.
-And lastly, just wondering if it's as intended that only OP4 pitch is tracking the keyboard, whereas the other three are fixed?
+Firstly, seems like the detune sliders are affecting the wrong operators. OP1 detune slider detunes OP4, OP2 slider
+detunes OP1, OP3 slider detunes OP3 and OP4 slider detunes OP1. Secondly, detuning an operator only has effect while
+playing the same note. Playing different notes seems to reset the detune again. And lastly, just wondering if it's as
+intended that only OP4 pitch is tracking the keyboard, whereas the other three are fixed?
 
 - pitchbend cc
-When im sequencing the pitchbend cc from my sequencer after a few playback the mega starts sounding weird. Rebooting fixes it for a while. Maybe its an lfo acting up. Cant figure it out. I have cleared out all 3 lfos first but maybe its these that dont reset properly.
+When im sequencing the pitchbend cc from my sequencer after a few playback the mega starts sounding weird. Rebooting
+fixes it for a while. Maybe its an lfo acting up. Cant figure it out. I have cleared out all 3 lfos first but maybe its
+these that dont reset properly.
 
 - programchange. When this is used sometimes a completely wrong program is selected. Rebooting fixes it temporarily.
 
@@ -120,7 +133,7 @@ bool secPast = false;
 byte lastSentCC[2];
 byte lastSentMega[2];
 byte lastSentYm[2];
-//0=chip1 down chip2 up 1=both chips go up and down (mixed)
+// 0=chip1 down chip2 up 1=both chips go up and down (mixed)
 bool fatSpreadMode;
 // Whether the knobs/sliders should use 'pickup' behavior
 // Used in: buttons.cpp, megafm.cpp, pots.cpp
@@ -147,7 +160,7 @@ byte lastNotey[40];
 /**
  * When the arp needs to be resynced; MIDI clock changes or arp mode change
  * Used in: buttons.cpp, midi.cpp
-*/
+ */
 bool resyncArp = false;
 bool stereoCh3;
 /**
@@ -165,10 +178,10 @@ bool seqRec;
 bool flasher;
 int flashCounter, flashCounter2, bankCounter;
 /**
- * When set to true, megaFM boots in test mode (hold reset sat startup 
- * to enter test mode after a factory reset) : (plays some chords at 
- * various volumes and fires a note on every channel in a loop). This 
- * is used for me to check that the chips and volume control circuits 
+ * When set to true, megaFM boots in test mode (hold reset sat startup
+ * to enter test mode after a factory reset) : (plays some chords at
+ * various volumes and fires a note on every channel in a loop). This
+ * is used for me to check that the chips and volume control circuits
  * are ok.
  */
 bool test;
@@ -235,8 +248,8 @@ bool shuffled;
 bool voiceHeld;
 int lastNumber = 255;
 byte lfoClockSpeed[3];
-// To keep the lfo beat in sync with the MIDI master clock, 
-// this is used to store a new lfo rate until the incoming MIDI clock counter resets, 
+// To keep the lfo beat in sync with the MIDI master clock,
+// this is used to store a new lfo rate until the incoming MIDI clock counter resets,
 // whereas changing immediately would make it go out of sync.
 byte lfoClockSpeedPending[3];
 byte absoluteClockCounter;
@@ -345,272 +358,274 @@ byte potClock;
 bool mpe;
 
 void enterSetup() {
-  digit(0, 5);
-  digit(1, 18);
-  setupMode = true;
-  ledSet(13, thru);
-  ledSet(14, pickupMode);
-  ledSet(19, fatSpreadMode);
+	digit(0, 5);
+	digit(1, 18);
+	setupMode = true;
+	ledSet(13, thru);
+	ledSet(14, pickupMode);
+	ledSet(19, fatSpreadMode);
 }
 
 void setup() {
-  lastSentCC[0] = 255;
+	lastSentCC[0] = 255;
 
-  fillAllLfoTables();
+	fillAllLfoTables();
 
-  Wire.begin();
+	Wire.begin();
 
-  potClock = 19;
+	potClock = 19;
 
-  //dPot
-  digitalWrite(13, LOW);
-  digitalWrite(29, LOW);
-  digitalWrite(21, LOW);
+	// dPot
+	digitalWrite(13, LOW);
+	digitalWrite(29, LOW);
+	digitalWrite(21, LOW);
 
-  //dPot
-  pinMode(potClock, OUTPUT); //clock
-  pinMode(18, OUTPUT); //data
-  pinMode(21, OUTPUT); //latch
+	// dPot
+	pinMode(potClock, OUTPUT); // clock
+	pinMode(18, OUTPUT);       // data
+	pinMode(21, OUTPUT);       // latch
 
-  // LOAD SETTINGS
+	// LOAD SETTINGS
 
-  //3950 = bit 0 thru
-  //3950 = bit 1 ignore preset volume
-  //3950 = bit 2-7 noisetableLength
+	// 3950 = bit 0 thru
+	// 3950 = bit 1 ignore preset volume
+	// 3950 = bit 2-7 noisetableLength
 
-  //3951 = midi channel
-  //3952 = last preset
-  //3953 bit0  =  midi clock lfo1
-  // 3953 bit1    midi clock lfo2
-  // 3953 bit2 =  midi clock lfo3
-  // 3953 bit3 =  midi clock vibra
-  // 3953 bit4 =  midi clock  arp
-  // 3953 bit5 =  fatMode
+	// 3951 = midi channel
+	// 3952 = last preset
+	// 3953 bit0  =  midi clock lfo1
+	//  3953 bit1    midi clock lfo2
+	//  3953 bit2 =  midi clock lfo3
+	//  3953 bit3 =  midi clock vibra
+	//  3953 bit4 =  midi clock  arp
+	//  3953 bit5 =  fatMode
 
-  //3954 = pickup mode (0=on)
+	// 3954 = pickup mode (0=on)
 
-  //3958 =bendDown
-  //3959 =bendUp
-  //3960 =mpe mode
+	// 3958 =bendDown
+	// 3959 =bendUp
+	// 3960 =mpe mode
 
-  //3961 =vel >lfo1 depth
-  //3962 =mod >lfo2 depth
-  //3963 =at >lfo3 depth
+	// 3961 =vel >lfo1 depth
+	// 3962 =mod >lfo2 depth
+	// 3963 =at >lfo3 depth
 
-  //3964 lastbank
+	// 3964 lastbank
 
-  //3965 brightness.
+	// 3965 brightness.
 
-  //3966 = bit 0 inv saw1
-  //3966 = bit 1 inv saw2
-  //3966 = bit 2 inv saw3
-  //3966 = bit 3 inv square1
-  //3966 = bit 4 inv square2
-  //3966 = bit 5 inv square3
-  //3966 = bit 6 stereoCh3
+	// 3966 = bit 0 inv saw1
+	// 3966 = bit 1 inv saw2
+	// 3966 = bit 2 inv saw3
+	// 3966 = bit 3 inv square1
+	// 3966 = bit 4 inv square2
+	// 3966 = bit 5 inv square3
+	// 3966 = bit 6 stereoCh3
 
-  //3967 = note priority 0=low 1=high 2=last
+	// 3967 = note priority 0=low 1=high 2=last
 
-  //3968 = bit 0 fatSpreadMode
+	// 3968 = bit 0 fatSpreadMode
 
-  byte input = EEPROM.read(3968);
-  fatSpreadMode = bitRead(input, 0);
+	byte input = EEPROM.read(3968);
+	fatSpreadMode = bitRead(input, 0);
 
-  notePriority = EEPROM.read(3967);
-  if (notePriority > 2)notePriority = 0;
+	notePriority = EEPROM.read(3967);
+	if (notePriority > 2)
+		notePriority = 0;
 
-  input = EEPROM.read(3966);
+	input = EEPROM.read(3966);
 
-  invertedSaw[0] = bitRead(input, 0);
-  invertedSaw[1] = bitRead(input, 1);
-  invertedSaw[2] = bitRead(input, 2);
-  invertedSquare[0] = bitRead(input, 3);
-  invertedSquare[1] = bitRead(input, 4);
-  invertedSquare[2] = bitRead(input, 5);
+	invertedSaw[0] = bitRead(input, 0);
+	invertedSaw[1] = bitRead(input, 1);
+	invertedSaw[2] = bitRead(input, 2);
+	invertedSquare[0] = bitRead(input, 3);
+	invertedSquare[1] = bitRead(input, 4);
+	invertedSquare[2] = bitRead(input, 5);
 
-  stereoCh3 = bitRead(input, 6);
+	stereoCh3 = bitRead(input, 6);
 
-  noiseTableLength[0] = 0;
-  bitWrite(noiseTableLength[0], 0, bitRead(EEPROM.read(3950), 2));
-  bitWrite(noiseTableLength[0], 1, bitRead(EEPROM.read(3950), 3));
-  noiseTableLength[0] += 2;
+	noiseTableLength[0] = 0;
+	bitWrite(noiseTableLength[0], 0, bitRead(EEPROM.read(3950), 2));
+	bitWrite(noiseTableLength[0], 1, bitRead(EEPROM.read(3950), 3));
+	noiseTableLength[0] += 2;
 
-  noiseTableLength[1] = 0;
-  bitWrite(noiseTableLength[1], 0, bitRead(EEPROM.read(3950), 4));
-  bitWrite(noiseTableLength[1], 1, bitRead(EEPROM.read(3950), 5));
-  noiseTableLength[1] += 2;
+	noiseTableLength[1] = 0;
+	bitWrite(noiseTableLength[1], 0, bitRead(EEPROM.read(3950), 4));
+	bitWrite(noiseTableLength[1], 1, bitRead(EEPROM.read(3950), 5));
+	noiseTableLength[1] += 2;
 
-  noiseTableLength[2] = 0;
-  bitWrite(noiseTableLength[2], 0, bitRead(EEPROM.read(3950), 6));
-  bitWrite(noiseTableLength[2], 1, bitRead(EEPROM.read(3950), 7));
-  noiseTableLength[2] += 2;
+	noiseTableLength[2] = 0;
+	bitWrite(noiseTableLength[2], 0, bitRead(EEPROM.read(3950), 6));
+	bitWrite(noiseTableLength[2], 1, bitRead(EEPROM.read(3950), 7));
+	noiseTableLength[2] += 2;
 
-  if (bitRead(EEPROM.read(3950), 0)) {
-    thru = 0;
-  } else {
-    thru = 1;
-  }
+	if (bitRead(EEPROM.read(3950), 0)) {
+		thru = 0;
+	} else {
+		thru = 1;
+	}
 
-  if (EEPROM.read(3961)) {
-    lfoVel = 1;
-  } else {
-    lfoVel = 0;
-  }
-  if (EEPROM.read(3962)) {
-    lfoMod = 1;
-  } else {
-    lfoMod = 0;
-  }
-  if (EEPROM.read(3963)) {
-    lfoAt = 1;
-  } else {
-    lfoAt = 0;
-  }
+	if (EEPROM.read(3961)) {
+		lfoVel = 1;
+	} else {
+		lfoVel = 0;
+	}
+	if (EEPROM.read(3962)) {
+		lfoMod = 1;
+	} else {
+		lfoMod = 0;
+	}
+	if (EEPROM.read(3963)) {
+		lfoAt = 1;
+	} else {
+		lfoAt = 0;
+	}
 
-  if (EEPROM.read(3954)) { pickupMode = true; } else { pickupMode = false; }
+	if (EEPROM.read(3954)) {
+		pickupMode = true;
+	} else {
+		pickupMode = false;
+	}
 
-  lfoClockEnable[0] = bitRead(EEPROM.read(3953), 0);
-  lfoClockEnable[1] = bitRead(EEPROM.read(3953), 1);
-  lfoClockEnable[2] = bitRead(EEPROM.read(3953), 2);
-  vibratoClockEnable = bitRead(EEPROM.read(3953), 3);
-  arpClockEnable = bitRead(EEPROM.read(3953), 4);
-  fatMode = bitRead(EEPROM.read(3953), 5);
+	lfoClockEnable[0] = bitRead(EEPROM.read(3953), 0);
+	lfoClockEnable[1] = bitRead(EEPROM.read(3953), 1);
+	lfoClockEnable[2] = bitRead(EEPROM.read(3953), 2);
+	vibratoClockEnable = bitRead(EEPROM.read(3953), 3);
+	arpClockEnable = bitRead(EEPROM.read(3953), 4);
+	fatMode = bitRead(EEPROM.read(3953), 5);
 
-  ignoreVolume = bitRead(EEPROM.read(3950), 1);
+	ignoreVolume = bitRead(EEPROM.read(3950), 1);
 
-  bank = EEPROM.read(3964);
-  if (bank > 5)bank = 0;
-  preset = EEPROM.read(3952);
-  if (preset > 99) {
-    preset = 0;
-  }
+	bank = EEPROM.read(3964);
+	if (bank > 5)
+		bank = 0;
+	preset = EEPROM.read(3952);
+	if (preset > 99) {
+		preset = 0;
+	}
 
-  arpModeLast = 6;
+	arpModeLast = 6;
 
-  for (int i = 0; i < 16; i++) {
-    readMux();
-  }
+	for (int i = 0; i < 16; i++) {
+		readMux();
+	}
 
-  ym.setup(30, 10, 11, 11, 20, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23);
+	ym.setup(30, 10, 11, 11, 20, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23);
 
-  setupFM();
+	setupFM();
 
-  pinMode(A1, INPUT);
-  digitalWrite(A1, HIGH);
+	pinMode(A1, INPUT);
+	digitalWrite(A1, HIGH);
 
-  pinMode(22, INPUT);
-  digitalWrite(22, HIGH); //pc6 retrig
+	pinMode(22, INPUT);
+	digitalWrite(22, HIGH); // pc6 retrig
 
-  mydisplay.shutdown(0, false); // turns on display
+	mydisplay.shutdown(0, false); // turns on display
 
-  byte brightness = EEPROM.read(3965);
-  if (brightness > 15)brightness = 10;//default;
-  mydisplay.setIntensity(0, brightness); // 15 = brightest
+	byte brightness = EEPROM.read(3965);
+	if (brightness > 15)
+		brightness = 10;                   // default;
+	mydisplay.setIntensity(0, brightness); // 15 = brightest
 
-  //show version
-  digit(0, kVersion0);
-  digit(1, kVersion1);
-  //show dot
-  mydisplay.setLed(0, 7, 6, 1);
-  delay(500);
-  mydisplay.setLed(0, 7, 6, 0);
-  Timer1.initialize(150); //
-  Timer1.attachInterrupt(isr); // attach the service routine here
+	// show version
+	digit(0, kVersion0);
+	digit(1, kVersion1);
+	// show dot
+	mydisplay.setLed(0, 7, 6, 1);
+	delay(500);
+	mydisplay.setLed(0, 7, 6, 0);
+	Timer1.initialize(150);      //
+	Timer1.attachInterrupt(isr); // attach the service routine here
 
-  inputChannel = EEPROM.read(3951);
-  if ((inputChannel > 16) || (inputChannel < 1)) {
-    inputChannel = 1;
-    EEPROM.write(3951, inputChannel);
-  }
+	inputChannel = EEPROM.read(3951);
+	if ((inputChannel > 16) || (inputChannel < 1)) {
+		inputChannel = 1;
+		EEPROM.write(3951, inputChannel);
+	}
 
-  //check if enter setup mode
-  mux(15);
-  if (!digitalRead(A1)) {
-    enterSetup();
-  }
+	// check if enter setup mode
+	mux(15);
+	if (!digitalRead(A1)) {
+		enterSetup();
+	}
 
+	// mux(5);//preset up
 
-  //mux(5);//preset up
+	// MIDI port at 31250 baud
+	Serial.begin(31250);
+	// midiSetup();
 
-  // MIDI port at 31250 baud
-  Serial.begin(31250);
-  //midiSetup();
+	mux(14);
+	if (!digitalRead(A1)) {
+		sendReceive = 2; // preset down = send midi dump
+		bank = 0;
+		showSendReceive();
+	}
+	mux(5);
+	if (!digitalRead(A1)) {
+		sendReceive = 1; // preset up = get midi dump
+		bank = 0;
+		showSendReceive();
+	}
 
-  mux(14);
-  if (!digitalRead(A1)) {
-    sendReceive = 2;  //preset down = send midi dump
-    bank = 0;
-    showSendReceive();
-  }
-  mux(5);
-  if (!digitalRead(A1)) {
-    sendReceive = 1;  //preset up = get midi dump
-    bank = 0;
-    showSendReceive();
-  }
+	mux(13);
+	if ((!digitalRead(A1)) ||
+	    ((EEPROM.read(0) == 255) && (EEPROM.read(1) == 255) && (EEPROM.read(2) == 255) && (EEPROM.read(3) == 255))) {
+		// test mode
+		digit(0, 16);
+		digit(1, 18);
 
-  mux(13);
-  if ((!digitalRead(A1)) ||
-      ((EEPROM.read(0) == 255) && (EEPROM.read(1) == 255) && (EEPROM.read(2) == 255) && (EEPROM.read(3) == 255))) {
-    //test mode
-    digit(0, 16);
-    digit(1, 18);
+		for (int i = 0; i < 4000; i++) {
+			EEPROM.write(i, kFactoryPresets[i]);
+		}
 
-    for (int i = 0; i < 4000; i++) {
-      EEPROM.write(i, kFactoryPresets[i]);
-    }
+		loadPreset();
+		eWrite(69, 69);
+		if (eRead(69) != 69) {
 
-    loadPreset();
-    eWrite(69, 69);
-    if (eRead(69) != 69) {
+			while (1) {
 
-      while (1) {
+				digit(0, 18);
+				digit(1, 18);
+				delay(200);
+				digit(0, 21);
+				digit(1, 21);
+				delay(200);
+			}
+		}
+		EEPROM.write(3964, 0); // bank 0
+		test = true;
+		bank = 0;
+		preset = 0;
+	}
 
-        digit(0, 18);
-        digit(1, 18);
-        delay(200);
-        digit(0, 21);
-        digit(1, 21);
-        delay(200);
+	for (int i = 0; i < 50; i++) {
+		ledSet(i, test);
+	}
 
-      }
+	for (int i = 0; i < 16; i++) {
+		readMux();
+	}
+	loadPreset();
+	loadPreset();
 
-    }
-    EEPROM.write(3964, 0); //bank 0
-    test = true;
-    bank = 0;
-    preset = 0;
+	bendUp = EEPROM.read(3959);
+	if ((bendUp > 48) || (!bendUp)) {
+		bendUp = 48;
+	}
+	bendDown = EEPROM.read(3958);
+	if ((bendDown > 48) || (!bendDown)) {
+		bendDown = 48;
+	}
 
-  }
+	if (EEPROM.read(3960) == 1) {
+		mpe = 1;
+	} else {
+		mpe = 0;
+	}
 
-  for (int i = 0; i < 50; i++) {
-    ledSet(i, test);
-  }
-
-  for (int i = 0; i < 16; i++) {
-    readMux();
-  }
-  loadPreset();
-  loadPreset();
-
-  bendUp = EEPROM.read(3959);
-  if ((bendUp > 48) || (!bendUp)) {
-    bendUp = 48;
-  }
-  bendDown = EEPROM.read(3958);
-  if ((bendDown > 48) || (!bendDown)) {
-    bendDown = 48;
-  }
-
-  if (EEPROM.read(3960) == 1) {
-    mpe = 1;
-  } else {
-    mpe = 0;
-  }
-
-  if (preset == 0) {
-    digit(0, 0);
-    digit(1, 0);
-  }
+	if (preset == 0) {
+		digit(0, 0);
+		digit(1, 0);
+	}
 }
-

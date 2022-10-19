@@ -6,4 +6,4 @@ void startTimer();
 void isr();
 void everySec();
 
-#endif //MEGAFM_CMAKE_ISR_H
+#endif // MEGAFM_CMAKE_ISR_H

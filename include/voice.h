@@ -5,8 +5,8 @@ void addNote(byte note);
 void removeNote(byte note);
 void resetVoices();
 byte getLast();
-int mod(int a, int b) ;
+int mod(int a, int b);
 byte getHigh();
 byte getLow();
 
-#endif //MEGAFM_CMAKE_VOICE_H
+#endif // MEGAFM_CMAKE_VOICE_H

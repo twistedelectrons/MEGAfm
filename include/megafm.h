@@ -10,13 +10,12 @@
 
 /* Map  pins to YM2612 pins */
 /* RD can be tied to 3.3 V for now */
-#define YM_A0   20
-#define YM_A1   23
-#define YM_CS   10
-#define YM_CS2  14
-#define YM_WR   11
-#define YM_IC   30
-
+#define YM_A0 20
+#define YM_A1 23
+#define YM_CS 10
+#define YM_CS2 14
+#define YM_WR 11
+#define YM_IC 30
 
 extern bool secPast;
 extern byte lastSentCC[2];
@@ -49,14 +48,13 @@ extern bool justQuitSetup;
 extern bool invertedSquare[3];
 extern bool invertedSaw[3];
 
-
 extern bool voiceSlots[12];
 extern byte noteOfVoice[12];
 extern byte muxChannel;
 
-extern bool lfoVel;//velocity affects lfo1
-extern bool lfoMod;// mod affect lfo2
-extern bool lfoAt;//at affect lfo3
+extern bool lfoVel; // velocity affects lfo1
+extern bool lfoMod; // mod affect lfo2
+extern bool lfoAt;  // at affect lfo3
 
 extern float mpeBend[12];
 
@@ -66,7 +64,7 @@ extern int bendRoot;
 
 extern float destiFreq[12];
 extern float freq[12];
-extern float freqTotal[12];//freq + vib *bend
+extern float freqTotal[12]; // freq + vib *bend
 extern float freqLast[12];
 extern float glideIncrement[12];
 extern int volumeCounter;
@@ -188,4 +186,4 @@ extern bool mpe;
 
 void enterSetup();
 
-#endif //MEGAFM_CMAKE_MEGAFM_R2_4_H
+#endif // MEGAFM_CMAKE_MEGAFM_R2_4_H

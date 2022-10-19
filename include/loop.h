@@ -3,4 +3,4 @@
 
 void loop();
 
-#endif //MEGAFM_CMAKE_LOOP_H
+#endif // MEGAFM_CMAKE_LOOP_H
