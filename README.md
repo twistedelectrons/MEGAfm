@@ -6,7 +6,7 @@ Find the official releases at [the official product page](https://www.twistedele
 
 THANKS!
 
-A million thanks to [Matt Montag](https://github.com/mmontag) Matt Montag & [Florian Jung](https://github.com/Windfisch) Florian Jung for fixing and opening the code!
+A million thanks to [Matt Montag](https://github.com/mmontag) & [Florian Jung](https://github.com/Windfisch) for fixing and opening the code!
 
 ![Photo of the MEGAfm](https://static.wixstatic.com/media/b8c32b_6152ca5a9ba64d23bcfb972bbee82721~mv2.jpeg/v1/fill/w_1024,h_606,al_c,q_85,enc_auto/b8c32b_6152ca5a9ba64d23bcfb972bbee82721~mv2.jpeg)
 
