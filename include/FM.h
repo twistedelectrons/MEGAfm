@@ -20,5 +20,6 @@ void setupFM();
 void WriteYMData(byte data);
 float noteToFrequency(uint8_t note);
 void setFrequency(byte chan, float frequency);
+void updateSSEG(byte op);
 
 #endif // MEGAFM_CMAKE_FM_H

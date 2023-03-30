@@ -77,7 +77,7 @@ void buttChanged(Button number, bool value) {
 					case kButtonChainLfo3:
 						stereoCh3 = !stereoCh3;
 						ledSet(15, stereoCh3);
-
+						EEPROM.update(3966, stereoCh3);
 						if (stereoCh3) {
 							digit(0, 5);
 							digit(1, 3);
@@ -168,8 +168,6 @@ void buttChanged(Button number, bool value) {
 						EEPROM.update(3961, lfoVel);
 						EEPROM.update(3962, lfoMod);
 						EEPROM.update(3963, lfoAt);
-
-						storeInvert();
 
 						showVoiceMode(voiceMode);
 
@@ -390,7 +388,6 @@ void buttChanged(Button number, bool value) {
 							if (!showSSEGCounter) {
 								if (lfoShape[selectedLfo] == 0) {
 									invertedSquare[selectedLfo] = !invertedSquare[selectedLfo];
-									storeInvert();
 								} else {
 									lfoShape[selectedLfo] = 0;
 									lfoLedOn();
@@ -443,7 +440,7 @@ void buttChanged(Button number, bool value) {
 							if (!showSSEGCounter) {
 								if (lfoShape[selectedLfo] == 2) {
 									invertedSaw[selectedLfo] = !invertedSaw[selectedLfo];
-									storeInvert();
+
 									if (invertedSaw[selectedLfo]) {
 										digit(0, 5);
 										digit(1, 17);

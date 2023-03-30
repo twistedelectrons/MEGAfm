@@ -9,17 +9,22 @@ void setSSEG(byte op, bool index, bool value) {
 	// operator bitIndex value
 	bitWrite(SSEG[op], index, value);
 	showSSEG();
+	updateSSEG(op);
+	showSSEGCounter = 24000; // show SSEG for longer because we're messing with it
+}
+
+void updateSSEG(byte op) {
+
 	ym.selectOperator(0, 0);
 	ym.selectOperator(1, 0);
 	ym.selectOperator(2, 0);
 	ym.selectOperator(3, 0);
-	ym.selectOperator(lastOperator, 1);
+	ym.selectOperator(op, 1);
 	byte temp = 0;
 	bitWrite(temp, 3, bitRead(SSEG[op], 1));  // set enable
 	bitWrite(temp, 1, !bitRead(SSEG[op], 0)); // set waveform
 	bitWrite(temp, 2, !bitRead(SSEG[op], 0)); // set waveform
 	ym.setSSG_EG(temp);
-	showSSEGCounter = 24000; // show SSEG for longer because we're messing with it
 }
 
 void updateFine() {
