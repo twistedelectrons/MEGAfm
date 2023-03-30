@@ -17,6 +17,10 @@
 #define YM_WR 11
 #define YM_IC 30
 
+extern bool showLfoFlag;
+extern int showSSEGCounter;
+extern byte SSEG[4];
+extern byte lastOperator;
 extern bool secPast;
 extern byte lastSentCC[2];
 extern byte lastSentMega[2];

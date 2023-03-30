@@ -6,6 +6,7 @@
 void updateLedNumber();
 void clearLfoLeds();
 void showLfo();
+void showSSEG();
 void showLink();
 void showVoiceMode(VoiceMode voiceMode);
 void rightDot();

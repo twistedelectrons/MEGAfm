@@ -42,7 +42,7 @@ void applyLfo() {
 
 void lfoBlink() {
 	// called when lfo resets to blink the LED
-	if (!bankCounter) {
+	if ((!bankCounter) && (!showSSEGCounter)) {
 		ledSet(16 + lfoShape[selectedLfo], 0);
 		if (lfoLedCounter < 15) {
 			lfoLedCounter = 15;

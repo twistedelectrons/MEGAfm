@@ -8,6 +8,7 @@
 #include "lfo.h"
 #include "midi.h"
 #include "voice.h"
+#include "FM.h"
 
 static bool resetFunction = false;
 
@@ -186,6 +187,7 @@ void buttChanged(Button number, bool value) {
 				// Pressed
 				switch (number) {
 					case kButtonSquare:
+
 						if (bank == 0) {
 							ab = !ab;
 						}
@@ -193,6 +195,7 @@ void buttChanged(Button number, bool value) {
 						ledSet(16 + bank, 1);
 						flashCounter2 = 0;
 						showSendReceive();
+
 						break; // square
 					case kButtonTriangle:
 						if (bank == 1) {
@@ -384,13 +387,15 @@ void buttChanged(Button number, bool value) {
 							}
 							bankCounter = 20;
 						} else {
-							if (lfoShape[selectedLfo] == 0) {
-								invertedSquare[selectedLfo] = !invertedSquare[selectedLfo];
-								storeInvert();
-							} else {
-								lfoShape[selectedLfo] = 0;
-								lfoLedOn();
-								showLfo();
+							if (!showSSEGCounter) {
+								if (lfoShape[selectedLfo] == 0) {
+									invertedSquare[selectedLfo] = !invertedSquare[selectedLfo];
+									storeInvert();
+								} else {
+									lfoShape[selectedLfo] = 0;
+									lfoLedOn();
+									showLfo();
+								}
 							}
 						}
 						break; // square
@@ -409,9 +414,15 @@ void buttChanged(Button number, bool value) {
 							}
 							bankCounter = 20;
 						} else {
-							lfoShape[selectedLfo] = 1;
-							lfoLedOn();
-							showLfo();
+							if (!showSSEGCounter) {
+								lfoShape[selectedLfo] = 1;
+								lfoLedOn();
+								showLfo();
+							}
+
+							else {
+								setSSEG(lastOperator, 0, 1); // operator bitIndex value
+							}
 						}
 						break; // triangle
 
@@ -429,27 +440,31 @@ void buttChanged(Button number, bool value) {
 							}
 							bankCounter = 20;
 						} else {
-							if (lfoShape[selectedLfo] == 2) {
-								invertedSaw[selectedLfo] = !invertedSaw[selectedLfo];
-								storeInvert();
-								if (invertedSaw[selectedLfo]) {
-									digit(0, 5);
-									digit(1, 17);
+							if (!showSSEGCounter) {
+								if (lfoShape[selectedLfo] == 2) {
+									invertedSaw[selectedLfo] = !invertedSaw[selectedLfo];
+									storeInvert();
+									if (invertedSaw[selectedLfo]) {
+										digit(0, 5);
+										digit(1, 17);
+									} else {
+										digit(0, 16);
+										digit(1, 17);
+									}
 								} else {
-									digit(0, 16);
-									digit(1, 17);
+									lfoShape[selectedLfo] = 2;
+									lfoLedOn();
+									showLfo();
+									if (invertedSaw[selectedLfo]) {
+										digit(0, 5);
+										digit(1, 17);
+									} else {
+										digit(0, 16);
+										digit(1, 17);
+									}
 								}
 							} else {
-								lfoShape[selectedLfo] = 2;
-								lfoLedOn();
-								showLfo();
-								if (invertedSaw[selectedLfo]) {
-									digit(0, 5);
-									digit(1, 17);
-								} else {
-									digit(0, 16);
-									digit(1, 17);
-								}
+								setSSEG(lastOperator, 0, 0); // operator bitIndex value}
 							}
 						}
 						break; // saw
@@ -468,34 +483,36 @@ void buttChanged(Button number, bool value) {
 							}
 							bankCounter = 20;
 						} else {
-							// Change LFOLENGTH
-							if (lfoShape[selectedLfo] == 3) {
-								noiseTableLength[selectedLfo]++;
-								if (noiseTableLength[selectedLfo] > 5) {
-									noiseTableLength[selectedLfo] = 2;
-								}
+							if (!showSSEGCounter) {
+								// Change LFOLENGTH
+								if (lfoShape[selectedLfo] == 3) {
+									noiseTableLength[selectedLfo]++;
+									if (noiseTableLength[selectedLfo] > 5) {
+										noiseTableLength[selectedLfo] = 2;
+									}
 
-								if (noiseTableLength[selectedLfo] == 2) {
-									digit(0, 21);
-									digit(1, 21);
-								} else {
-									ledNumber(1 << noiseTableLength[selectedLfo]);
-								}
+									if (noiseTableLength[selectedLfo] == 2) {
+										digit(0, 21);
+										digit(1, 21);
+									} else {
+										ledNumber(1 << noiseTableLength[selectedLfo]);
+									}
 
-								byte temp = EEPROM.read(3950);
-								bitWrite(temp, 0, !thru);
-								bitWrite(temp, 1, ignoreVolume);
-								bitWrite(temp, 2, bitRead(noiseTableLength[0] - 2, 0));
-								bitWrite(temp, 3, bitRead(noiseTableLength[0] - 2, 1));
-								bitWrite(temp, 4, bitRead(noiseTableLength[1] - 2, 0));
-								bitWrite(temp, 5, bitRead(noiseTableLength[1] - 2, 1));
-								bitWrite(temp, 6, bitRead(noiseTableLength[2] - 2, 0));
-								bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
-								EEPROM.update(3950, temp);
+									byte temp = EEPROM.read(3950);
+									bitWrite(temp, 0, !thru);
+									bitWrite(temp, 1, ignoreVolume);
+									bitWrite(temp, 2, bitRead(noiseTableLength[0] - 2, 0));
+									bitWrite(temp, 3, bitRead(noiseTableLength[0] - 2, 1));
+									bitWrite(temp, 4, bitRead(noiseTableLength[1] - 2, 0));
+									bitWrite(temp, 5, bitRead(noiseTableLength[1] - 2, 1));
+									bitWrite(temp, 6, bitRead(noiseTableLength[2] - 2, 0));
+									bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
+									EEPROM.update(3950, temp);
+								}
+								lfoShape[selectedLfo] = 3;
+								fillRandomLfo(selectedLfo);
+								showLfo();
 							}
-							lfoShape[selectedLfo] = 3;
-							fillRandomLfo(selectedLfo);
-							showLfo();
 						}
 						break; // noise
 
@@ -513,9 +530,11 @@ void buttChanged(Button number, bool value) {
 							}
 							bankCounter = 20;
 						} else {
-							retrig[selectedLfo] = !retrig[selectedLfo];
-							showLfo();
-							sendCC(57, retrig[selectedLfo]);
+							if (!showSSEGCounter) {
+								retrig[selectedLfo] = !retrig[selectedLfo];
+								showLfo();
+								sendCC(57, retrig[selectedLfo]);
+							}
 						}
 						break; // retrig
 					case kButtonLoop:
@@ -532,9 +551,13 @@ void buttChanged(Button number, bool value) {
 							}
 							bankCounter = 20;
 						} else {
-							looping[selectedLfo] = !looping[selectedLfo];
-							showLfo();
-							sendCC(58, looping[selectedLfo]);
+							if (!showSSEGCounter) {
+								looping[selectedLfo] = !looping[selectedLfo];
+								showLfo();
+								sendCC(58, looping[selectedLfo]);
+							} else {
+								setSSEG(lastOperator, 1, !bitRead(SSEG[lastOperator], 1)); // flip the SSEG enable bit
+							}
 						}
 						break; // loop
 					default:

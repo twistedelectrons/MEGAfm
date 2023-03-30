@@ -85,11 +85,13 @@ int setupCounter;
 bool justQuitSetup;
 bool invertedSquare[3];
 bool invertedSaw[3];
-
+bool showLfoFlag;
+int showSSEGCounter; // used to temporarily show the SSEG settings of the last tweaked operator
+byte lastOperator;   // keep track of the last operator we tweaked to enable SSGEG
 byte muxChannel;
 bool voiceSlots[12];
 byte noteOfVoice[12];
-
+byte SSEG[4]; // bit 0=shape (0=triangle 1=square) bit 1=enabled
 // Velocity affects lfo1
 bool lfoVel;
 // Mod affects lfo2

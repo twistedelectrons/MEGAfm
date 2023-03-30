@@ -9,7 +9,7 @@ const byte fmShifts[] = {5, 4, 1, 6, 3, 3, 3, 4, 4, 5, 4, 1, 6, 3, 3, 3, 4, 4, 5
                          3, 3, 3, 4, 4, 5, 4, 1, 6, 3, 3, 3, 4, 4, 0, 0, 0, 0, 0, 0, 5, 5};
 
 const byte detuneFix[] = {7, 6, 5, 4, 0, 1, 2, 3}; // added 0 before 1?!
-
+void setSSEG(byte op, bool index, bool value);
 void updateFine();
 void updateFMifNecessary(byte number);
 void fmResetValues();
