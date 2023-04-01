@@ -40,6 +40,12 @@ void isr() {
 	if (updatePitchCounter < 20)
 		updatePitchCounter++;
 
+	if (showSSEGCounter) {
+		showSSEGCounter--;
+		if (!showSSEGCounter) {
+			showLfoFlag = true;
+		}
+	}
 	if (ledNumberTimeOut)
 		ledNumberTimeOut--;
 

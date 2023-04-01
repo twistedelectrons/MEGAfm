@@ -85,11 +85,13 @@ int setupCounter;
 bool justQuitSetup;
 bool invertedSquare[3];
 bool invertedSaw[3];
-
+bool showLfoFlag;
+int showSSEGCounter; // used to temporarily show the SSEG settings of the last tweaked operator
+byte lastOperator;   // keep track of the last operator we tweaked to enable SSGEG
 byte muxChannel;
 bool voiceSlots[12];
 byte noteOfVoice[12];
-
+byte SSEG[4]; // bit 0=shape (0=triangle 1=square) bit 1=enabled
 // Velocity affects lfo1
 bool lfoVel;
 // Mod affects lfo2
@@ -303,17 +305,14 @@ void setup() {
 
 	// 3965 brightness.
 
-	// 3966 = bit 0 inv saw1
-	// 3966 = bit 1 inv saw2
-	// 3966 = bit 2 inv saw3
-	// 3966 = bit 3 inv square1
-	// 3966 = bit 4 inv square2
-	// 3966 = bit 5 inv square3
-	// 3966 = bit 6 stereoCh3
+	// 3966 = bit 0 stereoCh3
 
 	// 3967 = note priority 0=low 1=high 2=last
 
 	// 3968 = bit 0 fatSpreadMode
+
+	// 3969= magic value 82 says we are already on FW 3.0
+	// otherwise set all SSEG to off.
 
 	byte input = EEPROM.read(3968);
 	fatSpreadMode = bitRead(input, 0);
@@ -323,15 +322,7 @@ void setup() {
 		notePriority = 0;
 
 	input = EEPROM.read(3966);
-
-	invertedSaw[0] = bitRead(input, 0);
-	invertedSaw[1] = bitRead(input, 1);
-	invertedSaw[2] = bitRead(input, 2);
-	invertedSquare[0] = bitRead(input, 3);
-	invertedSquare[1] = bitRead(input, 4);
-	invertedSquare[2] = bitRead(input, 5);
-
-	stereoCh3 = bitRead(input, 6);
+	stereoCh3 = bitRead(input, 0);
 
 	noiseTableLength[0] = 0;
 	bitWrite(noiseTableLength[0], 0, bitRead(EEPROM.read(3950), 2));
@@ -423,6 +414,13 @@ void setup() {
 	mydisplay.setLed(0, 7, 6, 1);
 	delay(500);
 	mydisplay.setLed(0, 7, 6, 0);
+
+	// first boot into 3.0? clear the SSEG so presets aren't crazy (yet)!
+	if (EEPROM.read(3969) != 82) {
+		clearSSEG();
+		EEPROM.write(3969, 82);
+	}
+
 	Timer1.initialize(150);      //
 	Timer1.attachInterrupt(isr); // attach the service routine here
 

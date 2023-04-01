@@ -11,6 +11,5 @@ byte getByte();
 void store(byte input);
 void eWrite(uint16_t theMemoryAddress, uint8_t u8Byte);
 uint8_t eRead(uint16_t theMemoryAddress);
-void storeInvert();
-
+void clearSSEG();
 #endif // MEGAFM_CMAKE_PRESET_H

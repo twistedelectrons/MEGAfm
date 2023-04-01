@@ -17,6 +17,11 @@ static byte testCounts;
 
 void loop() {
 
+	if (showLfoFlag) {
+		showLfo();
+		showLfoFlag = false;
+	}
+
 	if (!secPast) {
 		if (millis() > 1000) {
 			secPast = 1;
@@ -31,7 +36,7 @@ void loop() {
 		}
 	}
 
-	if (lfoLedCounter > 0) {
+	if ((lfoLedCounter > 0) && (!showSSEGCounter)) {
 		lfoLedCounter--;
 		if (lfoLedCounter < 1) {
 			ledSet(16 + lfoShape[selectedLfo], 1);
