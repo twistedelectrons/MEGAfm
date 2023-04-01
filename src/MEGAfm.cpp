@@ -1,117 +1,6 @@
 /*
 cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /private/var/hex/MEGAfm.ino.hex
 /Users/a/Documents/bootloaderT&&python tools/hex2sysex/hex2sysex.py --syx -o firmware.syx MEGAfm.ino.hex
-
-LOG Pickup optimized
-Anti MIDI feedback
-
-
-Algorithm knob doesn't do parameter pickup, and Vibrato depth doesn't display its value on screen
-
-J’ai testé le 2.4 aujourd’hui :
-
-BUG :
-tout les faders sauf detune n’affichent plus leurs valeurs ?
-( NB: le parameter pick up etait OFF quand j’ai vu ca - en l’activant, il ne marche pas sur tout les faders sauf detune
-)
-
-
-J’ai principalement fait des presets utilisant le fat mode depuis que j’ai cette machine, et surtout en mode 1 octave,
-en utilisant les premiers crans pour colorer le son et le reste de la course du portard pour le faire muter completement
-quand c’est pertinent
-
-FAT MODE :
-le nouveau fat mode est interessant mais du coup ca ne marche vraiment pas a tout les coups…
-Serait il possible que les 2 “modes” soient switchables ? ( ancient / nouveau )
-Perso j’aurais plus d’usage de l’ancien.
-
-Serait il aussi possible en mode 1 octave, que la courbe de valeur soit (plus) exponentielle ?
-pour avoir plus de finesse sur les premiers pas
-d’abord parce qu’il y a beaucoup de nuances possibles entre les valeurs 1 et 4 ( actuelles ) et que pour le jeu en live
-c’est super touchy
-
-Legato :
-Je ne comprend pas la necessité d’avoir a activer l’ARP pour que le pitch soit updaté a chaque nouvelle note
-(vu que c’est le mode naturel de jeu ? ), a moins que cela soit une contrainte technique ?
-
-Le glide ON seulement quand jeu legato serait top…
-ca evite d’avoir des notes seule qui ont pas un pitch steady
-
-Autre chose que je remarque est qui manque, c’est ca :
-je presse une note N
-je presse une 2e note N+1, le pitch change, la note N est toujours enfoncée.
-lorsque je lache la note N+1, le pitch est toujours a N+1 et ne revient pas a N, alors que la note N est toujours
-enfoncée.
-
-ca me semble indispensable pour jouer en mode solo / lead / basslines
-
-ca marche si l’ARP est ON & rate > 0, mais lorsque rate = 0, ca ne marche pas
-
-
-Parameter pickup :
-c’est tres bien pour le live, mais pour la prog de presets, on peut se louper, il faut aller vraiment doucement.
-
-Je me permet de suggerer quelques chose de pratique ( qui pourrait etre caduc si j’arrivais a faire marcher le plugin
-sous Cubase ) :
-
-ca serait un bouton qui quand il est appuyé, permet d’afficher la valeur du pot / fader manipulé
-( sans envoyer les valeurs modifiées aux chips of course )
-
-du coup quand on veut obtenir une valeur, on appuie & on tourne et on sait ;)
-quand on reprend un preset pour le modifier ou en cours de programmation c’est MEGA utile haha
-
-
-LFO DEPTH :
-Super fan du fait qu’on puisse assigner la velocité / mod wheel / aftertouch a la depth !!
-
-Ca serait vraiment le luxe, si les potards de Depth avaient encore de l’influence comme attenuateurs ?
-Exemple : quand il y 100% d'influence de la velocité sur par exemple le volume d’un Operateur qui est modulateur,
-c’est beaucoup trop, souvent on a besoin de moduler en +/- 5 ou +/- 10, pas FULL.
-
-SETUP MODE :
-Les options choisies dans le setup pourraient etre stockées par presets ?
-
-
-unison legato "follow legato” ou “permanent”
-choose between fat mode down left up right or mixed
-display preset number after program change
-
-Poly12 sustain pedal bug
-I’ve found that when playing with a sustain pedal in Poly12 mode, pressing a key twice does not cause the sustained note
-to retrigger. Interestingly, it does do this in Wide6 mode. Would it be possible to implement this in a future firmware
-update, or is there a way to turn this on for Poly12 that I just completely missed?
-
-
-Hey again! So when i was in setup mode (SE), after activating ‘midi thru’ on LFO 1 link button ..
-it seems that i couldn’t exit SE mode by pushing voice 1 time, and i could not flip thru different voice modes…
-and i believe the screen was blank… perhaps im not doing something right. because it took me about 4 tries to
-successfully activate midi thru… i didn’t want to try and replicate the problem again because it’s working now… but like
-i said i may have pushed a button or hit another knob, or did something wrong.
-
-
-DONE
-Fix PA function (not updating all faders/pots)
-
-TODO
-
-Steal closest note so it glides logically
-figure out issue with detun3
-
-check tuning?!
-
-Was playing around with the dual ch3 mode and found some odd behaviour, that I'm guessing is not intentional?
-Firstly, seems like the detune sliders are affecting the wrong operators. OP1 detune slider detunes OP4, OP2 slider
-detunes OP1, OP3 slider detunes OP3 and OP4 slider detunes OP1. Secondly, detuning an operator only has effect while
-playing the same note. Playing different notes seems to reset the detune again. And lastly, just wondering if it's as
-intended that only OP4 pitch is tracking the keyboard, whereas the other three are fixed?
-
-- pitchbend cc
-When im sequencing the pitchbend cc from my sequencer after a few playback the mega starts sounding weird. Rebooting
-fixes it for a while. Maybe its an lfo acting up. Cant figure it out. I have cleared out all 3 lfos first but maybe its
-these that dont reset properly.
-
-- programchange. When this is used sometimes a completely wrong program is selected. Rebooting fixes it temporarily.
-
 */
 
 #include <Arduino.h>
@@ -198,11 +87,13 @@ int setupCounter;
 bool justQuitSetup;
 bool invertedSquare[3];
 bool invertedSaw[3];
-
+bool showLfoFlag;
+int showSSEGCounter; // used to temporarily show the SSEG settings of the last tweaked operator
+byte lastOperator;   // keep track of the last operator we tweaked to enable SSGEG
 byte muxChannel;
 bool voiceSlots[12];
 byte noteOfVoice[12];
-
+byte SSEG[4]; // bit 0=shape (0=triangle 1=square) bit 1=enabled
 // Velocity affects lfo1
 bool lfoVel;
 // Mod affects lfo2
@@ -416,17 +307,14 @@ void setup() {
 
 	// 3965 brightness.
 
-	// 3966 = bit 0 inv saw1
-	// 3966 = bit 1 inv saw2
-	// 3966 = bit 2 inv saw3
-	// 3966 = bit 3 inv square1
-	// 3966 = bit 4 inv square2
-	// 3966 = bit 5 inv square3
-	// 3966 = bit 6 stereoCh3
+	// 3966 = bit 0 stereoCh3
 
 	// 3967 = note priority 0=low 1=high 2=last
 
 	// 3968 = bit 0 fatSpreadMode
+
+	// 3969= magic value 82 says we are already on FW 3.0
+	// otherwise set all SSEG to off.
 
 	byte input = EEPROM.read(3968);
 	fatSpreadMode = bitRead(input, 0);
@@ -436,15 +324,7 @@ void setup() {
 		notePriority = 0;
 
 	input = EEPROM.read(3966);
-
-	invertedSaw[0] = bitRead(input, 0);
-	invertedSaw[1] = bitRead(input, 1);
-	invertedSaw[2] = bitRead(input, 2);
-	invertedSquare[0] = bitRead(input, 3);
-	invertedSquare[1] = bitRead(input, 4);
-	invertedSquare[2] = bitRead(input, 5);
-
-	stereoCh3 = bitRead(input, 6);
+	stereoCh3 = bitRead(input, 0);
 
 	noiseTableLength[0] = 0;
 	bitWrite(noiseTableLength[0], 0, bitRead(EEPROM.read(3950), 2));
@@ -536,6 +416,13 @@ void setup() {
 	mydisplay.setLed(0, 7, 6, 1);
 	delay(500);
 	mydisplay.setLed(0, 7, 6, 0);
+
+	// first boot into 3.0? clear the SSEG so presets aren't crazy (yet)!
+	if (EEPROM.read(3969) != 82) {
+		clearSSEG();
+		EEPROM.write(3969, 82);
+	}
+
 	Timer1.initialize(150);      //
 	Timer1.attachInterrupt(isr); // attach the service routine here
 

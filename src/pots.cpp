@@ -11,6 +11,8 @@
 
 void movedPot(byte number, byte data, bool isMidi) {
 	if (secPast) {
+
+		bool isFader = false; // only display SSGEG if we move a fader
 		// comes in as 8bit
 		if ((!seqRec) && (!sendReceive)) {
 			if (setupMode) {
@@ -210,6 +212,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 
 						// OP1
 						case 18:
+
 							fmBase[0] = data;
 							updateFMifNecessary(0);
 							if (voiceMode == kVoicingDualCh3) {
@@ -218,6 +221,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								ledNumber(-3 + (data >> 5));
 							}
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 0;
 								sendCC(number, data >> 1);
 							}
@@ -227,6 +231,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[1] = data;
 							updateFMifNecessary(1);
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 1;
 								sendCC(number, data >> 1);
 							}
@@ -236,6 +241,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[2] = data;
 							updateFMifNecessary(2);
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 2;
 								sendCC(number, data >> 1);
 							}
@@ -245,6 +251,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[4] = data;
 							updateFMifNecessary(4);
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 4;
 								sendCC(number, data >> 1);
 							}
@@ -254,6 +261,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[5] = data;
 							updateFMifNecessary(5);
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 5;
 								sendCC(number, data >> 1);
 							}
@@ -263,6 +271,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[7] = data;
 							updateFMifNecessary(7);
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 7;
 								sendCC(number, data >> 1);
 							}
@@ -272,6 +281,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[6] = data;
 							updateFMifNecessary(9);
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 6;
 								sendCC(number, data >> 1);
 							}
@@ -281,6 +291,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[8] = data;
 							updateFMifNecessary(8);
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 8;
 								sendCC(number, data >> 1);
 							}
@@ -298,6 +309,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								ledNumber(-3 + (data >> 5));
 							}
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 18;
 								sendCC(number, data >> 1);
 							}
@@ -307,6 +319,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(19);
 							dontShow[19] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 19;
 								sendCC(number, data >> 1);
 							}
@@ -316,6 +329,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(20);
 							dontShow[20] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 20;
 								sendCC(number, data >> 1);
 							}
@@ -325,6 +339,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(22);
 							dontShow[22] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 22;
 								sendCC(number, data >> 1);
 							}
@@ -334,6 +349,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(23);
 							dontShow[23] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 23;
 								sendCC(number, data >> 1);
 							}
@@ -343,6 +359,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(25);
 							dontShow[25] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 25;
 								sendCC(number, data >> 1);
 							}
@@ -352,6 +369,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(24);
 							dontShow[24] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 24;
 								sendCC(number, data >> 1);
 							}
@@ -361,6 +379,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(26);
 							dontShow[26] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 26;
 								sendCC(number, data >> 1);
 							}
@@ -377,6 +396,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								ledNumber(-3 + (data >> 5));
 							}
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 9;
 								sendCC(number, data >> 1);
 							}
@@ -386,6 +406,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(10);
 							dontShow[10] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 10;
 								sendCC(number, data >> 1);
 							}
@@ -395,6 +416,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(11);
 							dontShow[11] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 11;
 								sendCC(number, data >> 1);
 							}
@@ -404,6 +426,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(13);
 							dontShow[13] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 13;
 								sendCC(49, data >> 1);
 							}
@@ -413,6 +436,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(14);
 							dontShow[14] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 14;
 								sendCC(50, data >> 1);
 							}
@@ -422,6 +446,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(16);
 							dontShow[16] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 16;
 								sendCC(51, data >> 1);
 							}
@@ -431,6 +456,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(15);
 							dontShow[15] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 15;
 								sendCC(number, data >> 1);
 							}
@@ -440,6 +466,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(17);
 							dontShow[17] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 17;
 								sendCC(number, data >> 1);
 							}
@@ -456,6 +483,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								ledNumber(-3 + (data >> 5));
 							}
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 27;
 								sendCC(number, data >> 1);
 							}
@@ -465,6 +493,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(28);
 							dontShow[28] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 28;
 								sendCC(number, data >> 1);
 							}
@@ -474,6 +503,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(29);
 							dontShow[29] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 29;
 								sendCC(number, data >> 1);
 							}
@@ -483,6 +513,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(31);
 							dontShow[31] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 31;
 								sendCC(number, data >> 1);
 							}
@@ -492,6 +523,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(32);
 							dontShow[32] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 32;
 								sendCC(number, data >> 1);
 							}
@@ -501,6 +533,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(34);
 							dontShow[34] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 34;
 								sendCC(number, data >> 1);
 							}
@@ -510,6 +543,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(33);
 							dontShow[33] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 33;
 								sendCC(number, data >> 1);
 							}
@@ -519,6 +553,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 							updateFMifNecessary(35);
 							dontShow[35] = isMidi;
 							if (!isMidi) {
+								isFader = true;
 								targetPot = 35;
 								sendCC(number, data >> 1);
 							}
@@ -748,8 +783,25 @@ void movedPot(byte number, byte data, bool isMidi) {
 				}
 				if (selectedLfoLast != selectedLfo) {
 					selectedLfoLast = selectedLfo;
+					showSSEGCounter = 0; // quit the SSEG display
 					showLfo();
 				} // show lfo because we moved to another
+
+				if (isFader) {
+					if (targetPot < 9) {
+						lastOperator = 0;
+						showSSEG();
+					} else if ((targetPot > 8) && (targetPot < 18)) {
+						lastOperator = 1;
+						showSSEG();
+					} else if ((targetPot > 17) && (targetPot < 27)) {
+						lastOperator = 2;
+						showSSEG();
+					} else if ((targetPot > 26) && (targetPot < 36)) {
+						lastOperator = 3;
+						showSSEG();
+					}
+				}
 			}
 		}
 	}

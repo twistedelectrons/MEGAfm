@@ -37,6 +37,29 @@ void panel() {
 
 void setIndex() { index = (preset * 79) + kBankOffsets[bank]; }
 
+void clearSSEG() {
+
+	// show CL(ear)
+	digit(1, 11);
+	digit(0, 10);
+
+	// clear all the  SSEG bits when we first boot to FW 3.0
+	for (int b = 0; b < 6; b++) {
+		for (int p = 0; p < 100; p++) {
+			index = (p * 79) + kBankOffsets[b];
+			byte temp;
+			for (int i = 0; i < 4; i++) {
+				index += 2; // skip first 2 bytes
+				temp = getByte();
+				index--;              // rewind to overwrite
+				bitWrite(temp, 5, 0); // clear the bit
+				store(temp);          // overwrite
+				index += 3;           // skip the next 3 bytes
+			}
+		}
+	}
+}
+
 void loadPreset() {
 
 	for (int i = 0; i < 49; i++) {
@@ -74,6 +97,7 @@ void loadPreset() {
 		bitWrite(fmBase[1 + offset], 1, bitRead(temp, 1));
 		bitWrite(fmBase[1 + offset], 2, bitRead(temp, 2));
 		bitWrite(fmBase[1 + offset], 3, bitRead(temp, 3));
+		bitWrite(SSEG[i], 0, bitRead(temp, 7));
 		fmBase[2 + offset] = getByte(); // total level
 		temp = getByte();
 		bitWrite(fmBase[3 + offset], 0, bitRead(temp, 6)); // rate scale
@@ -83,14 +107,17 @@ void loadPreset() {
 		bitWrite(fmBase[4 + offset], 2, bitRead(temp, 2));
 		bitWrite(fmBase[4 + offset], 3, bitRead(temp, 3));
 		bitWrite(fmBase[4 + offset], 4, bitRead(temp, 4));
+		bitWrite(SSEG[i], 1, bitRead(temp, 5));
 		temp = getByte();
-		// if(i==0){invertedSquare[0]=bitRead(temp,5);invertedSquare[1]=bitRead(temp,6);invertedSquare[2]=bitRead(temp,7);}
-		// if(i==1){invertedSaw[0]=bitRead(temp,5);invertedSaw[1]=bitRead(temp,6);invertedSaw[2]=bitRead(temp,7);}
 		bitWrite(fmBase[5 + offset], 0, bitRead(temp, 0)); // D1R
 		bitWrite(fmBase[5 + offset], 1, bitRead(temp, 1));
 		bitWrite(fmBase[5 + offset], 2, bitRead(temp, 2));
 		bitWrite(fmBase[5 + offset], 3, bitRead(temp, 3));
 		bitWrite(fmBase[5 + offset], 4, bitRead(temp, 4));
+		if (i < 3) {
+			invertedSaw[i] = bitRead(temp, 5);
+			invertedSquare[i] = bitRead(temp, 6);
+		}
 		temp = getByte();
 		bitWrite(fmBase[6 + offset], 0, bitRead(temp, 0)); // D2R
 		bitWrite(fmBase[6 + offset], 1, bitRead(temp, 1));
@@ -407,6 +434,7 @@ void savePreset() {
 		bitWrite(temp, 1, bitRead(fmBase[1 + offset], 1)); //
 		bitWrite(temp, 2, bitRead(fmBase[1 + offset], 2)); //
 		bitWrite(temp, 3, bitRead(fmBase[1 + offset], 3)); //
+		bitWrite(temp, 7, bitRead(SSEG[i], 0));            //
 		store(temp);
 
 		store(fmBase[2 + offset]); // total level
@@ -419,16 +447,19 @@ void savePreset() {
 		bitWrite(temp, 2, bitRead(fmBase[4 + offset], 2)); //
 		bitWrite(temp, 3, bitRead(fmBase[4 + offset], 3)); //
 		bitWrite(temp, 4, bitRead(fmBase[4 + offset], 4)); //
+		bitWrite(temp, 5, bitRead(SSEG[i], 1));            //
 		store(temp);
 
 		temp = 0;
-		// if(i==0){bitWrite(temp,5,invertedSquare[0]);bitWrite(temp,6,invertedSquare[1]);bitWrite(temp,7,invertedSquare[2]);}
-		// if(i==1){bitWrite(temp,5,invertedSaw[0]);bitWrite(temp,6,invertedSaw[1]);bitWrite(temp,7,invertedSaw[2]);}
 		bitWrite(temp, 0, bitRead(fmBase[5 + offset], 0)); // D1R
 		bitWrite(temp, 1, bitRead(fmBase[5 + offset], 1));
 		bitWrite(temp, 2, bitRead(fmBase[5 + offset], 2));
 		bitWrite(temp, 3, bitRead(fmBase[5 + offset], 3));
 		bitWrite(temp, 4, bitRead(fmBase[5 + offset], 4));
+		if (i < 3) {
+			bitWrite(temp, 5, invertedSaw[i]);
+			bitWrite(temp, 6, invertedSquare[i]);
+		}
 		store(temp);
 
 		temp = 0;
@@ -666,6 +697,9 @@ void savePreset() {
 	store(vol);
 	saved = true;
 
+	for (int i = 0; i < 4; i++) {
+		updateSSEG(i);
+	}
 	startTimer();
 }
 
@@ -748,16 +782,4 @@ uint8_t eRead(uint16_t theMemoryAddress) {
 	if (Wire.available())
 		u8retVal = Wire.read();
 	return u8retVal;
-}
-
-void storeInvert() {
-	byte invertTemp = 0;
-	bitWrite(invertTemp, 0, invertedSaw[0]);
-	bitWrite(invertTemp, 1, invertedSaw[1]);
-	bitWrite(invertTemp, 2, invertedSaw[2]);
-	bitWrite(invertTemp, 3, invertedSquare[0]);
-	bitWrite(invertTemp, 4, invertedSquare[1]);
-	bitWrite(invertTemp, 5, invertedSquare[2]);
-	bitWrite(invertTemp, 6, stereoCh3);
-	EEPROM.update(3966, invertTemp);
 }

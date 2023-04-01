@@ -4,3 +4,4 @@ CMakeListsPrivate.txt
 cmake-build-*/ 
 firmware.syx
 __pycache__
+*.pyc
