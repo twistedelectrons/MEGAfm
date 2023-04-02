@@ -83,7 +83,7 @@ void handleClock() {
 		////////        ARP          ///////
 		///////////////////////////////////
 
-		if ((arpClockEnable) && (arpMode) && (voiceMode == 3) && (arpMode != 7)) {
+		if ((arpClockEnable) && (arpMode) && (voiceMode == kVoicingDualCh3) && (arpMode != 7)) {
 			arpClockCounter++;
 			if ((arpClockCounter >= kMidiArpTicks[arpMidiSpeed])) {
 				arpClockCounter = 0;
@@ -188,6 +188,37 @@ void handleProgramChange(byte channel, byte program) {
 	}
 }
 
+/// Try to find the next free voice slot. If there is none, returns the next voice slot, independent of whether it's
+/// free or not. Considers only the first `nSlots` slots for search.
+static byte findNextFreeVoiceSlot(byte prevSlot, bool voiceSlots[], byte nSlots) {
+	for (byte i = 0; i < nSlots; i++) {
+		byte slot = (prevSlot + 1 + i) % nSlots;
+		if (voiceSlots[slot] == false) {
+			return slot;
+		}
+	}
+
+	return (prevSlot + 1) % nSlots;
+}
+
+int nVoicesForMode(VoiceMode voiceMode) {
+	switch (voiceMode) {
+		case kVoicingPoly12:
+			return 12;
+		case kVoicingWide6:
+			return 6;
+		case kVoicingWide4:
+			return 4;
+		case kVoicingWide3:
+			return 3;
+		case kVoicingUnison:
+			return 1;
+		case kVoicingDualCh3:
+			return 1;
+		default:
+			return 1; // should not happen
+	}
+}
 void handleNoteOn(byte channel, byte note, byte velocity) {
 	// byte distanceFromNewNote; // unused
 
@@ -284,65 +315,32 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 						arpCounter = 1023;
 					} // next manual arp step
 
+					int nVoices, ymfChannelsPerVoice;
 					switch (voiceMode) {
 						case kVoicingPoly12:
-							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-							///////   ////
-							// poly12
-							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-							///////   ////
-							voiceSlots[voiceSlot] = 1;
-							// if gliding jump to last pitch associated to keycounter
-							if (glide) {
-								setNote(voiceSlot, lastNotey[heldKeys]);
-								skipGlide(voiceSlot);
-							}
-
-							noteOfVoice[voiceSlot] = note;
-							lastNotey[heldKeys] = note;
-							setNote(voiceSlot, noteOfVoice[voiceSlot]);
-							ym.noteOff(voiceSlot);
-							ym.noteOn(voiceSlot);
-
-							// TODO(montag): This will take a voice slot regardless of whether it is being used (i.e.,
-							// note is held down).
-							voiceSlot++;
-							if (voiceSlot > 11)
-								voiceSlot = 0;
-
-							if (heldKeys < 30)
-								heldKeys++;
-
-							break;
-
 						case kVoicingWide6:
-							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-							///////   ////
-							// wide6
-							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-							///////   ////
+						case kVoicingWide4:
+						case kVoicingWide3:
+							nVoices = nVoicesForMode(voiceMode);
+							ymfChannelsPerVoice = 12 / nVoices;
 
+							voiceSlot = findNextFreeVoiceSlot(voiceSlot, voiceSlots, nVoices);
 							voiceSlots[voiceSlot] = 1;
 							// if gliding jump to last pitch associated to keycounter
 							if (glide) {
-								setNote(voiceSlot, lastNotey[heldKeys]);
-								skipGlide(voiceSlot);
-								setNote(voiceSlot + 6, lastNotey[heldKeys]);
-								skipGlide(voiceSlot + 6);
+								for (int i = 0; i < ymfChannelsPerVoice; i++) {
+									setNote(ymfChannelsPerVoice * voiceSlot + i, lastNotey[heldKeys]);
+									skipGlide(ymfChannelsPerVoice * voiceSlot + i);
+								}
 							}
 							noteOfVoice[voiceSlot] = note;
 							lastNotey[heldKeys] = note;
-							setNote(voiceSlot, noteOfVoice[voiceSlot]);
-							setNote(voiceSlot + 6, noteOfVoice[voiceSlot]);
-							ym.noteOff(voiceSlot);
-							ym.noteOff(voiceSlot + 6);
-							ym.noteOn(voiceSlot);
-							ym.noteOn(voiceSlot + 6);
 
-							voiceSlot++;
-							// Only lower 6 voice slots are used, then mirrored into upper 6.
-							if (voiceSlot > 5)
-								voiceSlot = 0;
+							for (int i = 0; i < ymfChannelsPerVoice; i++) {
+								setNote(ymfChannelsPerVoice * voiceSlot + i, noteOfVoice[voiceSlot]);
+								ym.noteOff(ymfChannelsPerVoice * voiceSlot + i);
+								ym.noteOn(ymfChannelsPerVoice * voiceSlot + i);
+							}
 
 							if (heldKeys < 30)
 								heldKeys++;
@@ -486,70 +484,37 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 
 				note += 3;
 
+				int nVoices, ymfChannelsPerVoice;
 				switch (voiceMode) {
 					case kVoicingPoly12:
-						////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-						///////
-						// poly12
-						////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-						///////
-						heldKeys--;
-						if (heldKeys < 0)
-							heldKeys = 0;
-
-						if (pedal) {
-							// find out which channel the note is and add to pedalOff
-							for (int i = 0; i < 12; i++) {
-								if (noteOfVoice[i] == note) {
-									pedalOff[i] = 1; // abort loop
-								}
-							}
-
-						} else {
-
-							// scan through the noteOfVoices and kill the voice associated to it
-							for (int i = 0; i < 12; i++) {
-								if ((voiceSlots[i]) && (noteOfVoice[i] == note)) {
-									voiceSlots[i] = 0;
-									ym.noteOff(i);
-								}
-							}
-						}
-
-						break;
-
 					case kVoicingWide6:
-						////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-						///////
-						// wide6
-						////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
-						///////
+					case kVoicingWide4:
+					case kVoicingWide3:
+						nVoices = nVoicesForMode(voiceMode);
+						ymfChannelsPerVoice = 12 / nVoices;
+
 						heldKeys--;
 						if (heldKeys < 0)
 							heldKeys = 0;
 
 						if (pedal) {
-							// find out which channel the note is and add to pedalOff
-							for (int i = 0; i < 6; i++) {
-								if (noteOfVoice[i] == note) {
-									pedalOff[i] = 1;
-									pedalOff[i + 6] = 1; // abort loop
+							// find out which voice the note is and add to pedalOff
+							for (int v = 0; v < nVoices; v++) {
+								if (noteOfVoice[v] == note) {
+									pedalOff[v] = 1;
 								}
 							}
-
 						} else {
-
 							// scan through the noteOfVoices and kill the voice associated to it
-							for (int i = 0; i < 6; i++) {
-								if ((voiceSlots[i]) && (noteOfVoice[i] == note)) {
-									voiceSlots[i] = 0;
-									ym.noteOff(i);
-									voiceSlots[i + 6] = 0;
-									ym.noteOff(i + 6);
+							for (int v = 0; v < nVoices; v++) {
+								if ((voiceSlots[v]) && (noteOfVoice[v] == note)) {
+									voiceSlots[v] = 0;
+									for (int i = 0; i < ymfChannelsPerVoice; i++) {
+										ym.noteOff(ymfChannelsPerVoice * v + i);
+									}
 								}
 							}
 						}
-
 						break;
 
 					case kVoicingDualCh3: // dual CH3
@@ -735,52 +700,61 @@ void midiOut(byte note) {
 }
 
 void pedalUp() {
-	if (voiceMode == kVoicingUnison) {
-		if (heldKeysMinus) {
-			heldKeys -= heldKeysMinus;
-			if (heldKeys < 1) {
-				heldKeys = 0;
-				for (int i = 0; i < 12; i++) {
+	switch (voiceMode) {
+		case kVoicingPoly12:
+		case kVoicingWide6:
+		case kVoicingWide4:
+		case kVoicingWide3: {
+			int nVoices = nVoicesForMode(voiceMode);
+			int ymfChannelsPerVoice = 12 / nVoices;
+
+			for (int v = 0; v < nVoices; v++) {
+				if (pedalOff[v]) {
+					voiceSlots[v] = 0;
+					noteOfVoice[v] = 0;
+
+					for (int i = 0; i < ymfChannelsPerVoice; i++) {
+						ym.noteOff(ymfChannelsPerVoice * v + i);
+					}
+					pedalOff[v] = 0;
+					if (heldKeys) {
+						heldKeys--;
+					}
+					break;
+				}
+			}
+
+			break;
+		}
+
+		case kVoicingDualCh3:
+			for (int i = 0; i < 12; i++) {
+				if (pedalOff[i]) {
 					ym.noteOff(i);
+					pedalOff[i] = 0;
+					if (heldKeys) {
+						heldKeys--;
+					}
+					break;
 				}
 			}
-			heldKeysMinus = 0;
-		}
+			break;
 
-		if (!heldKeys)
-			clearNotes();
-	} else {
-		for (int i = 0; i < 12; i++) {
-			if (pedalOff[i]) {
-
-				voiceSlots[i] = 0;
-				noteOfVoice[i] = 0;
-
-				switch (voiceMode) {
-
-					case kVoicingPoly12:
-
+		case kVoicingUnison:
+			if (heldKeysMinus) {
+				heldKeys -= heldKeysMinus;
+				if (heldKeys < 1) {
+					heldKeys = 0;
+					for (int i = 0; i < 12; i++) {
 						ym.noteOff(i);
-						// TODO(montag): note will be terminated when the pedal is lifted, even if note is held down.
-						pedalOff[i] = 0;
-						if (heldKeys) {
-							heldKeys--;
-						}
-						break; // poly
-
-					case kVoicingWide6:
-					case kVoicingDualCh3:
-					case kVoicingUnison:
-
-						ym.noteOff(i);
-						pedalOff[i] = 0;
-						if (heldKeys) {
-							heldKeys--;
-						}
-						break;
+					}
 				}
+				heldKeysMinus = 0;
 			}
-		}
+
+			if (!heldKeys)
+				clearNotes();
+			break;
 	}
 	pedal = false;
 }

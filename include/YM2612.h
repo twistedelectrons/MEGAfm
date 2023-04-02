@@ -131,7 +131,7 @@ class YM2612 {
 		int amVib[4];
 		float bendy = 1;
 		float finey = 1;
-		bool stag;
+		bool stag = true;
 		bool megaChip;
 
 		voice_t voices[6];
