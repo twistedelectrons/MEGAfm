@@ -409,6 +409,9 @@ void loadPreset() {
 			fmDataLast[i]++;
 	}
 	// setup PP
+	for (int i = 0; i < 4; i++) {
+		updateSSEG(i);
+	}
 }
 
 void savePreset() {
@@ -697,9 +700,6 @@ void savePreset() {
 	store(vol);
 	saved = true;
 
-	for (int i = 0; i < 4; i++) {
-		updateSSEG(i);
-	}
 	startTimer();
 }
 
