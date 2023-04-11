@@ -23,8 +23,10 @@ enum VoiceMode {
 	kVoicingWide6 = 1,
 	kVoicingDualCh3 = 2,
 	kVoicingUnison = 3,
+	kVoicingWide4 = 4,
+	kVoicingWide3 = 5
 };
-const int kVoiceModeCount = 4;
+const int kVoiceModeCount = 6;
 
 const byte kFactoryPresets[] = {
     105, 22,  43,  52,  63,  5,   68,  91,  16,  31,  31,  243, 182, 78,  32,  62,  63,  3,   8,   127, 16,  21,  16,

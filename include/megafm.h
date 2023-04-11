@@ -25,7 +25,11 @@ extern bool secPast;
 extern byte lastSentCC[2];
 extern byte lastSentMega[2];
 extern byte lastSentYm[2];
+
 extern bool fatSpreadMode;
+constexpr bool FAT_SPREAD_MODE_1DOWN2UP = false; // chip 1 down, chip 2 up
+constexpr bool FAT_SPREAD_MODE_MIXED = true;     // both chips go up and downa
+
 extern bool pickupMode;
 extern byte pickup[49];
 extern bool ignoreVolume;
@@ -121,7 +125,11 @@ extern bool changedChannel;
 extern bool pedalOff[12];
 extern bool pedal;
 extern bool emptyStack;
+
 extern bool fatMode;
+constexpr bool FAT_MODE_SEMITONE = false;
+constexpr bool FAT_MODE_OCTAVE = true;
+
 extern int arpButtCounter;
 extern float finey;
 extern int ledNumberTimeOut;

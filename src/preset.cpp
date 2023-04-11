@@ -710,7 +710,7 @@ void shuffle() {
 		fmBase[i] = fmData[i] = random(255);
 		fmDataLast[i] = 32;
 	}
-	voiceMode = static_cast<VoiceMode>(random(4));
+	voiceMode = static_cast<VoiceMode>(random(kVoiceModeCount));
 	for (int i = 0; i < 51; i++) {
 		linked[0][i] = random(20) / 18;
 		linked[1][i] = random(20) / 18;
