@@ -11,7 +11,6 @@ const byte kVersion1 = 0;
 const byte kDefaultSeq[16] = {0, 0, 0, 0, 12, 12, 12, 12, 0, 0, 12, 0, 0, 12, 12, 0};
 
 const bool kAllCC = true;
-const bool kMegaChip = false; // set to true when testing virtual YM2612 (transmits register changes to MIDI out port)
 
 const byte kArpRateDisplay[] = {2, 3, 4, 8, 12, 16, 32, 48}; // show tempo divisions
 const byte kMidiArpTicks[] = {48, 32, 24, 12, 8, 6, 3, 2};   // arp rates in MIDI ticks

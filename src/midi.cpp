@@ -342,7 +342,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 								ym.noteOn(ymfChannelsPerVoice * voiceSlot + i);
 							}
 
-							if (heldKeys < 30)
+							if (heldKeys < 127)
 								heldKeys++;
 
 							break;
@@ -494,7 +494,7 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 						ymfChannelsPerVoice = 12 / nVoices;
 
 						heldKeys--;
-						if (heldKeys < 0)
+						if (heldKeys < 1)
 							heldKeys = 0;
 
 						if (pedal) {
@@ -635,7 +635,186 @@ void sendMidiButt(byte number, int value) {
 	sendCC(number, value);
 }
 
+byte lastData1, lastData2;
+
 void HandleControlChange(byte channel, byte number, byte val) {
+	byte temp;
+	if (toolMode && channel == 16) {
+		switch (number) {
+			case 1:
+				if (val) {
+					thru = 0;
+				} else {
+					thru = 1;
+				}
+				temp = EEPROM.read(3950);
+				bitWrite(temp, 0, !thru);
+				EEPROM.update(3950, temp);
+				break;
+			case 2:
+				if (val) {
+					ignoreVolume = 1;
+				} else {
+					ignoreVolume = 0;
+				}
+				temp = EEPROM.read(3950);
+				bitWrite(temp, 1, ignoreVolume);
+				EEPROM.update(3950, temp);
+				break;
+
+			case 3:
+				if (val) {
+					lfoClockEnable[0] = true;
+				} else {
+					lfoClockEnable[0] = false;
+				}
+				temp = EEPROM.read(3953);
+				bitWrite(temp, 0, lfoClockEnable[0]);
+				EEPROM.update(3953, temp);
+				break;
+			case 4:
+				if (val) {
+					lfoClockEnable[1] = true;
+				} else {
+					lfoClockEnable[1] = false;
+				}
+				temp = EEPROM.read(3953);
+				bitWrite(temp, 1, lfoClockEnable[1]);
+				EEPROM.update(3953, temp);
+				break;
+			case 5:
+				if (val) {
+					lfoClockEnable[2] = true;
+				} else {
+					lfoClockEnable[2] = false;
+				}
+				temp = EEPROM.read(3953);
+				bitWrite(temp, 2, lfoClockEnable[2]);
+				EEPROM.update(3953, temp);
+				break;
+			case 6:
+				if (val) {
+					vibratoClockEnable = true;
+				} else {
+					vibratoClockEnable = false;
+				}
+				temp = EEPROM.read(3953);
+				bitWrite(temp, 3, vibratoClockEnable);
+				EEPROM.update(3953, temp);
+				break;
+			case 7:
+				if (val) {
+					arpClockEnable = true;
+				} else {
+					arpClockEnable = false;
+				}
+				temp = EEPROM.read(3953);
+				bitWrite(temp, 4, arpClockEnable);
+				EEPROM.update(3953, temp);
+				break;
+			case 8:
+				if (val) {
+					pickupMode = true;
+				} else {
+					pickupMode = false;
+				}
+				EEPROM.update(3945, pickupMode);
+				break;
+			case 9:
+				if (val) {
+					mpe = true;
+				} else {
+					mpe = false;
+				}
+				EEPROM.update(3960, mpe);
+				break;
+			case 10:
+				if (val) {
+					lfoVel = true;
+				} else {
+					lfoVel = false;
+				}
+				EEPROM.update(3961, lfoVel);
+				break;
+			case 11:
+				if (val) {
+					lfoMod = true;
+				} else {
+					lfoMod = false;
+				}
+				EEPROM.update(3962, lfoMod);
+				break;
+			case 12:
+				if (val) {
+					lfoAt = true;
+				} else {
+					lfoAt = false;
+				}
+				EEPROM.update(3963, lfoAt);
+				break;
+			case 13:
+				if (val) {
+					stereoCh3 = true;
+				} else {
+					stereoCh3 = false;
+				}
+				EEPROM.update(3966, stereoCh3);
+				break;
+
+			case 15:
+				inputChannel = constrain(val, 1, 16);
+				EEPROM.update(3951, inputChannel);
+				break;
+
+			case 16:
+				bendUp = constrain(val, 1, 48);
+				EEPROM.update(3959, bendUp);
+				break;
+
+			case 17:
+				bendDown = constrain(val, 1, 48);
+				EEPROM.update(3958, bendDown);
+				break;
+
+			case 18:
+				mydisplay.setIntensity(0, constrain(val, 1, 15));
+				EEPROM.update(3965, constrain(val, 0, 15));
+				break;
+		}
+	}
+
+	if (channel == 16 && lastData1 == 19 && lastData2 == 82 && number == 19 && val == 82) {
+		// transmit all the settings to tool. Tool expects noteOff messages on CH16 (yeah I couldn't get webMidi to
+		// parse sysex... )
+
+		sendTool(0, 3); // 3 is MEGAFM
+		sendTool(82, kVersion0);
+		sendTool(83, kVersion1);
+
+		sendTool(1, thru);
+		sendTool(2, ignoreVolume);
+		sendTool(3, lfoClockEnable[0]);
+		sendTool(4, lfoClockEnable[1]);
+		sendTool(5, lfoClockEnable[2]);
+		sendTool(6, vibratoClockEnable);
+		sendTool(7, arpClockEnable);
+		sendTool(8, pickupMode);
+
+		sendTool(9, mpe);
+		sendTool(10, lfoVel);
+		sendTool(11, lfoMod);
+		sendTool(12, lfoAt);
+		sendTool(13, stereoCh3);
+		// sendTool(14, stereoCh3);//new fat tuning
+		sendTool(15, inputChannel);
+		sendTool(16, bendUp);
+		sendTool(17, bendDown);
+		sendTool(18, EEPROM.read(3965));
+
+		toolMode = true; // MEGAfm is listening to new settings (CC on CH16)
+	}
+	// did we receive 1982 twice on channel 16?
+
 	if ((lastSentCC[0] == number) && (lastSentCC[1] == val)) {
 		// ignore same CC and DATA as sent to avoid feedback
 	} else {
@@ -690,6 +869,8 @@ void HandleControlChange(byte channel, byte number, byte val) {
 			}
 		}
 	}
+	lastData1 = number;
+	lastData2 = val;
 }
 
 void midiOut(byte note) {

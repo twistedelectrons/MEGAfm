@@ -132,7 +132,6 @@ class YM2612 {
 		float bendy = 1;
 		float finey = 1;
 		bool stag = true;
-		bool megaChip;
 
 		voice_t voices[6];
 		uint8_t voices_order[6];
@@ -182,8 +181,6 @@ class YM2612 {
 		void setSupplementaryFrequency(uint8_t channel, uint8_t oper, float frequency);
 		void keyOn(uint8_t channel);
 		void keyOff(uint8_t channel);
-		void sendMegaChip(byte number, byte data);
-		void setMegaChip(boolean input);
 
 		float noteToFrequency(int note);
 };

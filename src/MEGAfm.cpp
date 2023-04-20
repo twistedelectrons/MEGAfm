@@ -47,7 +47,7 @@ byte notePriority = 2;
 // Track the last note for glide.
 // Distance to go from last note to future.
 // Used in: midi.cpp, voice.cpp
-byte lastNotey[40];
+byte lastNotey[128];
 /**
  * When the arp needs to be resynced; MIDI clock changes or arp mode change
  * Used in: buttons.cpp, midi.cpp
@@ -68,6 +68,7 @@ byte seqLength;
 bool seqRec;
 bool flasher;
 int flashCounter, flashCounter2, bankCounter;
+bool toolMode;
 /**
  * When set to true, megaFM boots in test mode (hold reset sat startup
  * to enter test mode after a factory reset) : (plays some chords at
@@ -82,7 +83,7 @@ bool test;
  */
 byte sendReceive;
 byte rootNote, rootNote1;
-bool thru = true;
+bool thru;
 int setupCounter;
 bool justQuitSetup;
 bool invertedSquare[3];
@@ -286,6 +287,7 @@ void setup() {
 
 	// 3951 = midi channel
 	// 3952 = last preset
+
 	// 3953 bit0  =  midi clock lfo1
 	//  3953 bit1    midi clock lfo2
 	//  3953 bit2 =  midi clock lfo3
@@ -294,23 +296,16 @@ void setup() {
 	//  3953 bit5 =  fatMode
 
 	// 3954 = pickup mode (0=on)
-
 	// 3958 =bendDown
 	// 3959 =bendUp
 	// 3960 =mpe mode
-
 	// 3961 =vel >lfo1 depth
 	// 3962 =mod >lfo2 depth
 	// 3963 =at >lfo3 depth
-
 	// 3964 lastbank
-
 	// 3965 brightness.
-
 	// 3966 = bit 0 stereoCh3
-
 	// 3967 = note priority 0=low 1=high 2=last
-
 	// 3968 = bit 0 fatSpreadMode
 
 	// 3969= magic value 82 says we are already on FW 3.0
@@ -326,26 +321,23 @@ void setup() {
 	input = EEPROM.read(3966);
 	stereoCh3 = bitRead(input, 0);
 
+	input = EEPROM.read(3950);
 	noiseTableLength[0] = 0;
-	bitWrite(noiseTableLength[0], 0, bitRead(EEPROM.read(3950), 2));
-	bitWrite(noiseTableLength[0], 1, bitRead(EEPROM.read(3950), 3));
+	bitWrite(noiseTableLength[0], 0, bitRead(input, 2));
+	bitWrite(noiseTableLength[0], 1, bitRead(input, 3));
 	noiseTableLength[0] += 2;
 
 	noiseTableLength[1] = 0;
-	bitWrite(noiseTableLength[1], 0, bitRead(EEPROM.read(3950), 4));
-	bitWrite(noiseTableLength[1], 1, bitRead(EEPROM.read(3950), 5));
+	bitWrite(noiseTableLength[1], 0, bitRead(input, 4));
+	bitWrite(noiseTableLength[1], 1, bitRead(input, 5));
 	noiseTableLength[1] += 2;
 
 	noiseTableLength[2] = 0;
-	bitWrite(noiseTableLength[2], 0, bitRead(EEPROM.read(3950), 6));
-	bitWrite(noiseTableLength[2], 1, bitRead(EEPROM.read(3950), 7));
+	bitWrite(noiseTableLength[2], 0, bitRead(input, 6));
+	bitWrite(noiseTableLength[2], 1, bitRead(input, 7));
 	noiseTableLength[2] += 2;
 
-	if (bitRead(EEPROM.read(3950), 0)) {
-		thru = 0;
-	} else {
-		thru = 1;
-	}
+	thru = !bitRead(input, 0);
 
 	if (EEPROM.read(3961)) {
 		lfoVel = 1;
