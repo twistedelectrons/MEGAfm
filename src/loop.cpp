@@ -10,10 +10,9 @@
 #include "voice.h"
 #include "preset.h"
 #include "arp.h"
-#include "midiEngine.h"
 #include "FM.h"
 
-static byte testCounts;
+// static byte testCounts;
 
 void loop() {
 
@@ -42,138 +41,139 @@ void loop() {
 			ledSet(16 + lfoShape[selectedLfo], 1);
 		}
 	}
+	/*
+	    if (test) {
+	        glide = 0;
+	        for (int i = 0; i < 50; i++) {
+	            ledSet(i, test);
+	        }
+	        digit(0, 24);
+	        digit(1, 24);
 
-	if (test) {
-		glide = 0;
-		for (int i = 0; i < 50; i++) {
-			ledSet(i, test);
-		}
-		digit(0, 24);
-		digit(1, 24);
+	        mpe = 1;
+	        digitalPotWrite(0, 110);
+	        digitalPotWrite(B00010000, 110);
+	        handleNoteOn(1, 36, 1);
+	        handleNoteOn(7, 36 + 12, 1);
+	        updatePitch();
+	        handleNoteOn(2, 48, 1);
+	        handleNoteOn(8, 48 + 12, 1);
+	        updatePitch();
+	        handleNoteOn(3, 60, 1);
+	        handleNoteOn(9, 60 + 12, 1);
+	        updatePitch();
+	        delay(500);
+	        handleNoteOff(1, 36, 1);
+	        handleNoteOff(7, 36 + 12, 1);
+	        updatePitch();
+	        handleNoteOff(2, 48 + 4, 1);
+	        handleNoteOff(8, 48 - 8 + 12, 1);
+	        updatePitch();
+	        handleNoteOff(3, 60, 1);
+	        handleNoteOff(9, 60 + 12, 1);
+	        updatePitch();
+	        delay(200);
+	        digitalPotWrite(0, 10);
+	        digitalPotWrite(B00010000, 10);
+	        handleNoteOn(1, 36, 1);
+	        handleNoteOn(7, 36 + 12, 1);
+	        handleNoteOn(2, 48 + 3, 1);
+	        handleNoteOn(8, 48 - 8 + 12, 1);
+	        handleNoteOn(3, 60, 1);
+	        handleNoteOn(9, 60 + 12, 1);
+	        delay(500);
+	        handleNoteOff(1, 36, 1);
+	        handleNoteOff(7, 36 + 12, 1);
+	        handleNoteOff(2, 48, 1);
+	        handleNoteOff(8, 48 + 12, 1);
+	        handleNoteOff(3, 60, 1);
+	        handleNoteOff(9, 60 + 12, 1);
+	        delay(200);
+	        digitalPotWrite(0, 60);
+	        digitalPotWrite(B00010000, 60);
+	        handleNoteOn(1, 36, 1);
+	        handleNoteOn(7, 36 + 12, 1);
+	        handleNoteOn(2, 48 + 7, 1);
+	        handleNoteOn(8, 48 + 12 + 4, 1);
+	        handleNoteOn(3, 60, 1);
+	        handleNoteOn(9, 60 + 12, 1);
+	        delay(600);
+	        handleNoteOff(1, 36, 1);
+	        handleNoteOff(7, 36 + 12, 1);
+	        handleNoteOff(2, 48 + 7, 1);
+	        handleNoteOff(8, 48 + 12 + 4, 1);
+	        handleNoteOff(3, 60, 1);
+	        handleNoteOff(9, 60 + 12, 1);
 
-		mpe = 1;
-		digitalPotWrite(0, 110);
-		digitalPotWrite(B00010000, 110);
-		handleNoteOn(1, 36, 1);
-		handleNoteOn(7, 36 + 12, 1);
-		updatePitch();
-		handleNoteOn(2, 48, 1);
-		handleNoteOn(8, 48 + 12, 1);
-		updatePitch();
-		handleNoteOn(3, 60, 1);
-		handleNoteOn(9, 60 + 12, 1);
-		updatePitch();
-		delay(500);
-		handleNoteOff(1, 36, 1);
-		handleNoteOff(7, 36 + 12, 1);
-		updatePitch();
-		handleNoteOff(2, 48 + 4, 1);
-		handleNoteOff(8, 48 - 8 + 12, 1);
-		updatePitch();
-		handleNoteOff(3, 60, 1);
-		handleNoteOff(9, 60 + 12, 1);
-		updatePitch();
-		delay(200);
-		digitalPotWrite(0, 10);
-		digitalPotWrite(B00010000, 10);
-		handleNoteOn(1, 36, 1);
-		handleNoteOn(7, 36 + 12, 1);
-		handleNoteOn(2, 48 + 3, 1);
-		handleNoteOn(8, 48 - 8 + 12, 1);
-		handleNoteOn(3, 60, 1);
-		handleNoteOn(9, 60 + 12, 1);
-		delay(500);
-		handleNoteOff(1, 36, 1);
-		handleNoteOff(7, 36 + 12, 1);
-		handleNoteOff(2, 48, 1);
-		handleNoteOff(8, 48 + 12, 1);
-		handleNoteOff(3, 60, 1);
-		handleNoteOff(9, 60 + 12, 1);
-		delay(200);
-		digitalPotWrite(0, 60);
-		digitalPotWrite(B00010000, 60);
-		handleNoteOn(1, 36, 1);
-		handleNoteOn(7, 36 + 12, 1);
-		handleNoteOn(2, 48 + 7, 1);
-		handleNoteOn(8, 48 + 12 + 4, 1);
-		handleNoteOn(3, 60, 1);
-		handleNoteOn(9, 60 + 12, 1);
-		delay(600);
-		handleNoteOff(1, 36, 1);
-		handleNoteOff(7, 36 + 12, 1);
-		handleNoteOff(2, 48 + 7, 1);
-		handleNoteOff(8, 48 + 12 + 4, 1);
-		handleNoteOff(3, 60, 1);
-		handleNoteOff(9, 60 + 12, 1);
-
-		handleNoteOn(1, 36, 1);
-		delay(60);
-		handleNoteOff(1, 36, 1);
-		delay(06);
-		updatePitch();
-		handleNoteOn(2, 38, 1);
-		delay(60);
-		handleNoteOff(2, 38, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(3, 40, 1);
-		delay(60);
-		handleNoteOff(3, 40, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(4, 42, 1);
-		delay(60);
-		handleNoteOff(4, 42, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(5, 44, 1);
-		delay(60);
-		handleNoteOff(5, 44, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(6, 46, 1);
-		delay(60);
-		handleNoteOff(6, 46, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(7, 44, 1);
-		delay(60);
-		handleNoteOff(7, 44, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(8, 42, 1);
-		delay(60);
-		handleNoteOff(8, 42, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(9, 40, 1);
-		delay(60);
-		handleNoteOff(9, 40, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(10, 38, 1);
-		delay(60);
-		handleNoteOff(10, 38, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(11, 36, 1);
-		delay(60);
-		handleNoteOff(11, 36, 1);
-		delay(60);
-		updatePitch();
-		handleNoteOn(12, 34, 1);
-		delay(60);
-		handleNoteOff(12, 34, 1);
-		delay(60);
-		updatePitch();
-		testCounts++;
-		mux(13);
-		if (!digitalRead(A1)) {
-			if (testCounts > 4)
-				test = false;
-			mpe = 0;
-		}
-	}
+	        handleNoteOn(1, 36, 1);
+	        delay(60);
+	        handleNoteOff(1, 36, 1);
+	        delay(06);
+	        updatePitch();
+	        handleNoteOn(2, 38, 1);
+	        delay(60);
+	        handleNoteOff(2, 38, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(3, 40, 1);
+	        delay(60);
+	        handleNoteOff(3, 40, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(4, 42, 1);
+	        delay(60);
+	        handleNoteOff(4, 42, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(5, 44, 1);
+	        delay(60);
+	        handleNoteOff(5, 44, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(6, 46, 1);
+	        delay(60);
+	        handleNoteOff(6, 46, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(7, 44, 1);
+	        delay(60);
+	        handleNoteOff(7, 44, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(8, 42, 1);
+	        delay(60);
+	        handleNoteOff(8, 42, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(9, 40, 1);
+	        delay(60);
+	        handleNoteOff(9, 40, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(10, 38, 1);
+	        delay(60);
+	        handleNoteOff(10, 38, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(11, 36, 1);
+	        delay(60);
+	        handleNoteOff(11, 36, 1);
+	        delay(60);
+	        updatePitch();
+	        handleNoteOn(12, 34, 1);
+	        delay(60);
+	        handleNoteOff(12, 34, 1);
+	        delay(60);
+	        updatePitch();
+	        testCounts++;
+	        mux(13);
+	        if (!digitalRead(A1)) {
+	            if (testCounts > 4)
+	                test = false;
+	            mpe = 0;
+	        }
+	    }
+	    */
 	if (sendReceive) {
 
 		readMux();

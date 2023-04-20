@@ -50,7 +50,7 @@ void nextArpStep() { // octave shift
 }
 
 void arpTick() {
-	if (((heldKeys) || ((pedal) && (!emptyStack))) && (arpMode) && (voiceMode == kVoicingUnison) && (fmData[46])) {
+	if (heldKeys && arpMode && voiceMode == kVoicingUnison && fmData[46]) {
 
 		if ((!sync) || ((sync) && (!arpClockEnable))) {
 			arpCounter += fmData[46];
@@ -63,7 +63,7 @@ static int arpRootNote;
 void arpFire() {
 	//  byte nextNote = 0; // unused
 
-	if ((heldKeys) || (pedal)) {
+	if (heldKeys) {
 		if (retrig[0])
 			lfoStep[0] = 0;
 		if (retrig[1])
