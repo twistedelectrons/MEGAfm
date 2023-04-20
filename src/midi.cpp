@@ -8,8 +8,8 @@
 #include "preset.h"
 #include "voice.h"
 #include "midi.h"
-#include "midiEngine.h"
 #include "pots.h"
+#include "midi_pedal.hpp"
 
 static byte voiceSlot;
 static bool ch3Alt;
@@ -21,7 +21,6 @@ static byte lastCC[60];
 static int arpClockCounter;
 static byte syncLfoCounter;
 
-static int heldKeysMinus = 0;
 static bool arpClearFlag = false;
 
 void handleAftertouch(byte channel, byte val) {
@@ -219,7 +218,13 @@ int nVoicesForMode(VoiceMode voiceMode) {
 			return 1; // should not happen
 	}
 }
-void handleNoteOn(byte channel, byte note, byte velocity) {
+
+static void handleNoteOn(byte channel, byte note, byte velocity);
+static void handleNoteOff(byte channel, byte note);
+
+static MidiPedalAdapter pedal_adapter(handleNoteOn, handleNoteOff);
+
+static void handleNoteOn(byte channel, byte note, byte velocity) {
 	// byte distanceFromNewNote; // unused
 
 	if (setupMode) {
@@ -402,13 +407,13 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 
 								heldKeys++;
 
-								if (((pedal) && (arpClearFlag)) || (heldKeys == 1)) {
+								if (heldKeys == 1) {
 									arpClearFlag = false;
 									clearNotes();
 									heldKeys = 1;
 								}
 
-								if ((heldKeys == 1) && (!pedal) && (!sync)) {
+								if ((heldKeys == 1) && (!sync)) {
 									arpCounter = 1023;
 								} // only retrigger arp on first key or if arp is stopped
 
@@ -454,7 +459,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 					}
 
 				} else {
-					handleNoteOff(channel, note, velocity);
+					handleNoteOff(channel, note);
 				}
 				leftDot();
 			}
@@ -462,7 +467,7 @@ void handleNoteOn(byte channel, byte note, byte velocity) {
 	}
 }
 
-void handleNoteOff(byte channel, byte note, byte velocity) {
+static void handleNoteOff(byte channel, byte note) {
 
 	if (setupMode) {
 
@@ -494,27 +499,20 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 						ymfChannelsPerVoice = 12 / nVoices;
 
 						heldKeys--;
-						if (heldKeys < 1)
+						if (heldKeys < 1) {
 							heldKeys = 0;
+						}
 
-						if (pedal) {
-							// find out which voice the note is and add to pedalOff
-							for (int v = 0; v < nVoices; v++) {
-								if (noteOfVoice[v] == note) {
-									pedalOff[v] = 1;
-								}
-							}
-						} else {
-							// scan through the noteOfVoices and kill the voice associated to it
-							for (int v = 0; v < nVoices; v++) {
-								if ((voiceSlots[v]) && (noteOfVoice[v] == note)) {
-									voiceSlots[v] = 0;
-									for (int i = 0; i < ymfChannelsPerVoice; i++) {
-										ym.noteOff(ymfChannelsPerVoice * v + i);
-									}
+						// scan through the noteOfVoices and kill the voice associated to it
+						for (int v = 0; v < nVoices; v++) {
+							if ((voiceSlots[v]) && (noteOfVoice[v] == note)) {
+								voiceSlots[v] = 0;
+								for (int i = 0; i < ymfChannelsPerVoice; i++) {
+									ym.noteOff(ymfChannelsPerVoice * v + i);
 								}
 							}
 						}
+
 						break;
 
 					case kVoicingDualCh3: // dual CH3
@@ -548,28 +546,18 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 					case kVoicingUnison: // unison
 						if (arpMode) {
 							// ARP
-							if (pedal) {
-								// here we must prepare to erase arp stack
-								arpClearFlag = true;
-								heldKeysMinus++;
-							} else {
-								heldKeys--;
-								removeNote(note);
 
-								if (heldKeys < 1) {
-									heldKeys = 0;
+							heldKeys--;
+							removeNote(note);
 
-									if (!pedal) {
-										for (int i = 0; i < 12; i++) {
-											ym.noteOff(i);
-										}
-									} else {
-										for (int i = 0; i < 12; i++) {
-											pedalOff[i] = 1;
-										}
-									}
+							if (heldKeys < 1) {
+								heldKeys = 0;
+
+								for (int i = 0; i < 12; i++) {
+									ym.noteOff(i);
 								}
 							}
+
 						} else {
 							// NO ARP
 
@@ -582,14 +570,8 @@ void handleNoteOff(byte channel, byte note, byte velocity) {
 								heldKeys = 0;
 								clearNotes();
 
-								if (!pedal) {
-									for (int i = 0; i < 12; i++) {
-										ym.noteOff(i);
-									}
-								} else {
-									for (int i = 0; i < 12; i++) {
-										pedalOff[i] = 1;
-									}
+								for (int i = 0; i < 12; i++) {
+									pedalOff[i] = 1;
 								}
 
 							} else {
@@ -854,11 +836,12 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					movedPot(1, val << 1, 1);
 				}
 			} else if (number == 64) {
-				if (val > 63) {
-					pedalDown();
-				} else {
-					pedalUp();
-				}
+				pedal_adapter.set_pedal(channel, val >= 64);
+				// if (val > 63) {
+				//	pedalDown();
+				// } else {
+				//	pedalUp();
+				// }
 			} else {
 				if (kAllCC) {
 					movedPot(number, val << 1, 1);
@@ -879,68 +862,6 @@ void midiOut(byte note) {
 	// midiB.sendNoteOn(note+1,velocityLast,masterChannelOut);
 	lastNote = note;
 }
-
-void pedalUp() {
-	switch (voiceMode) {
-		case kVoicingPoly12:
-		case kVoicingWide6:
-		case kVoicingWide4:
-		case kVoicingWide3: {
-			int nVoices = nVoicesForMode(voiceMode);
-			int ymfChannelsPerVoice = 12 / nVoices;
-
-			for (int v = 0; v < nVoices; v++) {
-				if (pedalOff[v]) {
-					voiceSlots[v] = 0;
-					noteOfVoice[v] = 0;
-
-					for (int i = 0; i < ymfChannelsPerVoice; i++) {
-						ym.noteOff(ymfChannelsPerVoice * v + i);
-					}
-					pedalOff[v] = 0;
-					if (heldKeys) {
-						heldKeys--;
-					}
-					break;
-				}
-			}
-
-			break;
-		}
-
-		case kVoicingDualCh3:
-			for (int i = 0; i < 12; i++) {
-				if (pedalOff[i]) {
-					ym.noteOff(i);
-					pedalOff[i] = 0;
-					if (heldKeys) {
-						heldKeys--;
-					}
-					break;
-				}
-			}
-			break;
-
-		case kVoicingUnison:
-			if (heldKeysMinus) {
-				heldKeys -= heldKeysMinus;
-				if (heldKeys < 1) {
-					heldKeys = 0;
-					for (int i = 0; i < 12; i++) {
-						ym.noteOff(i);
-					}
-				}
-				heldKeysMinus = 0;
-			}
-
-			if (!heldKeys)
-				clearNotes();
-			break;
-	}
-	pedal = false;
-}
-
-void pedalDown() { pedal = true; }
 
 void dumpPreset() {
 	for (int number = 0; number < 58; number++) {
@@ -1088,6 +1009,149 @@ void dumpPreset() {
 			case 13:
 				sendCC(number, fmBase[49] >> 1);
 				break; // vibrato depth
+		}
+	}
+}
+static byte mStatus;
+static byte mData;
+static byte mChannel;
+static int midiNoteOffset = -12;
+
+void sendControlChange(byte number, byte value, byte channel) {
+	if (!thru) {
+		lastSentCC[0] = number;
+		lastSentCC[1] = value;
+		Serial.write(175 + channel);
+		Serial.write(number);
+		Serial.write(value);
+	}
+}
+
+void sendNoteOff(byte note, byte velocity, byte channel) {
+	if (!thru) {
+
+		Serial.write(127 + channel);
+		Serial.write(note);
+		Serial.write(velocity);
+	}
+}
+
+void sendTool(byte note, byte velocity) {
+	Serial.write(143);
+	Serial.write(note);
+	Serial.write(velocity);
+}
+
+void sendNoteOn(byte note, byte velocity, byte channel) {
+	if (!thru) {
+		Serial.write(143 + channel);
+		Serial.write(note);
+		Serial.write(velocity);
+	}
+}
+
+void midiRead() {
+	while (Serial.available()) {
+		byte input = Serial.read();
+		if (thru) {
+
+			Serial.write(input);
+		}
+
+		if (input > 127) {
+			// Status
+			switch (input) {
+				case 248:
+					handleClock();
+					break; // clock
+				case 250:
+					handleStart();
+					break; // start
+				case 251:
+					break; // continue
+				case 252:
+					handleStop();
+					break; // stop
+
+				case 128 ... 143:
+					mChannel = input - 127;
+					mStatus = 2;
+					mData = 255;
+					break; // noteOff
+				case 144 ... 159:
+					mChannel = input - 143;
+					mStatus = 1;
+					mData = 255;
+					break; // noteOn
+				case 176 ... 191:
+					mChannel = input - 175;
+					mStatus = 3;
+					mData = 255;
+					break; // CC
+				case 192 ... 207:
+					mChannel = input - 191;
+					mStatus = 6;
+					mData = 0;
+					break; // program Change
+				case 208 ... 223:
+					mChannel = input - 207;
+					mStatus = 5;
+					mData = 0;
+					break; // Aftertouch
+				case 224 ... 239:
+					mChannel = input - 223;
+					mStatus = 4;
+					mData = 255;
+					break; // Pitch Bend
+
+				default:
+					mStatus = 0;
+					mData = 255;
+					break;
+			}
+		} else {
+			// Data
+			if (mData == 255) {
+				mData = input;
+			} // data byte 1
+			else {
+				// data byte 2
+				switch (mStatus) {
+					case 1:
+						if (input) {
+							pedal_adapter.note_on(mChannel, mData + midiNoteOffset, input);
+							// handleNoteOn(mChannel, mData + midiNoteOffset, input);
+						} else {
+							pedal_adapter.note_off(mChannel, mData + midiNoteOffset);
+							// handleNoteOff(mChannel, mData + midiNoteOffset);
+						}
+						mData = 255;
+						break; // noteOn
+					case 2:
+						pedal_adapter.note_off(mChannel, mData + midiNoteOffset);
+						// handleNoteOff(mChannel, mData + midiNoteOffset);
+						mData = 255;
+						break;
+					case 3:
+						HandleControlChange(mChannel, mData, input);
+						mData = 255;
+						break;
+					case 4:
+						handleBendy(mChannel, (input << 7) + mData - 8192);
+						mData = 255;
+						break;
+					case 5:
+						handleAftertouch(mChannel, input);
+						mData = 255;
+						break;
+					case 6:
+						handleProgramChange(mChannel, input);
+						mData = 255;
+						break;
+					default:
+						break;
+				}
+			}
 		}
 	}
 }

@@ -123,7 +123,6 @@ extern bool arpModeHeld;
 extern byte inputChannel;
 extern bool changedChannel;
 extern bool pedalOff[12];
-extern bool pedal;
 extern bool emptyStack;
 
 extern bool fatMode;

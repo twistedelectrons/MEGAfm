@@ -1,4 +1,4 @@
-#include <midiEngine.h>
+#include <Arduino.h>
 #include <constants.h>
 #include "YM2612.h"
 

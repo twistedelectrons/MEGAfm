@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <midiEngine.h>
 #include "FM.h"
 #include "megafm.h"
 #include "leds.h"        // showAlgo()
