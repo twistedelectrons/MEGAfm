@@ -36,7 +36,7 @@ extern bool ignoreVolume;
 extern int bendyCounter;
 extern bool arpNotes[128];
 extern byte notePriority;
-extern byte lastNotey[40];
+extern byte lastNotey[128];
 extern bool resyncArp;
 extern bool stereoCh3;
 extern byte bank;
@@ -55,7 +55,7 @@ extern int setupCounter;
 extern bool justQuitSetup;
 extern bool invertedSquare[3];
 extern bool invertedSaw[3];
-
+extern bool toolMode;
 extern bool voiceSlots[12];
 extern byte noteOfVoice[12];
 extern byte muxChannel;

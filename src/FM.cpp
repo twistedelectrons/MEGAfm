@@ -62,11 +62,6 @@ void fmUpdate() {
 }
 
 void fm(byte number, byte data) {
-	// send to megaChip
-	if ((number < 36) || (number == 42) || (number == 43)) {
-		sendMegaChip(number, data >> fmShifts[number]);
-	}
-
 	switch (number) {
 		// OP1
 		case 0:

@@ -7,51 +7,36 @@ static byte mData;
 static byte mChannel;
 static int midiNoteOffset = -12;
 
-void sendMegaChip(byte number, byte value) {
-	if (kMegaChip) {
-		if ((lastSentMega[0] == number) && (lastSentMega[1] == value)) {
-			// don't repeat send!
-		} else {
-			lastSentMega[0] = number;
-			lastSentMega[1] = value;
-
-			Serial.write(123);
-			Serial.write(number);
-			Serial.write(value);
-		}
-	}
-}
-
 void sendControlChange(byte number, byte value, byte channel) {
 	if (!thru) {
 		lastSentCC[0] = number;
 		lastSentCC[1] = value;
-
-		if (!kMegaChip) {
-			Serial.write(175 + channel);
-			Serial.write(number);
-			Serial.write(value);
-		}
+		Serial.write(175 + channel);
+		Serial.write(number);
+		Serial.write(value);
 	}
 }
 
 void sendNoteOff(byte note, byte velocity, byte channel) {
 	if (!thru) {
-		if (!kMegaChip) {
-			Serial.write(127 + channel);
-			Serial.write(note);
-			Serial.write(1);
-		}
+
+		Serial.write(127 + channel);
+		Serial.write(note);
+		Serial.write(velocity);
 	}
+}
+
+void sendTool(byte note, byte velocity) {
+	Serial.write(143);
+	Serial.write(note);
+	Serial.write(velocity);
 }
 
 void sendNoteOn(byte note, byte velocity, byte channel) {
 	if (!thru) {
-		if (!kMegaChip) {
-			Serial.write(143 + channel);
-			Serial.write(note);
-			Serial.write(1);
-		}
+		Serial.write(143 + channel);
+		Serial.write(note);
+		Serial.write(velocity);
 	}
 }
 
@@ -59,9 +44,8 @@ void midiRead() {
 	while (Serial.available()) {
 		byte input = Serial.read();
 		if (thru) {
-			if (!kMegaChip) {
-				Serial.write(input);
-			}
+
+			Serial.write(input);
 		}
 
 		if (input > 127) {

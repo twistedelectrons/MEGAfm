@@ -48,7 +48,7 @@ void resetVoices() {
 	for (int i = 0; i < 128; i++) {
 		noteOrder[i] = 0;
 	}
-	for (int i = 0; i < 40; i++) {
+	for (int i = 0; i < 128; i++) {
 		lastNotey[i] = 0;
 	}
 }
