@@ -313,20 +313,68 @@ void ledNumberForced(int value) {
 
   */
 
-void rightArrow() {
-	digit(0, 29);
-	digit(1, 29);
-}
+void showPickup() {
+	pickupAnimationNewFrame = false;
+	if (pickupIsFader) {
+		switch (pickupFrame) {
+			case 0:
+				digit(0, 29);
+				digit(1, 29);
+				break;
+			case 1:
+				digit(0, 20);
+				digit(1, 20);
+				break;
+			case 2:
+				digit(0, 28);
+				digit(1, 28);
+				break;
+			case 3 ... 8:
 
-void leftArrow() {
-	digit(0, 28);
-	digit(1, 28);
+				digit(0, 21);
+				digit(1, 21);
+				break;
+		}
+	} else {
+		switch (pickupFrame) {
+			case 3:
+				digit(0, 30);
+				digit(1, 21);
+				break;
+			case 2:
+				digit(0, 1);
+				digit(1, 21);
+				break;
+			case 1:
+				digit(0, 21);
+				digit(1, 30);
+				break;
+			case 0:
+				digit(0, 21);
+				digit(1, 1);
+				break;
+			case 4 ... 8:
+				digit(0, 21);
+				digit(1, 21);
+				break;
+		}
+	}
 }
 
 void digit(byte channel, byte number) {
 	switch (number) {
 
-		case 29: // left arrow
+		case 30: // left bar
+			mydisplay.setLed(0, 0, 6 + channel, 0);
+			mydisplay.setLed(0, 5, 6 + channel, 1);
+			mydisplay.setLed(0, 1, 6 + channel, 0);
+			mydisplay.setLed(0, 6, 6 + channel, 0);
+			mydisplay.setLed(0, 4, 6 + channel, 1);
+			mydisplay.setLed(0, 2, 6 + channel, 0);
+			mydisplay.setLed(0, 3, 6 + channel, 0);
+			break;
+
+		case 29: // down arrow
 			mydisplay.setLed(0, 0, 6 + channel, 1);
 			mydisplay.setLed(0, 5, 6 + channel, 0);
 			mydisplay.setLed(0, 1, 6 + channel, 0);
@@ -336,7 +384,7 @@ void digit(byte channel, byte number) {
 			mydisplay.setLed(0, 3, 6 + channel, 0);
 			break;
 
-		case 28: // right arrow
+		case 28: // up arrow
 			mydisplay.setLed(0, 0, 6 + channel, 0);
 			mydisplay.setLed(0, 5, 6 + channel, 0);
 			mydisplay.setLed(0, 1, 6 + channel, 0);

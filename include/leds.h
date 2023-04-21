@@ -14,10 +14,8 @@ void leftDot();
 void showSendReceive();
 void ledNumber(int value);
 void ledNumberForced(int value);
-void rightArrow();
-void leftArrow();
+void showPickup();
 void digit(byte channel, byte number);
 void showAlgo(byte number);
 void ledSet(byte number, bool value);
-
 #endif // MEGAFM_CMAKE_LEDS_H

@@ -61,9 +61,10 @@ void clearSSEG() {
 }
 
 void loadPreset() {
-
-	for (int i = 0; i < 49; i++) {
-		pickup[i] = 1;
+	if (pickupMode) {
+		for (int i = 0; i < 49; i++) {
+			pickup[i] = 0;
+		}
 	}
 
 	Serial.end();

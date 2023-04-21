@@ -25,13 +25,19 @@ byte lastSentYm[2];
 
 // 0=chip1 down chip2 up 1=both chips go up and down (mixed)
 bool fatSpreadMode;
-
+// animate the pickup funciton with dots that move up or down
+int pickupFrame;
+bool pickupIsFader;
+bool pickupFrameUp;
+int pickupFrameUpTimer;
+bool showPickupAnimation;
+bool pickupAnimationNewFrame;
 // Whether the knobs/sliders should use 'pickup' behavior
 // Used in: buttons.cpp, megafm.cpp, pots.cpp
 bool pickupMode = true;
-// Whether each knob/slider has been picked up.
+// When pickup mode is active we set this high when the preset value has been reached (picked up) after a preset change.
 // Used in: pickup.cpp, pots.cpp, preset.cpp
-byte pickup[49];
+bool pickup[49];
 // Similar to pickup? Ignore volume knob immediately after loading a preset
 // Used in: buttons.cpp, megafm.cpp, pots.cpp, preset.cpp
 bool ignoreVolume;

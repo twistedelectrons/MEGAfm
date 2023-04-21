@@ -700,7 +700,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 				} else {
 					pickupMode = false;
 				}
-				EEPROM.update(3945, pickupMode);
+				EEPROM.update(3954, pickupMode);
 				break;
 			case 9:
 				if (val) {

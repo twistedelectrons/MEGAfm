@@ -367,4 +367,8 @@ void loop() {
 			mydisplay.setLed(0, 7, 7, 0);
 		}
 	}
+
+	if (pickupMode && pickupAnimationNewFrame && showPickupAnimation) {
+		showPickup();
+	}
 }

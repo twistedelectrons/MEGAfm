@@ -29,9 +29,14 @@ extern byte lastSentYm[2];
 extern bool fatSpreadMode;
 constexpr bool FAT_SPREAD_MODE_1DOWN2UP = false; // chip 1 down, chip 2 up
 constexpr bool FAT_SPREAD_MODE_MIXED = true;     // both chips go up and downa
-
+extern int pickupFrame;
+extern int pickupFrameUpTimer;
+extern bool pickupFrameUp;
+extern bool showPickupAnimation;
+extern bool pickupIsFader;
+extern bool pickupAnimationNewFrame;
 extern bool pickupMode;
-extern byte pickup[49];
+extern bool pickup[49];
 extern bool ignoreVolume;
 extern int bendyCounter;
 extern bool arpNotes[128];
