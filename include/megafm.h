@@ -121,7 +121,7 @@ extern int lastNumber;
 extern byte lfoClockSpeed[3];
 extern byte lfoClockSpeedPending[3];
 extern byte absoluteClockCounter;
-
+extern bool newFat;
 extern YM2612 ym;
 extern int heldKeys;
 extern byte lastNote, dotTimer;
