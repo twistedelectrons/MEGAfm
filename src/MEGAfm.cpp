@@ -16,7 +16,7 @@ cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /priv
 #include "isr.h"
 #include "preset.h"
 
-//check that we didn't do a rec+voicing before latching arp rec mode
+// check that we didn't do a rec+voicing before latching arp rec mode
 bool noRecAction;
 bool recHeld;
 bool chordNotes[128];
@@ -30,7 +30,7 @@ byte lastSentCC[2];
 byte lastSentMega[2];
 byte lastSentYm[2];
 
-//when true we play chords (captured with rec+voicing)
+// when true we play chords (captured with rec+voicing)
 bool chord;
 // 0=chip1 down chip2 up 1=both chips go up and down (mixed)
 bool fatSpreadMode;
@@ -129,6 +129,7 @@ float glideIncrement[12];
 int volumeCounter;
 bool changeVol;
 bool dotOn;
+bool dotOn2;
 bool arpClockEnable;
 bool lfoClockEnable[3];
 bool vibratoClockEnable;
@@ -324,10 +325,7 @@ void setup() {
 	// 3968 = bit 0 fatSpreadMode
 
 	// 3969= magic value 82 says we are already on FW 3.0
-	// otherwise set all SSEG to off.
-
-	
-
+	// otherwise set all SSEG to off
 	byte input = EEPROM.read(3968);
 	fatSpreadMode = bitRead(input, 0);
 
