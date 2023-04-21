@@ -129,7 +129,6 @@ float glideIncrement[12];
 int volumeCounter;
 bool changeVol;
 bool dotOn;
-bool dotOn2;
 bool arpClockEnable;
 bool lfoClockEnable[3];
 bool vibratoClockEnable;
@@ -171,6 +170,7 @@ float lfoStepF[3];
 bool arpModeHeld;
 byte inputChannel = 1;
 bool changedChannel;
+bool newFat;
 /**
  * Whether to turn off the voice slot when the pedal is lifted.
  */
@@ -305,11 +305,12 @@ void setup() {
 	// 3952 = last preset
 
 	// 3953 bit0  =  midi clock lfo1
-	//  3953 bit1    midi clock lfo2
-	//  3953 bit2 =  midi clock lfo3
-	//  3953 bit3 =  midi clock vibra
-	//  3953 bit4 =  midi clock  arp
-	//  3953 bit5 =  fatMode
+	// 3953 bit1    midi clock lfo2
+	// 3953 bit2 =  midi clock lfo3
+	// 3953 bit3 =  midi clock vibra
+	// 3953 bit4 =  midi clock  arp
+	// 3953 bit5 =  fatMode
+	// 3953 bit6 = new fat tuning
 
 	// 3954 = pickup mode (0=on)
 	// 3958 =bendDown
@@ -382,6 +383,7 @@ void setup() {
 	vibratoClockEnable = bitRead(EEPROM.read(3953), 3);
 	arpClockEnable = bitRead(EEPROM.read(3953), 4);
 	fatMode = bitRead(EEPROM.read(3953), 5);
+	newFat = bitRead(EEPROM.read(3953), 6);
 
 	ignoreVolume = bitRead(EEPROM.read(3950), 1);
 

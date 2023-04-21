@@ -677,6 +677,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 				bitWrite(temp, 2, lfoClockEnable[2]);
 				EEPROM.update(3953, temp);
 				break;
+
 			case 6:
 				if (val) {
 					vibratoClockEnable = true;
@@ -697,6 +698,29 @@ void HandleControlChange(byte channel, byte number, byte val) {
 				bitWrite(temp, 4, arpClockEnable);
 				EEPROM.update(3953, temp);
 				break;
+
+			case 19:
+				if (val) {
+					fatMode = true;
+				} else {
+					fatMode = false;
+				}
+				temp = EEPROM.read(3953);
+				bitWrite(temp, 5, fatMode);
+				EEPROM.update(3953, temp);
+				break;
+
+			case 14:
+				if (val) {
+					newFat = true;
+				} else {
+					newFat = false;
+				}
+				temp = EEPROM.read(3953);
+				bitWrite(temp, 6, newFat);
+				EEPROM.update(3953, temp);
+				break;
+
 			case 8:
 				if (val) {
 					pickupMode = true;
@@ -790,11 +814,12 @@ void HandleControlChange(byte channel, byte number, byte val) {
 		sendTool(11, lfoMod);
 		sendTool(12, lfoAt);
 		sendTool(13, stereoCh3);
-		// sendTool(14, stereoCh3);//new fat tuning
+		sendTool(14, newFat); // new fat tuning
 		sendTool(15, inputChannel);
 		sendTool(16, bendUp);
 		sendTool(17, bendDown);
 		sendTool(18, EEPROM.read(3965));
+		sendTool(19, fatMode);
 
 		toolMode = true; // MEGAfm is listening to new settings (CC on CH16)
 	}

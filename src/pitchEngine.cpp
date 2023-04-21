@@ -181,29 +181,228 @@ void setNote(uint8_t channel, uint8_t note) {
 		destiFreq[channel] = (noteToFrequencyMpe(notey[channel], channel));
 		freq[channel] = destiFreq[channel];
 	} else {
-		if (fat < .005) {
-			destiFreq[channel] = (noteToFrequency(notey[channel]));
-		} else {
-			if (voiceMode == kVoicingUnison) {
-				// Here is where the unison spread "THX" chord is implemented.
-				// FIXME: bug-to-bug compat mode?
-				const int thx_chord[] = {-20, -17, -12, -8, -5, 0, 0, 4, 7, 12, 16, 19};
-				destiFreq[channel] = noteToFrequencyFloat(notey[channel] + thx_chord[channel] * fat);
+		if (!newFat) {
+
+			notey[channel] = note;
+
+			if (fat < .005) {
+				destiFreq[channel] = (noteToFrequency(notey[channel]));
 			} else {
-				if (fatMode == FAT_MODE_OCTAVE) {
-					if (detune >= 0)
-						destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + detune);
-					else
-						destiFreq[channel] = noteToFrequency(notey[channel]) / (1 - detune);
+
+				if (voiceMode == 3) {
+					switch (channel) {
+						case 0:
+							destiFreq[channel] = noteToFrequency(notey[channel]);
+							break;
+						case 2:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) +
+							                       (noteToFrequency(notey[channel] + 12)) * (fat - .01)));
+							break;
+						case 4:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) +
+							                       (noteToFrequency(notey[channel] + 4)) * (fat - .01)));
+							break;
+						case 6:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) +
+							                       (noteToFrequency(notey[channel] + 7)) * (fat - .01)));
+							break;
+						case 8:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) +
+							                       (noteToFrequency(notey[channel] + 16)) * (fat - .01)));
+							break;
+						case 10:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) +
+							                       (noteToFrequency(notey[channel] + 19)) * (fat - .01)));
+							break;
+
+						case 1:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) -
+							                       (noteToFrequency(notey[channel]) / 2) * (fat - .01)));
+							break;
+						case 3:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) -
+							                       (noteToFrequency(notey[channel] + 12) / 2) * (fat - .01)));
+							break;
+						case 5:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) -
+							                       (noteToFrequency(notey[channel] + 4) / 2) * (fat - .01)));
+							break;
+						case 7:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) -
+							                       (noteToFrequency(notey[channel] + 7) / 2) * (fat - .01)));
+							break;
+						case 9:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) -
+							                       (noteToFrequency(notey[channel] + 16) / 2) * (fat - .01)));
+							break;
+						case 11:
+							destiFreq[channel] = ((noteToFrequency(notey[channel]) -
+							                       (noteToFrequency(notey[channel] + 19) / 2) * (fat - .01)));
+							break;
+					}
+				}
+
+				else if (voiceMode == 0) {
+					if (fatMode) {
+						switch (channel) {
+
+							default:
+								destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
+								break;
+
+							case 1:
+							case 3:
+							case 5:
+							case 7:
+							case 9:
+							case 11:
+								destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
+								break;
+						}
+					}
+
+					else {
+						switch (channel) {
+
+								// 1 semi
+							default:
+								destiFreq[channel] =
+								    noteToFrequency(notey[channel]) +
+								    (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+								     (fat - .005));
+								break;
+
+							case 1:
+							case 3:
+							case 5:
+							case 7:
+							case 9:
+							case 11:
+								destiFreq[channel] =
+								    noteToFrequency(notey[channel]) -
+								    (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+								     (fat - .005));
+								break;
+						}
+					}
+				}
+
+				else if (voiceMode == 1) {
+					if (fatMode) {
+						switch (channel) {
+
+							default:
+								destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
+								break;
+
+							case 6:
+							case 7:
+							case 8:
+							case 9:
+							case 10:
+							case 11:
+								destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
+								break;
+						}
+					}
+
+					else {
+						switch (channel) {
+
+								// 1 semi
+							default:
+								destiFreq[channel] =
+								    noteToFrequency(notey[channel]) +
+								    (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+								     (fat - .005));
+								break;
+
+							case 6:
+							case 7:
+							case 8:
+							case 9:
+							case 10:
+							case 11:
+								destiFreq[channel] =
+								    noteToFrequency(notey[channel]) -
+								    (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+								     (fat - .005));
+								break;
+						}
+					}
+				}
+
+				else {
+					if (fatMode) {
+						switch (channel) {
+
+							default:
+								destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + fat);
+								break;
+
+							case 1:
+							case 3:
+							case 5:
+							case 7:
+							case 9:
+							case 11:
+								destiFreq[channel] = noteToFrequency(notey[channel]) / (1 + fat);
+								break;
+						}
+					}
+
+					else {
+						switch (channel) {
+
+								// 1 semi
+							default:
+								destiFreq[channel] =
+								    noteToFrequency(notey[channel]) +
+								    (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) *
+								     (fat - .005));
+								break;
+
+							case 1:
+							case 3:
+							case 5:
+							case 7:
+							case 9:
+							case 11:
+								destiFreq[channel] =
+								    noteToFrequency(notey[channel]) -
+								    (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) *
+								     (fat - .005));
+								break;
+						}
+					}
+				}
+			}
+
+		} else {
+			if (fat < .005) {
+				destiFreq[channel] = (noteToFrequency(notey[channel]));
+			} else {
+				if (voiceMode == kVoicingUnison) {
+					// Here is where the unison spread "THX" chord is implemented.
+					// FIXME: bug-to-bug compat mode?
+					const int thx_chord[] = {-20, -17, -12, -8, -5, 0, 0, 4, 7, 12, 16, 19};
+					destiFreq[channel] = noteToFrequencyFloat(notey[channel] + thx_chord[channel] * fat);
 				} else {
-					if (detune >= 0)
-						destiFreq[channel] =
-						    noteToFrequency(notey[channel]) +
-						    (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) * detune);
-					else
-						destiFreq[channel] =
-						    noteToFrequency(notey[channel]) -
-						    (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) * (-detune));
+					if (fatMode == FAT_MODE_OCTAVE) {
+						if (detune >= 0)
+							destiFreq[channel] = noteToFrequency(notey[channel]) * (1 + detune);
+						else
+							destiFreq[channel] = noteToFrequency(notey[channel]) / (1 - detune);
+					} else {
+						if (detune >= 0)
+							destiFreq[channel] =
+							    noteToFrequency(notey[channel]) +
+							    (((noteToFrequency(notey[channel] + 1) - noteToFrequency(notey[channel]))) * detune);
+						else
+							destiFreq[channel] =
+							    noteToFrequency(notey[channel]) -
+							    (((noteToFrequency(notey[channel]) - noteToFrequency(notey[channel] - 1))) * (-detune));
+					}
 				}
 			}
 		}
