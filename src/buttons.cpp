@@ -330,26 +330,8 @@ void buttChanged(Button number, bool value) {
 						break; // reset
 
 					case kButtonArpRec:
-						if (presetTargetMode) {
-							presetTargetMode = false;
-							savePreset();
-						} else {
-							if (!seqRec) {
-								seqLength = 0;
-								if (voiceMode != kVoicingUnison) {
-									voiceMode = kVoicingUnison;
-									showVoiceMode(voiceMode);
-								}
-								seqRec = true;
-								arpMode = 6;
-								ledSet(23, 1);
-								digit(0, 5);
-								digit(1, 18);
-							} else {
-								seqRec = false;
-								ledSet(22, 0);
-							}
-						}
+						noRecAction = true;
+						recHeld = true;
 						break; // arp rec
 
 					case kButtonChainLfo1:
@@ -565,28 +547,46 @@ void buttChanged(Button number, bool value) {
 				switch (number) {
 					case kButtonVoiceMode:
 						voiceHeld = false;
-						if (!justQuitSetup) {
-							if (!fineChanged) {
+						if (recHeld) {
+							noRecAction = false;
+							chord = !chord;
+							if (chord) {
+								digit(0, 10);
+								digit(1, 23);
+								for (int i = 128; i > 0; i--) {
+									chordNotes[i] = heldNotes[i]; // copy held to chord buffer
+									if (heldNotes[i])
+										chordRoot = i; // root is lowest note of the held notes
+								}
+							} else {
+								digit(0, 27);
+								digit(1, 12);
+							} // copy the held notes to the chord buffer
 
-								if (!mpe) {
-									//                             Poly12         Wide6          dualCh3          unison
-									//                             Wide4          Wide3
-									VoiceMode nextVoiceMode[6] = {kVoicingWide6,  kVoicingWide4, kVoicingUnison,
-									                              kVoicingPoly12, kVoicingWide3, kVoicingDualCh3};
-									if (voiceMode < kVoiceModeCount) {
-										voiceMode = nextVoiceMode[voiceMode];
+						} else {
+							if (!justQuitSetup) {
+								if (!fineChanged) {
+
+									if (!mpe) {
+										//                             Poly12         Wide6          dualCh3 unison
+										//                             Wide4          Wide3
+										VoiceMode nextVoiceMode[6] = {kVoicingWide6,  kVoicingWide4, kVoicingUnison,
+										                              kVoicingPoly12, kVoicingWide3, kVoicingDualCh3};
+										if (voiceMode < kVoiceModeCount) {
+											voiceMode = nextVoiceMode[voiceMode];
+										} else {
+											voiceMode = kVoicingPoly12;
+										}
+										showVoiceMode(voiceMode);
+										sendCC(51, voiceMode);
+
+										// Reset notes after a voiceChange
+										resetVoices();
+
 									} else {
-										voiceMode = kVoicingPoly12;
+										digit(0, 17);
+										digit(1, 10);
 									}
-									showVoiceMode(voiceMode);
-									sendCC(51, voiceMode);
-
-									// Reset notes after a voiceChange
-									resetVoices();
-
-								} else {
-									digit(0, 17);
-									digit(1, 10);
 								}
 							}
 						}
@@ -771,6 +771,30 @@ void buttChanged(Button number, bool value) {
 
 						break; // arp mode
 					case kButtonArpRec:
+						if (noRecAction) {
+							if (presetTargetMode) {
+								presetTargetMode = false;
+								savePreset();
+							} else {
+								if (!seqRec) {
+									seqLength = 0;
+									if (voiceMode != kVoicingUnison) {
+										voiceMode = kVoicingUnison;
+										showVoiceMode(voiceMode);
+									}
+									seqRec = true;
+									arpMode = 6;
+									ledSet(23, 1);
+									digit(0, 5);
+									digit(1, 18);
+								} else {
+									seqRec = false;
+									ledSet(22, 0);
+								}
+							}
+						}
+						recHeld = false;
+						break;
 					case kButtonChainLfo1:
 						chainPressed = 0;
 						if ((targetPot != 36) && (targetPot != 37)) { // prevent lfo linking to itself
