@@ -226,6 +226,8 @@ static MidiPedalAdapter pedal_adapter(handleNoteOn, handleNoteOff);
 
 static void handleNoteOn(byte channel, byte note, byte velocity) {
 	// byte distanceFromNewNote; // unused
+	if (channel == inputChannel)
+		heldNotes[note] = true;
 
 	if (setupMode) {
 
@@ -468,7 +470,8 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 }
 
 static void handleNoteOff(byte channel, byte note) {
-
+	if (channel == inputChannel)
+		heldNotes[note] = false;
 	if (setupMode) {
 
 		if (note == bendRoot) {
@@ -1119,16 +1122,43 @@ void midiRead() {
 				switch (mStatus) {
 					case 1:
 						if (input) {
-							pedal_adapter.note_on(mChannel, mData + midiNoteOffset, input);
+
+							if (chord) {
+								for (int i = 0; i < 128; i++) {
+									if (chordNotes[i]) {
+										pedal_adapter.note_on(mChannel, i + mData + midiNoteOffset - chordRoot, input);
+									}
+								}
+							} else {
+								pedal_adapter.note_on(mChannel, mData + midiNoteOffset, input);
+							}
 							// handleNoteOn(mChannel, mData + midiNoteOffset, input);
 						} else {
-							pedal_adapter.note_off(mChannel, mData + midiNoteOffset);
+
+							if (chord) {
+								for (int i = 0; i < 128; i++) {
+									if (chordNotes[i]) {
+										pedal_adapter.note_off(mChannel, i + mData + midiNoteOffset - chordRoot);
+									}
+								}
+							} else {
+								pedal_adapter.note_off(mChannel, mData + midiNoteOffset);
+							}
 							// handleNoteOff(mChannel, mData + midiNoteOffset);
 						}
 						mData = 255;
 						break; // noteOn
 					case 2:
-						pedal_adapter.note_off(mChannel, mData + midiNoteOffset);
+
+						if (chord) {
+							for (int i = 0; i < 128; i++) {
+								if (chordNotes[i]) {
+									pedal_adapter.note_off(mChannel, i + mData + midiNoteOffset - chordRoot);
+								}
+							}
+						} else {
+							pedal_adapter.note_off(mChannel, mData + midiNoteOffset);
+						}
 						// handleNoteOff(mChannel, mData + midiNoteOffset);
 						mData = 255;
 						break;

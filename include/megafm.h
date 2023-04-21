@@ -17,6 +17,9 @@
 #define YM_WR 11
 #define YM_IC 30
 
+extern bool chord;
+extern bool noRecAction;
+extern bool recHeld;
 extern bool showLfoFlag;
 extern int showSSEGCounter;
 extern byte SSEG[4];
@@ -129,7 +132,9 @@ extern byte inputChannel;
 extern bool changedChannel;
 extern bool pedalOff[12];
 extern bool emptyStack;
-
+extern bool chordNotes[128];
+extern bool heldNotes[128];
+extern byte chordRoot;
 extern bool fatMode;
 constexpr bool FAT_MODE_SEMITONE = false;
 constexpr bool FAT_MODE_OCTAVE = true;
