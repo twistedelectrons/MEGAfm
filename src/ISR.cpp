@@ -18,6 +18,26 @@ void startTimer() {
 }
 
 void isr() {
+
+	// animate pickup
+	if (pickupMode) {
+
+		pickupFrameUpTimer++;
+		if (pickupFrameUpTimer > 400) {
+			pickupFrameUpTimer = 0;
+			if (!pickupFrameUp) {
+				pickupFrame++;
+				if (pickupFrame > 8)
+					pickupFrame = 0;
+			} else {
+				pickupFrame--;
+				if (pickupFrame < 0)
+					pickupFrame = 8;
+			}
+			pickupAnimationNewFrame = true;
+		}
+	}
+
 	if ((lfoAt) && (!fmBase[40]) && (atDest != at)) {
 		atGlideCounter++;
 		if (atGlideCounter > 5) {

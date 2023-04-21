@@ -7,9 +7,12 @@ void doPickup(byte number, int data) {
 	int target = -1;
 	int targetValue;
 
+	pickupIsFader = 1;
+
 	switch (number) {
 		// OP1
 		case 18:
+
 			target = 0;
 			break; // detune
 		case 27:
@@ -111,66 +114,75 @@ void doPickup(byte number, int data) {
 
 		case 3:
 			target = 43;
+			pickupIsFader = 0;
 			break; // feedback
 		case 15:
 			target = 36;
+			pickupIsFader = 0;
 			break; // lfo 1 rate
 		case 12:
 			target = 37;
+			pickupIsFader = 0;
 			break; // lfo 1 depth
 		case 10:
 			target = 38;
+			pickupIsFader = 0;
 			break; // lfo 2 rate
 		case 9:
 			target = 39;
+			pickupIsFader = 0;
 			break; // lfo 2 depth
 		case 14:
 			target = 40;
+			pickupIsFader = 0;
 			break; // lfo 3 rate
 		case 2:
 			target = 41;
+			pickupIsFader = 0;
 			break; // lfo 3 depth
 		case 6:
 			target = 46;
+			pickupIsFader = 0;
 			break; /// arp rate
 		case 5:
 			target = 47;
+			pickupIsFader = 0;
 			break; // arp range
 		case 48:
 			target = 48;
+			pickupIsFader = 0;
 			break; // vibrato rate WAS 7
 	}
 
-	if (target != -1) {
+	if (target != -1 && !pickup[number]) {
 		targetValue = fmBase[target];
 
-		if (data < targetValue - 2) {
-			if (pickup[number] == 1) {
-				rightArrow();
-				pickup[number] = 2;
-			} else if (pickup[number] == 3) {
-				// MATCH we went past
-				pickup[number] = 0;
-				movedPot(number, data, 0);
+		if (data < targetValue - 21) {
+			pickupFrameUp = 1;
+			if (!showPickupAnimation) {
+				showPickupAnimation = true;
+				pickupFrameUpTimer = 0;
+				pickupFrame = 0;
 			}
-		} else if (data > targetValue + 2) {
-			if (pickup[number] == 1) {
-				leftArrow();
-				pickup[number] = 3;
-			} else if (pickup[number] == 2) {
-				// we were 6 under now we're over so we matched
-				pickup[number] = 0;
-				movedPot(number, data, 0);
+
+		} else if (data > targetValue + 21) {
+			pickupFrameUp = 0;
+			if (!showPickupAnimation) {
+				showPickupAnimation = true;
+				pickupFrameUpTimer = 0;
+				pickupFrame = 2;
 			}
 		} else {
-			// not over nor under = it's a match!
+			// within the threshold = it's a match!
 			// MATCH
-			pickup[number] = 0;
-			movedPot(number, data, 0);
+
+			pickup[number] = 1;
+			ledNumber(targetValue);
+			movedPot(number, targetValue, 0);
 		}
 	} else {
 		// no pickup on this knob/fader
-		pickup[number] = 0;
+		pickup[number] = 1;
 		movedPot(number, data, 0);
 	}
 }
