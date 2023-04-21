@@ -82,7 +82,7 @@ void handleClock() {
 		////////        ARP          ///////
 		///////////////////////////////////
 
-		if ((arpClockEnable) && (arpMode) && (voiceMode == kVoicingDualCh3) && (arpMode != 7)) {
+		if ((arpClockEnable) && (arpMode) && (voiceMode == kVoicingUnison) && (arpMode != 7)) {
 			arpClockCounter++;
 			if ((arpClockCounter >= kMidiArpTicks[arpMidiSpeed])) {
 				arpClockCounter = 0;
