@@ -16,7 +16,7 @@
 #define YM_CS2 14
 #define YM_WR 11
 #define YM_IC 30
-
+extern byte presetChordNumber;
 extern bool chord;
 extern bool noRecAction;
 extern bool recHeld;
