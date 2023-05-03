@@ -10,6 +10,25 @@
 #include "voice.h"
 #include "FM.h"
 
+const byte presetChords[16][6] = {
+    {0, 4, 7, 10, 14, 17}, // C Major 7
+    {0, 3, 7, 10, 14, 17}, // C Minor 7
+    {0, 4, 7, 11, 14, 17}, // C Dominant 7
+    {0, 4, 7, 11, 14, 18}, // C Major 7(#11)
+    {0, 4, 7, 10, 13, 17}, // C6
+    {0, 4, 7, 9, 14, 17},  // C Minor Major 7
+    {0, 2, 4, 7, 9, 11},   // Cm6
+    {0, 3, 6, 10, 14, 17}, // C Minor 7(b5)
+    {0, 5, 7, 10, 14, 17}, // C9
+    {0, 4, 7, 10, 14, 19}, // C Major 9
+    {0, 4, 7, 10, 14, 15}, // Cadd9
+    {0, 4, 7, 11, 14, 21}, // C13
+    {0, 2, 4, 7, 9, 10},   // Cmadd9
+    {0, 4, 7, 11, 15, 18}, // C7(#9)
+    {0, 4, 7, 10, 14, 21}, // C6/9
+    {0, 3, 7, 9, 14, 17}   // Cm(Maj7)/C Minor Major 7
+};
+
 static bool resetFunction = false;
 
 void buttChanged(Button number, bool value) {
@@ -551,14 +570,44 @@ void buttChanged(Button number, bool value) {
 							noRecAction = false;
 							chord = !chord;
 							if (chord) {
+
+								bool noNotes = true;
 								digit(0, 10);
 								digit(1, 23);
 								for (int i = 128; i > 0; i--) {
 									chordNotes[i] = heldNotes[i]; // copy held to chord buffer
-									if (heldNotes[i])
+									if (heldNotes[i]) {
 										chordRoot = i; // root is lowest note of the held notes
+										noNotes = false;
+									}
 								}
+
+								if (noNotes) {
+									chordRoot = 36;
+									for (int i = 0; i < 6; i++) {
+
+										if (presetChordNumber % 2 == 0) { // alternate between 3 and 6 note chords
+											if (i < 3) {
+												chordNotes[36 + presetChords[presetChordNumber][i]] = 1;
+											}
+										} else {
+											chordNotes[36 + presetChords[presetChordNumber][i]] = 1;
+										}
+									}
+								}
+
 							} else {
+								presetChordNumber++;
+								if (presetChordNumber > 15) {
+									presetChordNumber = 0;
+								}
+								for (int i = 128; i > 0; i--) {
+									chordNotes[i] = heldNotes[i] = 0;
+								}
+								heldKeys = 0;
+								for (int i = 0; i < 12; i++) {
+									ym.noteOff(i);
+								}
 								digit(0, 27);
 								digit(1, 12);
 							} // copy the held notes to the chord buffer

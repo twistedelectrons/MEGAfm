@@ -22,7 +22,7 @@ bool recHeld;
 bool chordNotes[128];
 bool heldNotes[128];
 byte chordRoot;
-
+byte presetChordNumber;
 // Whether one second has elapsed since device boot.
 // Used in: loop.cpp, pots.cpp
 bool secPast = false;
