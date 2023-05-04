@@ -674,7 +674,25 @@ void movedPot(byte number, byte data, bool isMidi) {
 								dontShow[36] = isMidi;
 								selectedLfo = 0;
 								if ((lfoClockEnable[0]) && (sync)) {
-									ledNumber(kArpRateDisplay[data >> 5]);
+									byte valueToShow = map(data, 0, 255, 0, 9);
+									if (valueToShow > 2) {
+										ledNumber(kArpRateDisplay[valueToShow]);
+									} // it's less than a bar, show division
+									else {
+										digit(0, 25); // b
+										switch (valueToShow) {
+											case 0:
+												digit(1, 4);
+												break;
+											case 1:
+												digit(1, 2);
+												break;
+											case 2:
+												digit(1, 1);
+												break;
+										}
+									} // show number of bars (b1 or b2 or b4)
+
 								} else {
 									ledNumber(data >> 2);
 								}

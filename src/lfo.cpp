@@ -139,11 +139,12 @@ void lfoAdvance() {
 		else {
 			if ((lfoClockEnable[i]) && (sync)) {
 			} else {
-				lfoCounter[i] += lfoSpeed[i];
+
+				lfoCounter[i] += lfoRateLT[lfoSpeed[i]];
 			}
 
-			while (lfoCounter[i] >= 512) {
-				lfoCounter[i] -= 512;
+			while (lfoCounter[i] >= 4095) {
+				lfoCounter[i] -= 4095;
 				if (lfoStep[i] < 255) {
 					lfoStep[i]++;
 				} else if (lfoStep[i] == 255) {

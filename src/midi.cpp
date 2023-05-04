@@ -55,7 +55,7 @@ void handleClock() {
 		}
 
 		absoluteClockCounter++;
-		if (absoluteClockCounter >= 48) {
+		if (absoluteClockCounter >= 96) {
 			leftDot();
 			absoluteClockCounter = 0;
 
@@ -69,9 +69,9 @@ void handleClock() {
 
 			for (int i = 0; i < 3; i++) {
 				if (lfoClockEnable[i]) {
-					if (lfoClockSpeedPending[i]) {
-						lfoClockSpeed[i] = lfoClockSpeedPending[i] - 1;
-						lfoClockSpeedPending[i] = 0;
+					if (lfoClockSpeedPending[i] != lfoClockSpeedPendingLast[i]) {
+						lfoClockSpeed[i] = lfoClockSpeedPending[i];
+						lfoClockSpeedPendingLast[i] = lfoClockSpeedPending[i];
 						lfoStepF[i] = 0;
 					}
 				}
@@ -177,6 +177,12 @@ void handleStart() {
 	seqStep = 0;
 	arpClockCounter = 0;
 	sync = true;
+
+	for (int i = 0; i < 3; i++) {
+		if (lfoClockEnable[i]) {
+			lfoStepF[i] = lfoStep[i] = 0;
+		}
+	}
 }
 
 void handleProgramChange(byte channel, byte program) {

@@ -113,13 +113,13 @@ extern byte arpMode, arpModeLast;
 extern byte version;
 extern bool looping[3];
 extern int arpIndex;
-
 extern bool resetHeld;
 extern bool shuffled;
 extern bool voiceHeld;
 extern int lastNumber;
 extern byte lfoClockSpeed[3];
 extern byte lfoClockSpeedPending[3];
+extern byte lfoClockSpeedPendingLast[3];
 extern byte absoluteClockCounter;
 extern bool newFat;
 extern YM2612 ym;
