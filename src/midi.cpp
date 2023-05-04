@@ -69,9 +69,9 @@ void handleClock() {
 
 			for (int i = 0; i < 3; i++) {
 				if (lfoClockEnable[i]) {
-					if (lfoClockSpeedPending[i]!=lfoClockSpeedPendingLast[i]) {
+					if (lfoClockSpeedPending[i] != lfoClockSpeedPendingLast[i]) {
 						lfoClockSpeed[i] = lfoClockSpeedPending[i];
-						lfoClockSpeedPendingLast[i]=lfoClockSpeedPending[i];
+						lfoClockSpeedPendingLast[i] = lfoClockSpeedPending[i];
 						lfoStepF[i] = 0;
 					}
 				}
