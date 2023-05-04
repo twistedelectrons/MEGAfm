@@ -161,6 +161,7 @@ byte lfoClockSpeed[3];
 // this is used to store a new lfo rate until the incoming MIDI clock counter resets,
 // whereas changing immediately would make it go out of sync.
 byte lfoClockSpeedPending[3];
+byte lfoClockSpeedPendingLast[3];
 byte absoluteClockCounter;
 YM2612 ym;
 int heldKeys;
