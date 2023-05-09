@@ -1049,7 +1049,7 @@ void dumpPreset() {
 static byte mStatus;
 static byte mData;
 static byte mChannel;
-static int midiNoteOffset = -12;
+static int midiNoteOffset = -13;
 
 void sendControlChange(byte number, byte value, byte channel) {
 	if (!thru) {
