@@ -374,6 +374,9 @@ void buttChanged(Button number, bool value) {
 
 					case kButtonSquare:
 						if (bankCounter) {
+							if (presetTargetMode) {
+								presetCounts = 40;
+							}
 							bank = 0;
 							ledSet(16 + bank, 1);
 							flashCounter2 = 0;
@@ -400,6 +403,9 @@ void buttChanged(Button number, bool value) {
 
 					case kButtonTriangle:
 						if (bankCounter) {
+							if (presetTargetMode) {
+								presetCounts = 40;
+							}
 							bank = 1;
 							ledSet(16 + bank, 1);
 							flashCounter2 = 0;
@@ -426,6 +432,9 @@ void buttChanged(Button number, bool value) {
 
 					case kButtonSaw:
 						if (bankCounter) {
+							if (presetTargetMode) {
+								presetCounts = 40;
+							}
 							bank = 2;
 							ledSet(16 + bank, 1);
 							flashCounter2 = 0;
@@ -469,6 +478,9 @@ void buttChanged(Button number, bool value) {
 
 					case kButtonNoise:
 						if (bankCounter) {
+							if (presetTargetMode) {
+								presetCounts = 40;
+							}
 							bank = 3;
 							ledSet(16 + bank, 1);
 							flashCounter2 = 0;
@@ -516,6 +528,9 @@ void buttChanged(Button number, bool value) {
 
 					case kButtonRetrig:
 						if (bankCounter) {
+							if (presetTargetMode) {
+								presetCounts = 40;
+							}
 							bank = 4;
 							ledSet(16 + bank, 1);
 							flashCounter2 = 0;
@@ -537,6 +552,9 @@ void buttChanged(Button number, bool value) {
 						break; // retrig
 					case kButtonLoop:
 						if (bankCounter) {
+							if (presetTargetMode) {
+								presetCounts = 40;
+							}
 							bank = 5;
 							ledSet(16 + bank, 1);
 							flashCounter2 = 0;
@@ -716,17 +734,22 @@ void buttChanged(Button number, bool value) {
 						break; // preset down
 
 					case kButtonPresetReset:
-						if (!shuffled) {
-							if (!resetFunction) {
-								loadZero();
-								digit(0, 14);
-								digit(1, 0);
-							} else {
-								panel();
+						if (presetTargetMode) {
+							presetTargetMode = false;
+						} else {
+							if (!shuffled) {
+								if (!resetFunction) {
+									loadZero();
+									digit(0, 14);
+									digit(1, 0);
+								} else {
+									panel();
+								}
+								resetFunction = !resetFunction;
 							}
-							resetFunction = !resetFunction;
 						}
 						resetHeld = false;
+
 						break; // reset
 
 					case kButtonArpMode:
