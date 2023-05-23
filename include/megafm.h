@@ -22,13 +22,15 @@ extern bool noRecAction;
 extern bool recHeld;
 extern bool showLfoFlag;
 extern int showSSEGCounter;
+extern int showPresetNumberTimeout; // we show the preset number when this expires (after moving a knob or fader);
+extern bool timeToShowPresetNumber; // set true when timeout expires
 extern byte SSEG[4];
 extern byte lastOperator;
 extern bool secPast;
 extern byte lastSentCC[2];
 extern byte lastSentMega[2];
 extern byte lastSentYm[2];
-
+extern int displayFreeze; // when >0 show only preset number after preset change
 extern bool fatSpreadMode;
 constexpr bool FAT_SPREAD_MODE_1DOWN2UP = false; // chip 1 down, chip 2 up
 constexpr bool FAT_SPREAD_MODE_MIXED = true;     // both chips go up and downa

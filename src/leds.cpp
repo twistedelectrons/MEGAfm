@@ -53,114 +53,85 @@
 #include "megafm.h"
 #include "voice.h"
 
-void updateLedNumber() {
+void showNumber(byte movedPotOrFader, byte value) {
 
 	int theNumber = -1;
 
-	for (byte ledNumberIndex = 0; ledNumberIndex < 49; ledNumberIndex++) {
+	switch (movedPotOrFader) {
 
-		switch (ledNumberIndex) {
+		case 2:
+		case 11:
+		case 20:
+		case 29:
+		case 37:
+		case 39:
+		case 41:
+		case 49:
+			theNumber = value >> 2;
+			break; //>>2
 
-			case 2:
-			case 11:
-			case 20:
-			case 29:
-			case 37:
-			case 39:
-			case 41:
-			case 49:
-				if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 2) {
-					fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 2;
-					theNumber = (fmBaseLastNumber[ledNumberIndex]);
-				}
-				break; //>>2
+		case 4:
+		case 5:
+		case 6:
+		case 13:
+		case 14:
+		case 15:
+		case 22:
+		case 23:
+		case 24:
+		case 31:
+		case 32:
+		case 33:
+			theNumber = value >> 3;
+			break; //>>3
 
-			case 4:
-			case 5:
-			case 6:
-			case 13:
-			case 14:
-			case 15:
-			case 22:
-			case 23:
-			case 24:
-			case 31:
-			case 32:
-			case 33:
-				if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 3) {
-					fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 3;
-					theNumber = (fmBaseLastNumber[ledNumberIndex]);
-				}
-				break; //>>3
+		case 7:
+		case 35:
+		case 8:
+		case 16:
+		case 17:
+		case 25:
+		case 26:
+		case 34:
+			theNumber = value >> 4;
+			break; //>>4
 
-			case 7:
-			case 35:
-			case 8:
-			case 16:
-			case 17:
-			case 25:
-			case 26:
-			case 34:
-				if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 4) {
-					fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 4;
-					theNumber = (fmBaseLastNumber[ledNumberIndex]);
-				}
-				break; //>>4
+		case 1:
+		case 10:
+		case 19:
+		case 28:
+			theNumber = value >> 4;
+			if (!theNumber) {
+				theNumber = 666;
+			}
 
-			case 1:
-			case 10:
-			case 19:
-			case 28:
-				if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 4) {
-					fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 4;
-					theNumber = (fmBaseLastNumber[ledNumberIndex]);
-					if (!theNumber) {
-						theNumber = 666;
-					}
-				}
-				break; // mult
+			break; // mult
 
-			case 43:
-				if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 5) {
-					fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 5;
-					theNumber = (fmBaseLastNumber[ledNumberIndex]);
-				}
-				break; //>>5
+		case 43:
+			theNumber = value >> 5;
+			break; //>>5
 
-			case 42:
-				if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 5) {
-					fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 5;
-					theNumber = (1 + fmBaseLastNumber[ledNumberIndex]);
-				}
-				break; //>>5 +1
+		case 42:
+			theNumber = value >> 5;
+			theNumber++;
+			break; //>>5 +1
 
-			case 47:
-				if (fmBaseLastNumber[ledNumberIndex] != fmBase[ledNumberIndex] >> 6) {
-					fmBaseLastNumber[ledNumberIndex] = fmBase[ledNumberIndex] >> 6;
-					theNumber = (1 + fmBaseLastNumber[ledNumberIndex]);
-				}
-				break; //>>6 +1
-		}
-		if (dontShow[ledNumberIndex]) {
-			theNumber = -1;
-		}
+		case 47:
+			theNumber = value >> 6;
+			theNumber++;
+			break; //>>6 +1
 	}
+	if (theNumber != -1)
+		ledNumber(theNumber);
+}
 
-	if (!setupMode) {
-		if (preset != presetLast) {
-			presetLast = preset;
-			lastNumber = -1;
-			ledNumber(preset);
-		}
-	} else {
+void updateLedNumber() {
+
+	if (setupMode) {
 		if (!setupChanged) {
 			digit(0, 5);
 			digit(1, 18);
 		}
-	}
-
-	if ((theNumber != -1) && (!ledNumberTimeOut)) {
-		ledNumber(theNumber);
 	}
 }
 
@@ -267,30 +238,31 @@ void showSendReceive() {
 }
 
 void ledNumber(int value) {
-
-	if (value == 666) { //.5
-		digit(0, 21);
-		digit(1, 5);
-		mydisplay.setLed(0, 7, 6, 1);
-		lastNumber = value;
-	} else {
-
-		dotTimer = 10;
-
-		if (value < 0) {
-			if (value > -10) {
-				digit(0, 20); // minus
-				digit(1, -value);
-				lastNumber = value;
-			}
+	if (!displayFreeze) {
+		if (value == 666) { //.5
+			digit(0, 21);
+			digit(1, 5);
+			mydisplay.setLed(0, 7, 6, 1);
+			lastNumber = value;
 		} else {
-			if (value > 99)
-				value = 99;
 
-			if (lastNumber != value) {
-				lastNumber = value;
-				digit(0, value / 10);
-				digit(1, value - ((value / 10) * 10));
+			dotTimer = 10;
+
+			if (value < 0) {
+				if (value > -10) {
+					digit(0, 20); // minus
+					digit(1, -value);
+					lastNumber = value;
+				}
+			} else {
+				if (value > 99)
+					value = 99;
+
+				if (lastNumber != value) {
+					lastNumber = value;
+					digit(0, value / 10);
+					digit(1, value - ((value / 10) * 10));
+				}
 			}
 		}
 	}

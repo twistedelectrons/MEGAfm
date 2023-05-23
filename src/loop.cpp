@@ -371,4 +371,9 @@ void loop() {
 	if (pickupMode && pickupAnimationNewFrame && showPickupAnimation) {
 		showPickup();
 	}
+
+	if (timeToShowPresetNumber) {
+		timeToShowPresetNumber = false;
+		ledNumber(preset);
+	}
 }

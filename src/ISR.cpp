@@ -57,8 +57,16 @@ void isr() {
 		}
 	}
 
+	if (showPresetNumberTimeout) {
+		showPresetNumberTimeout--;
+		if (!showPresetNumberTimeout)
+			timeToShowPresetNumber = true;
+	}
 	if (updatePitchCounter < 20)
 		updatePitchCounter++;
+
+	if (displayFreeze)
+		displayFreeze--;
 
 	if (showSSEGCounter) {
 		showSSEGCounter--;

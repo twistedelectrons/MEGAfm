@@ -413,6 +413,10 @@ void loadPreset() {
 	for (int i = 0; i < 4; i++) {
 		updateSSEG(i);
 	}
+
+	displayFreeze = 0;
+	ledNumber(preset);
+	displayFreeze = 12000;
 }
 
 void savePreset() {
