@@ -222,6 +222,9 @@ int fmData[51], fmDataLast[51];
 bool linked[3][51];
 bool dontShow[51];
 byte lfoRandom[3][32];
+int displayFreeze;
+int showPresetNumberTimeout; // we show the preset number when this expires (after moving a knob or fader);
+bool timeToShowPresetNumber; // set true when timeout expires
 byte randomIndex[3];
 bool pressedUp, pressedDown;
 bool saved;

@@ -18,4 +18,5 @@ void showPickup();
 void digit(byte channel, byte number);
 void showAlgo(byte number);
 void ledSet(byte number, bool value);
+void showNumber(byte movedPotOrFader, byte value);
 #endif // MEGAFM_CMAKE_LEDS_H

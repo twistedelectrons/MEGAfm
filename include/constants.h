@@ -6,7 +6,7 @@
 #define MEGAFM_CONSTANTS_H
 
 const byte kVersion0 = 3;
-const byte kVersion1 = 0;
+const byte kVersion1 = 1;
 
 const byte kDefaultSeq[16] = {0, 0, 0, 0, 12, 12, 12, 12, 0, 0, 12, 0, 0, 12, 12, 0};
 
