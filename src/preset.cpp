@@ -75,7 +75,7 @@ void loadPreset() {
 	byte offset = 0;
 
 	setIndex();
-
+	octOffset = 0;
 	// detach all LFO
 	for (int i = 0; i < 51; i++) {
 		linked[0][i] = 0;
@@ -118,6 +118,9 @@ void loadPreset() {
 		if (i < 3) {
 			invertedSaw[i] = bitRead(temp, 5);
 			invertedSquare[i] = bitRead(temp, 6);
+			if (i < 2) {
+				bitWrite(octOffset, i, bitRead(temp, 7));
+			}
 		}
 		temp = getByte();
 		bitWrite(fmBase[6 + offset], 0, bitRead(temp, 0)); // D2R
@@ -467,6 +470,9 @@ void savePreset() {
 		if (i < 3) {
 			bitWrite(temp, 5, invertedSaw[i]);
 			bitWrite(temp, 6, invertedSquare[i]);
+			if (i < 2) {
+				bitWrite(temp, 7, bitRead(octOffset, i));
+			}
 		}
 		store(temp);
 

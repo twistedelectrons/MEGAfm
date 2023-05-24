@@ -220,7 +220,7 @@ byte fmBase[51], fmBaseLast[51], fmBaseLastNumber[51];
  */
 int fmData[51], fmDataLast[51];
 bool linked[3][51];
-
+byte octOffset;
 byte lfoRandom[3][32];
 int displayFreeze;
 int showPresetNumberTimeout; // we show the preset number when this expires (after moving a knob or fader);
@@ -430,7 +430,7 @@ void setup() {
 	delay(500);
 	mydisplay.setLed(0, 7, 6, 0);
 
-	// first boot into 3.0? clear the SSEG so presets aren't crazy (yet)!
+	// first boot into 3.X? clear the SSEG and Offsets so presets aren't crazy (yet)!
 	if (EEPROM.read(3969) != 82) {
 		clearSSEG();
 		EEPROM.write(3969, 82);

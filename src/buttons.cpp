@@ -290,55 +290,74 @@ void buttChanged(Button number, bool value) {
 
 					case kButtonPresetUp:
 						if (!seqRec) {
-							if (arpModeHeld) {
-								changedChannel = true;
-								if (inputChannel < 16) {
-									inputChannel++;
-									EEPROM.write(3951, inputChannel);
+							if (voiceHeld) {
+								if (octOffset < 3) {
+									octOffset++;
 								}
-								ledNumber(inputChannel);
+								fineChanged = true; // prevents voice mode change
+								setupCounter = 0;   // prevents entering setup
+								ledNumber(octOffset);
 							} else {
-								saved = false;
-								pressedUp = true;
-								scrollDelay = 3000;
-								scrollCounter = 0;
-								if (pressedDown) {
-									if (!presetTargetMode) {
-										presetCounts = 40;
-										presetTargetMode = true;
-										presetTargetModeChanged = 2;
+								if (arpModeHeld) {
+									changedChannel = true;
+									if (inputChannel < 16) {
+										inputChannel++;
+										EEPROM.write(3951, inputChannel);
+									}
+									ledNumber(inputChannel);
+								} else {
+									saved = false;
+									pressedUp = true;
+									scrollDelay = 3000;
+									scrollCounter = 0;
+									if (pressedDown) {
+										if (!presetTargetMode) {
+											presetCounts = 40;
+											presetTargetMode = true;
+											presetTargetModeChanged = 2;
+										}
 									}
 								}
+								clearLfoLeds();
+								bankCounter = 20;
 							}
-							clearLfoLeds();
-							bankCounter = 20;
 						}
 						break; // preset up
 
 					case kButtonPresetDown:
 						if (!seqRec) {
-							if (arpModeHeld) {
-								changedChannel = true;
-								if (inputChannel > 1) {
-									inputChannel--;
-									EEPROM.write(3951, inputChannel);
+							if (voiceHeld) {
+								if (octOffset > 0) {
+									octOffset--;
 								}
-								ledNumber(inputChannel);
+								ledNumber(octOffset);
+								fineChanged = true; // prevents voice mode change
+								setupCounter = 0;   // prevents entering setup
+
 							} else {
-								saved = false;
-								pressedDown = true;
-								scrollDelay = 3000;
-								scrollCounter = 0;
-								if (pressedUp) {
-									if (!presetTargetMode) {
-										presetCounts = 40;
-										presetTargetMode = true;
-										presetTargetModeChanged = 2;
+								if (arpModeHeld) {
+									changedChannel = true;
+									if (inputChannel > 1) {
+										inputChannel--;
+										EEPROM.write(3951, inputChannel);
+									}
+									ledNumber(inputChannel);
+								} else {
+									saved = false;
+									pressedDown = true;
+									scrollDelay = 3000;
+									scrollCounter = 0;
+									if (pressedUp) {
+										if (!presetTargetMode) {
+											presetCounts = 40;
+											presetTargetMode = true;
+											presetTargetModeChanged = 2;
+										}
 									}
 								}
+								clearLfoLeds();
+								bankCounter = 20;
 							}
-							clearLfoLeds();
-							bankCounter = 20;
 						}
 						break; // preset down
 
@@ -669,29 +688,32 @@ void buttChanged(Button number, bool value) {
 								ledNumber(seqLength + 1);
 							}
 						} else {
-							if (!saved) {
-								if (presetTargetMode) {
-									if (presetTargetModeChanged) {
-										presetTargetModeChanged--;
+							if (!voiceHeld) {
+
+								if (!saved) {
+									if (presetTargetMode) {
+										if (presetTargetModeChanged) {
+											presetTargetModeChanged--;
+										} else {
+											presetCounts = 40;
+											if (!scrollCounter) {
+												preset++;
+												if (preset > 99) {
+													preset = 0;
+												}
+											}
+										}
 									} else {
-										presetCounts = 40;
 										if (!scrollCounter) {
 											preset++;
 											if (preset > 99) {
 												preset = 0;
 											}
 										}
+										loadPreset();
+										resetFunction = 0;
+										EEPROM.write(3952, preset);
 									}
-								} else {
-									if (!scrollCounter) {
-										preset++;
-										if (preset > 99) {
-											preset = 0;
-										}
-									}
-									loadPreset();
-									resetFunction = 0;
-									EEPROM.write(3952, preset);
 								}
 							}
 						}
@@ -705,29 +727,31 @@ void buttChanged(Button number, bool value) {
 								ledNumber(seqLength + 1);
 							}
 						} else {
-							if (!saved) {
-								if (presetTargetMode) {
-									if (presetTargetModeChanged) {
-										presetTargetModeChanged--;
+							if (!voiceHeld) {
+								if (!saved) {
+									if (presetTargetMode) {
+										if (presetTargetModeChanged) {
+											presetTargetModeChanged--;
+										} else {
+											presetCounts = 40;
+											if (!scrollCounter) {
+												preset--;
+												if (preset < 0) {
+													preset = 99;
+												}
+											}
+										}
 									} else {
-										presetCounts = 40;
 										if (!scrollCounter) {
 											preset--;
 											if (preset < 0) {
 												preset = 99;
 											}
 										}
+										loadPreset();
+										resetFunction = 0;
+										EEPROM.write(3952, preset);
 									}
-								} else {
-									if (!scrollCounter) {
-										preset--;
-										if (preset < 0) {
-											preset = 99;
-										}
-									}
-									loadPreset();
-									resetFunction = 0;
-									EEPROM.write(3952, preset);
 								}
 							}
 						}
