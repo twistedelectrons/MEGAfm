@@ -373,7 +373,8 @@ void loop() {
 	}
 
 	if (timeToShowPresetNumber) {
-		timeToShowPresetNumber = false;
+		displayFreeze = 0;
 		ledNumber(preset);
+		timeToShowPresetNumber = false;
 	}
 }
