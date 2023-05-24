@@ -17,6 +17,7 @@
 #define YM_WR 11
 #define YM_IC 30
 extern byte presetChordNumber;
+extern bool newWide; // enable new wide modes
 extern bool chord;
 extern bool noRecAction;
 extern bool recHeld;

@@ -790,9 +790,9 @@ void HandleControlChange(byte channel, byte number, byte val) {
 				EEPROM.update(3958, bendDown);
 				break;
 
-			case 18:
-				mydisplay.setIntensity(0, constrain(val, 1, 15));
-				EEPROM.update(3965, constrain(val, 0, 15));
+			case 20:
+				newWide = constrain(val, 0, 1);
+				EEPROM.update(3970, constrain(val, 0, 1));
 				break;
 		}
 	}
@@ -825,7 +825,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 		sendTool(17, bendDown);
 		sendTool(18, EEPROM.read(3965));
 		sendTool(19, fatMode);
-
+		sendTool(20, newWide);
 		toolMode = true; // MEGAfm is listening to new settings (CC on CH16)
 	}
 	// did we receive 1982 twice on channel 16?

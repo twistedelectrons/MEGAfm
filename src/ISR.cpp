@@ -108,6 +108,7 @@ void isr() {
 					preset = 99;
 				}
 			}
+			timeToShowPresetNumber = true;
 		}
 	}
 
