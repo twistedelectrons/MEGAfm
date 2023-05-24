@@ -152,6 +152,7 @@ void updatePitch() {
 }
 
 void setNote(uint8_t channel, uint8_t note) {
+	note += (octOffset * 12);
 	notey[channel] = note;
 
 	float detune;
