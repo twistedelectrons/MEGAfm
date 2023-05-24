@@ -286,7 +286,6 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 			if (fmBase[36]) {
 				fmBase[37] = velocity << 1;
 				fmBaseLast[37] = fmBase[37] - 1;
-				dontShow[37] = 1;
 			} else {
 				lfo[0] = velocity << 1;
 				applyLfo();
