@@ -201,9 +201,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 			} else {
 
 				// not setup mode
-				if (!isMidi)
-					showPresetNumberTimeout = 12000;
-
 				if ((pickupMode) && (!pickup[number])) {
 					// param hasn't been picked up yet, tel user if its too high or low
 					doPickup(number, data);
@@ -228,7 +225,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 
 								sendCC(number, data >> 1);
 							}
-							dontShow[0] = isMidi;
 							break; // detune
 						case 27:
 							showPickupAnimation = false;
@@ -240,7 +236,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								showNumber(targetPot, data);
 								sendCC(number, data >> 1);
 							}
-							dontShow[1] = isMidi;
 							break; // multiple
 						case 19:
 							showPickupAnimation = false;
@@ -252,7 +247,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								showNumber(targetPot, data);
 								sendCC(number, data >> 1);
 							}
-							dontShow[2] = isMidi;
 							break; // op level
 						case 29:
 							showPickupAnimation = false;
@@ -264,7 +258,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								showNumber(targetPot, data);
 								sendCC(number, data >> 1);
 							}
-							dontShow[4] = isMidi;
 							break; // attack
 						case 21:
 							showPickupAnimation = false;
@@ -276,7 +269,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								showNumber(targetPot, data);
 								sendCC(number, data >> 1);
 							}
-							dontShow[5] = isMidi;
 							break; // decay1
 						case 25:
 							showPickupAnimation = false;
@@ -288,7 +280,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								showNumber(targetPot, data);
 								sendCC(number, data >> 1);
 							}
-							dontShow[7] = isMidi;
 							break; // sustain
 						case 17:
 							showPickupAnimation = false;
@@ -300,7 +291,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								showNumber(targetPot, data);
 								sendCC(number, data >> 1);
 							}
-							dontShow[6] = isMidi;
 							break; // sustain rate
 						case 30:
 							showPickupAnimation = false;
@@ -312,7 +302,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								showNumber(targetPot, data);
 								sendCC(number, data >> 1);
 							}
-							dontShow[8] = isMidi;
 							break; // release
 
 							// OP2
@@ -320,7 +309,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[18] = data;
 							updateFMifNecessary(18);
-							dontShow[18] = isMidi;
 							if (voiceMode == kVoicingDualCh3) {
 								ledNumber(data >> 2);
 							} else {
@@ -336,7 +324,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[19] = data;
 							updateFMifNecessary(19);
-							dontShow[19] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 19;
@@ -348,7 +335,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[20] = data;
 							updateFMifNecessary(20);
-							dontShow[20] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 20;
@@ -360,7 +346,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[22] = data;
 							updateFMifNecessary(22);
-							dontShow[22] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 22;
@@ -372,7 +357,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[23] = data;
 							updateFMifNecessary(23);
-							dontShow[23] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 23;
@@ -384,7 +368,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[25] = data;
 							updateFMifNecessary(25);
-							dontShow[25] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 25;
@@ -396,7 +379,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[24] = data;
 							updateFMifNecessary(24);
-							dontShow[24] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 24;
@@ -408,7 +390,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[26] = data;
 							updateFMifNecessary(26);
-							dontShow[26] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 26;
@@ -422,7 +403,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[9] = data;
 							updateFMifNecessary(9);
-							dontShow[9] = isMidi;
 							if (voiceMode == kVoicingDualCh3) {
 								ledNumber(data >> 2);
 							} else {
@@ -438,7 +418,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[10] = data;
 							updateFMifNecessary(10);
-							dontShow[10] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 10;
@@ -450,7 +429,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[11] = data;
 							updateFMifNecessary(11);
-							dontShow[11] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 11;
@@ -462,7 +440,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[13] = data;
 							updateFMifNecessary(13);
-							dontShow[13] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 13;
@@ -474,7 +451,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[14] = data;
 							updateFMifNecessary(14);
-							dontShow[14] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 14;
@@ -486,7 +462,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[16] = data;
 							updateFMifNecessary(16);
-							dontShow[16] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 16;
@@ -498,7 +473,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[15] = data;
 							updateFMifNecessary(15);
-							dontShow[15] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 15;
@@ -510,7 +484,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[17] = data;
 							updateFMifNecessary(17);
-							dontShow[17] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 17;
@@ -524,7 +497,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[27] = data;
 							updateFMifNecessary(27);
-							dontShow[27] = isMidi;
 							if (voiceMode == kVoicingDualCh3) {
 								ledNumber(data >> 2);
 							} else {
@@ -541,7 +513,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[28] = data;
 							updateFMifNecessary(28);
-							dontShow[28] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 28;
@@ -553,7 +524,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[29] = data;
 							updateFMifNecessary(29);
-							dontShow[29] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 29;
@@ -565,7 +535,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[31] = data;
 							updateFMifNecessary(31);
-							dontShow[31] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 31;
@@ -577,7 +546,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[32] = data;
 							updateFMifNecessary(32);
-							dontShow[32] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 32;
@@ -589,7 +557,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[34] = data;
 							updateFMifNecessary(34);
-							dontShow[34] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 34;
@@ -601,7 +568,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[33] = data;
 							updateFMifNecessary(33);
-							dontShow[33] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 33;
@@ -613,7 +579,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[35] = data;
 							updateFMifNecessary(35);
-							dontShow[35] = isMidi;
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 35;
@@ -657,7 +622,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							}
 							fmBase[42] = data;
 							updateFMifNecessary(42);
-							dontShow[42] = isMidi;
 							if (!isMidi) {
 								targetPot = 42;
 								showNumber(targetPot, data);
@@ -669,7 +633,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[43] = data;
 							updateFMifNecessary(43);
-							dontShow[43] = isMidi;
 							if (!isMidi) {
 								targetPot = 43;
 								showNumber(targetPot, data);
@@ -688,7 +651,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							} else {
 								fmBase[50] = data;
 								updateFMifNecessary(50);
-								dontShow[50] = isMidi;
 								ledNumber(data >> 2);
 								if (!isMidi) {
 									targetPot = 50;
@@ -705,7 +667,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(0, 13);
 								digit(1, 18);
 							} else {
-								dontShow[36] = isMidi;
 								selectedLfo = 0;
 								if ((lfoClockEnable[0]) && (sync)) {
 									byte valueToShow = map(data, 0, 255, 0, 9);
@@ -742,7 +703,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[37] = data;
 							updateFMifNecessary(37);
-							dontShow[37] = isMidi;
 							selectedLfo = 0;
 							if (!isMidi) {
 								targetPot = 37;
@@ -759,7 +719,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(0, 10);
 								digit(1, 1);
 							} else {
-								dontShow[38] = isMidi;
 								selectedLfo = 1;
 								if ((lfoClockEnable[1]) && (sync)) {
 									ledNumber(kArpRateDisplay[data >> 5]);
@@ -777,7 +736,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[39] = data;
 							updateFMifNecessary(39);
-							dontShow[39] = isMidi;
 							selectedLfo = 1;
 							if (!isMidi) {
 								targetPot = 39;
@@ -794,7 +752,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(0, 17);
 								digit(1, 26);
 							} else {
-								dontShow[40] = isMidi;
 								selectedLfo = 2;
 								if ((lfoClockEnable[2]) && (sync)) {
 									ledNumber(kArpRateDisplay[data >> 5]);
@@ -812,7 +769,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[41] = data;
 							updateFMifNecessary(41);
-							dontShow[41] = isMidi;
 							selectedLfo = 2;
 							if (!isMidi) {
 								targetPot = 41;
@@ -825,7 +781,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[46] = data;
 							updateFMifNecessary(46);
-							dontShow[46] = isMidi;
 							if (sync) {
 								ledNumber(kArpRateDisplay[data >> 5]);
 								arpMidiSpeedPending = data >> 5;
@@ -845,7 +800,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							}
 							fmBase[47] = data;
 							updateFMifNecessary(47);
-							dontShow[47] = isMidi;
 							if (!isMidi) {
 								targetPot = 47;
 								showNumber(targetPot, data);
@@ -857,7 +811,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[48] = data;
 							updateFMifNecessary(48);
-							dontShow[48] = isMidi;
 							if ((vibratoClockEnable) && (sync)) {
 								ledNumber(data >> 5);
 							} else {
@@ -873,7 +826,6 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[49] = data;
 							updateFMifNecessary(49);
-							dontShow[49] = isMidi;
 							if (!isMidi) {
 								targetPot = 49;
 								showNumber(targetPot, data);

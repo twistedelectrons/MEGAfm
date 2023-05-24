@@ -59,8 +59,9 @@ void isr() {
 
 	if (showPresetNumberTimeout) {
 		showPresetNumberTimeout--;
-		if (!showPresetNumberTimeout)
+		if (!showPresetNumberTimeout) {
 			timeToShowPresetNumber = true;
+		}
 	}
 	if (updatePitchCounter < 20)
 		updatePitchCounter++;

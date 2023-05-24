@@ -237,34 +237,39 @@ void showSendReceive() {
 	}
 }
 
+int lastValue;
 void ledNumber(int value) {
-	if (!displayFreeze) {
-		if (value == 666) { //.5
-			digit(0, 21);
-			digit(1, 5);
-			mydisplay.setLed(0, 7, 6, 1);
-			lastNumber = value;
-		} else {
-
-			dotTimer = 10;
-
-			if (value < 0) {
-				if (value > -10) {
-					digit(0, 20); // minus
-					digit(1, -value);
-					lastNumber = value;
-				}
+	if (value != lastValue) { // don't display the same value twice
+		if (!displayFreeze) {
+			if (value == 666) { //.5
+				digit(0, 21);
+				digit(1, 5);
+				mydisplay.setLed(0, 7, 6, 1);
+				lastNumber = value;
 			} else {
-				if (value > 99)
-					value = 99;
 
-				if (lastNumber != value) {
-					lastNumber = value;
-					digit(0, value / 10);
-					digit(1, value - ((value / 10) * 10));
+				dotTimer = 10;
+
+				if (value < 0) {
+					if (value > -10) {
+						digit(0, 20); // minus
+						digit(1, -value);
+						lastNumber = value;
+					}
+				} else {
+					if (value > 99)
+						value = 99;
+
+					if (lastNumber != value) {
+						lastNumber = value;
+						digit(0, value / 10);
+						digit(1, value - ((value / 10) * 10));
+					}
 				}
 			}
 		}
+		showPresetNumberTimeout = 12000;
+		lastValue = value;
 	}
 }
 
