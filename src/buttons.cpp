@@ -663,10 +663,10 @@ void buttChanged(Button number, bool value) {
 					case kButtonPresetUp:
 						pressedUp = false;
 						if (seqRec) {
-							if (seqLength < 16) {
+							if (seqLength < 15) {
 								seq[seqLength] = 255;
 								seqLength++;
-								ledNumber(seqLength);
+								ledNumber(seqLength + 1);
 							}
 						} else {
 							if (!saved) {
@@ -700,9 +700,9 @@ void buttChanged(Button number, bool value) {
 					case kButtonPresetDown:
 						pressedDown = false;
 						if (seqRec) {
-							if (seqLength > 1) {
+							if (seqLength > 0) {
 								seqLength--;
-								ledNumber(seqLength);
+								ledNumber(seqLength + 1);
 							}
 						} else {
 							if (!saved) {

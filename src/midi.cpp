@@ -449,9 +449,9 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 								if (seq[seqLength] == 255) {
 									seq[seqLength]--;
 								}
-								if (seqLength < 16) {
+								ledNumber(seqLength + 1);
+								if (seqLength < 15) {
 									seqLength++;
-									ledNumber(seqLength);
 								}
 
 								for (int i = 0; i < 12; i++) {
