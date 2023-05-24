@@ -883,7 +883,8 @@ void buttChanged(Button number, bool value) {
 										voiceMode = kVoicingUnison;
 										showVoiceMode(voiceMode);
 									}
-									seqRec = true;displayFreeze=0;
+									seqRec = true;
+									displayFreeze = 0;
 									arpMode = 6;
 									ledSet(23, 1);
 									digit(0, 5);

@@ -703,6 +703,10 @@ void HandleControlChange(byte channel, byte number, byte val) {
 				bitWrite(temp, 4, arpClockEnable);
 				EEPROM.update(3953, temp);
 				break;
+			case 18:
+				mydisplay.setIntensity(0, constrain(val, 1, 15));
+				EEPROM.update(3965, constrain(val, 0, 15));
+				break;
 
 			case 19:
 				if (val) {
