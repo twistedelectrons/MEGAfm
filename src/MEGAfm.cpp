@@ -17,6 +17,7 @@ cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /priv
 #include "preset.h"
 
 // check that we didn't do a rec+voicing before latching arp rec mode
+bool newWide; // enable new wide modes
 bool noRecAction;
 bool recHeld;
 bool chordNotes[128];
@@ -317,19 +318,20 @@ void setup() {
 	// 3953 bit6 = new fat tuning
 
 	// 3954 = pickup mode (0=on)
-	// 3958 =bendDown
-	// 3959 =bendUp
-	// 3960 =mpe mode
-	// 3961 =vel >lfo1 depth
-	// 3962 =mod >lfo2 depth
-	// 3963 =at >lfo3 depth
+	// 3958 = bendDown
+	// 3959 = bendUp
+	// 3960 = mpe mode
+	// 3961 = vel >lfo1 depth
+	// 3962 = mod >lfo2 depth
+	// 3963 = at >lfo3 depth
 	// 3964 lastbank
 	// 3965 brightness.
 	// 3966 = bit 0 stereoCh3
 	// 3967 = note priority 0=low 1=high 2=last
 	// 3968 = bit 0 fatSpreadMode
 
-	// 3969= magic value 82 says we are already on FW 3.0
+	// 3969 = magic value 82 says we are already on FW 3.0
+	// 3970 = enable new wide modes
 	// otherwise set all SSEG to off
 	byte input = EEPROM.read(3968);
 	fatSpreadMode = bitRead(input, 0);
@@ -340,6 +342,8 @@ void setup() {
 
 	input = EEPROM.read(3966);
 	stereoCh3 = bitRead(input, 0);
+
+	newWide = EEPROM.read(3970);
 
 	input = EEPROM.read(3950);
 	noiseTableLength[0] = 0;

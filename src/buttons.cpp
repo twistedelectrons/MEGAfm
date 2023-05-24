@@ -656,12 +656,17 @@ void buttChanged(Button number, bool value) {
 									if (!mpe) {
 										//                             Poly12         Wide6          dualCh3 unison
 										//                             Wide4          Wide3
+
 										VoiceMode nextVoiceMode[6] = {kVoicingWide6,  kVoicingWide4, kVoicingUnison,
 										                              kVoicingPoly12, kVoicingWide3, kVoicingDualCh3};
+
 										if (voiceMode < kVoiceModeCount) {
 											voiceMode = nextVoiceMode[voiceMode];
 										} else {
 											voiceMode = kVoicingPoly12;
+										}
+										if (!newWide && (voiceMode == kVoicingWide4 || voiceMode == kVoicingWide3)) {
+											voiceMode = kVoicingDualCh3;
 										}
 										showVoiceMode(voiceMode);
 										sendCC(51, voiceMode);
@@ -879,6 +884,7 @@ void buttChanged(Button number, bool value) {
 										showVoiceMode(voiceMode);
 									}
 									seqRec = true;
+									displayFreeze = 0;
 									arpMode = 6;
 									ledSet(23, 1);
 									digit(0, 5);
