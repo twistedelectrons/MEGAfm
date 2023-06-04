@@ -461,19 +461,6 @@ void setup() {
 	Serial.begin(31250);
 	// midiSetup();
 
-	mux(14);
-	if (!digitalRead(A1)) {
-		sendReceive = 2; // preset down = send midi dump
-		bank = 0;
-		showSendReceive();
-	}
-	mux(5);
-	if (!digitalRead(A1)) {
-		sendReceive = 1; // preset up = get midi dump
-		bank = 0;
-		showSendReceive();
-	}
-
 	mux(13);
 	if ((!digitalRead(A1)) ||
 	    ((EEPROM.read(0) == 255) && (EEPROM.read(1) == 255) && (EEPROM.read(2) == 255) && (EEPROM.read(3) == 255))) {
@@ -512,8 +499,11 @@ void setup() {
 	for (int i = 0; i < 16; i++) {
 		readMux();
 	}
-	loadPreset();
-	loadPreset();
+
+	if (!sendReceive) {
+		loadPreset();
+		loadPreset();
+	}
 
 	bendUp = EEPROM.read(3959);
 	if ((bendUp > 48) || (!bendUp)) {
@@ -530,8 +520,16 @@ void setup() {
 		mpe = 0;
 	}
 
-	if (preset == 0) {
-		digit(0, 0);
-		digit(1, 0);
+	mux(14);
+	if (!digitalRead(A1)) {
+		sendReceive = 2; // preset down = send midi dump
+		bank = 0;
+		showSendReceive();
+	}
+	mux(5);
+	if (!digitalRead(A1)) {
+		sendReceive = 1; // preset up = get midi dump
+		bank = 0;
+		showSendReceive();
 	}
 }

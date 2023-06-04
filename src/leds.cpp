@@ -218,6 +218,8 @@ void leftDot() {
 
 void showSendReceive() {
 
+	showPresetNumberTimeout = 0;
+
 	ledSet(16, 0);
 	ledSet(17, 0);
 	ledSet(18, 0);
@@ -240,7 +242,7 @@ void showSendReceive() {
 int lastValue;
 void ledNumber(int value) {
 
-	if (!displayFreeze) {
+	if (!displayFreeze && !sendReceive) {
 		if (value == 666) { //.5
 			digit(0, 21);
 			digit(1, 5);
