@@ -795,8 +795,12 @@ void HandleControlChange(byte channel, byte number, byte val) {
 				break;
 
 			case 20:
-				newWide = constrain(val, 0, 1);
-				EEPROM.update(3970, constrain(val, 0, 1));
+				if (val) {
+					newWide = true;
+				} else {
+					newWide = false;
+				}
+				EEPROM.update(3970, newWide);
 				break;
 		}
 	}
