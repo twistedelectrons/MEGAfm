@@ -476,7 +476,7 @@ void setup() {
 			EEPROM.update(i, kFactoryPresets[i]);
 		}
 		clearSSEG(0);
-		EEPROM.update(3670, 0);
+		EEPROM.update(3970, 0);
 		newWide = false;
 		EEPROM.update(3969, 82);
 
