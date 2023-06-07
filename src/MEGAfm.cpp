@@ -438,12 +438,6 @@ void setup() {
 	delay(500);
 	mydisplay.setLed(0, 7, 6, 0);
 
-	// first boot into 3.X? clear the SSEG and Offsets so presets aren't crazy (yet)!
-	if (EEPROM.read(3969) != 82) {
-		clearSSEG(1);
-		EEPROM.write(3969, 82);
-	}
-
 	Timer1.initialize(150);      //
 	Timer1.attachInterrupt(isr); // attach the service routine here
 
@@ -498,6 +492,12 @@ void setup() {
 		test = true;
 		bank = 0;
 		preset = 0;
+	}
+
+	// first boot into 3.X? clear the SSEG and Offsets so presets aren't crazy (yet)!
+	if (EEPROM.read(3969) != 82) {
+		clearSSEG(1);
+		EEPROM.write(3969, 82);
 	}
 
 	for (int i = 0; i < 50; i++) {
