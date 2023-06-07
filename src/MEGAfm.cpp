@@ -300,6 +300,135 @@ void setup() {
 	pinMode(18, OUTPUT);       // data
 	pinMode(21, OUTPUT);       // latch
 
+	arpModeLast = 6;
+
+	for (int i = 0; i < 16; i++) {
+		readMux();
+	}
+
+	ym.setup(30, 10, 11, 11, 20, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23);
+
+	setupFM();
+
+	pinMode(A1, INPUT);
+	digitalWrite(A1, HIGH);
+
+	pinMode(22, INPUT);
+	digitalWrite(22, HIGH); // pc6 retrig
+
+	mydisplay.shutdown(0, false); // turns on display
+
+	byte brightness = EEPROM.read(3965);
+	if (brightness > 15)
+		brightness = 10;                   // default;
+	mydisplay.setIntensity(0, brightness); // 15 = brightest
+
+	// show version
+	digit(0, kVersion0);
+	digit(1, kVersion1);
+	// show dot
+	mydisplay.setLed(0, 7, 6, 1);
+	delay(500);
+	mydisplay.setLed(0, 7, 6, 0);
+
+	Timer1.initialize(150);      //
+	Timer1.attachInterrupt(isr); // attach the service routine here
+
+	inputChannel = EEPROM.read(3951);
+	if ((inputChannel > 16) || (inputChannel < 1)) {
+		inputChannel = 1;
+		EEPROM.write(3951, inputChannel);
+	}
+
+	// check if enter setup mode
+	mux(15);
+	if (!digitalRead(A1)) {
+		enterSetup();
+	}
+
+	// mux(5);//preset up
+
+	// MIDI port at 31250 baud
+	Serial.begin(31250);
+	// midiSetup();
+
+	mux(13);
+	if ((!digitalRead(A1)) ||
+	    ((EEPROM.read(0) == 255) && (EEPROM.read(1) == 255) && (EEPROM.read(2) == 255) && (EEPROM.read(3) == 255))) {
+		// test mode
+		digit(0, 16);
+		digit(1, 18);
+
+		for (int i = 0; i < 4000; i++) {
+			EEPROM.update(i, kFactoryPresets[i]);
+		}
+		clearSSEG(0);
+		EEPROM.update(3970, 0);
+		newWide = false;
+		EEPROM.update(3969, 82);
+
+		loadPreset();
+		eWrite(69, 69);
+		if (eRead(69) != 69) {
+
+			while (1) {
+
+				digit(0, 18);
+				digit(1, 18);
+				delay(200);
+				digit(0, 21);
+				digit(1, 21);
+				delay(200);
+			}
+		}
+		EEPROM.write(3964, 0); // bank 0
+		test = true;
+		bank = 0;
+		preset = 0;
+	}
+
+	// first boot into 3.X? clear the SSEG and Offsets so presets aren't crazy (yet)!
+	if (EEPROM.read(3969) != 82) {
+		clearSSEG(1);
+		EEPROM.write(3969, 82);
+	}
+
+	for (int i = 0; i < 50; i++) {
+		ledSet(i, test);
+	}
+
+	for (int i = 0; i < 16; i++) {
+		readMux();
+	}
+
+	bendUp = EEPROM.read(3959);
+	if ((bendUp > 48) || (!bendUp)) {
+		bendUp = 48;
+	}
+	bendDown = EEPROM.read(3958);
+	if ((bendDown > 48) || (!bendDown)) {
+		bendDown = 48;
+	}
+
+	if (EEPROM.read(3960) == 1) {
+		mpe = 1;
+	} else {
+		mpe = 0;
+	}
+
+	mux(14);
+	if (!digitalRead(A1)) {
+		sendReceive = 2; // preset down = send midi dump
+		bank = 0;
+		showSendReceive();
+	}
+	mux(5);
+	if (!digitalRead(A1)) {
+		sendReceive = 1; // preset up = get midi dump
+		bank = 0;
+		showSendReceive();
+	}
+
 	// LOAD SETTINGS
 
 	// 3950 = bit 0 thru
@@ -407,137 +536,8 @@ void setup() {
 		preset = 0;
 	}
 
-	arpModeLast = 6;
-
-	for (int i = 0; i < 16; i++) {
-		readMux();
-	}
-
-	ym.setup(30, 10, 11, 11, 20, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23);
-
-	setupFM();
-
-	pinMode(A1, INPUT);
-	digitalWrite(A1, HIGH);
-
-	pinMode(22, INPUT);
-	digitalWrite(22, HIGH); // pc6 retrig
-
-	mydisplay.shutdown(0, false); // turns on display
-
-	byte brightness = EEPROM.read(3965);
-	if (brightness > 15)
-		brightness = 10;                   // default;
-	mydisplay.setIntensity(0, brightness); // 15 = brightest
-
-	// show version
-	digit(0, kVersion0);
-	digit(1, kVersion1);
-	// show dot
-	mydisplay.setLed(0, 7, 6, 1);
-	delay(500);
-	mydisplay.setLed(0, 7, 6, 0);
-
-	Timer1.initialize(150);      //
-	Timer1.attachInterrupt(isr); // attach the service routine here
-
-	inputChannel = EEPROM.read(3951);
-	if ((inputChannel > 16) || (inputChannel < 1)) {
-		inputChannel = 1;
-		EEPROM.write(3951, inputChannel);
-	}
-
-	// check if enter setup mode
-	mux(15);
-	if (!digitalRead(A1)) {
-		enterSetup();
-	}
-
-	// mux(5);//preset up
-
-	// MIDI port at 31250 baud
-	Serial.begin(31250);
-	// midiSetup();
-
-	mux(13);
-	if ((!digitalRead(A1)) ||
-	    ((EEPROM.read(0) == 255) && (EEPROM.read(1) == 255) && (EEPROM.read(2) == 255) && (EEPROM.read(3) == 255))) {
-		// test mode
-		digit(0, 16);
-		digit(1, 18);
-
-		for (int i = 0; i < 4000; i++) {
-			EEPROM.update(i, kFactoryPresets[i]);
-		}
-		clearSSEG(0);
-		EEPROM.update(3970, 0);
-		newWide = false;
-		EEPROM.update(3969, 82);
-
-		loadPreset();
-		eWrite(69, 69);
-		if (eRead(69) != 69) {
-
-			while (1) {
-
-				digit(0, 18);
-				digit(1, 18);
-				delay(200);
-				digit(0, 21);
-				digit(1, 21);
-				delay(200);
-			}
-		}
-		EEPROM.write(3964, 0); // bank 0
-		test = true;
-		bank = 0;
-		preset = 0;
-	}
-
-	// first boot into 3.X? clear the SSEG and Offsets so presets aren't crazy (yet)!
-	if (EEPROM.read(3969) != 82) {
-		clearSSEG(1);
-		EEPROM.write(3969, 82);
-	}
-
-	for (int i = 0; i < 50; i++) {
-		ledSet(i, test);
-	}
-
-	for (int i = 0; i < 16; i++) {
-		readMux();
-	}
-
 	if (!sendReceive) {
 		loadPreset();
 		loadPreset();
-	}
-
-	bendUp = EEPROM.read(3959);
-	if ((bendUp > 48) || (!bendUp)) {
-		bendUp = 48;
-	}
-	bendDown = EEPROM.read(3958);
-	if ((bendDown > 48) || (!bendDown)) {
-		bendDown = 48;
-	}
-
-	if (EEPROM.read(3960) == 1) {
-		mpe = 1;
-	} else {
-		mpe = 0;
-	}
-
-	mux(14);
-	if (!digitalRead(A1)) {
-		sendReceive = 2; // preset down = send midi dump
-		bank = 0;
-		showSendReceive();
-	}
-	mux(5);
-	if (!digitalRead(A1)) {
-		sendReceive = 1; // preset up = get midi dump
-		bank = 0;
-		showSendReceive();
 	}
 }
