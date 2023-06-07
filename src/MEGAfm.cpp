@@ -469,8 +469,22 @@ void setup() {
 		digit(1, 18);
 
 		for (int i = 0; i < 4000; i++) {
-			EEPROM.write(i, kFactoryPresets[i]);
+			EEPROM.update(i, kFactoryPresets[i]);
 		}
+		int index;
+		for (int p = 0; p < 100; p++) {
+			index = (p * 79);
+			byte temp;
+			for (int i = 0; i < 4; i++) {
+				index += 2; // skip first 2 bytes
+				temp = getByte();
+				index--;              // rewind to overwrite
+				bitWrite(temp, 5, 0); // clear the bit
+				store(temp);          // overwrite
+				index += 3;           // skip the next 3 bytes
+			}
+		}
+		EEPROM.write(3969, 82);
 
 		loadPreset();
 		eWrite(69, 69);
