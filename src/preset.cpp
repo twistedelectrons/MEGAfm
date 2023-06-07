@@ -37,7 +37,7 @@ void panel() {
 
 void setIndex() { index = (preset * 79) + kBankOffsets[bank]; }
 
-void clearSSEG() {
+void clearSSEG(bool allBanks) {
 
 	// show CL(ear)
 	digit(1, 11);
@@ -57,6 +57,8 @@ void clearSSEG() {
 				index += 3;           // skip the next 3 bytes
 			}
 		}
+		if (!allBanks)
+			b = 6;
 	}
 }
 

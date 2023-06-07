@@ -343,7 +343,11 @@ void setup() {
 	input = EEPROM.read(3966);
 	stereoCh3 = bitRead(input, 0);
 
-	newWide = EEPROM.read(3970);
+	if (EEPROM.read(3970)) {
+		newWide = true;
+	} else {
+		newWide = false;
+	}
 
 	input = EEPROM.read(3950);
 	noiseTableLength[0] = 0;
@@ -436,7 +440,7 @@ void setup() {
 
 	// first boot into 3.X? clear the SSEG and Offsets so presets aren't crazy (yet)!
 	if (EEPROM.read(3969) != 82) {
-		clearSSEG();
+		clearSSEG(1);
 		EEPROM.write(3969, 82);
 	}
 
@@ -471,20 +475,10 @@ void setup() {
 		for (int i = 0; i < 4000; i++) {
 			EEPROM.update(i, kFactoryPresets[i]);
 		}
-		int index;
-		for (int p = 0; p < 100; p++) {
-			index = (p * 79);
-			byte temp;
-			for (int i = 0; i < 4; i++) {
-				index += 2; // skip first 2 bytes
-				temp = getByte();
-				index--;              // rewind to overwrite
-				bitWrite(temp, 5, 0); // clear the bit
-				store(temp);          // overwrite
-				index += 3;           // skip the next 3 bytes
-			}
-		}
-		EEPROM.write(3969, 82);
+		clearSSEG(0);
+		EEPROM.update(3670, 0);
+		newWide = false;
+		EEPROM.update(3969, 82);
 
 		loadPreset();
 		eWrite(69, 69);
