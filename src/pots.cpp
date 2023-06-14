@@ -662,6 +662,9 @@ void movedPot(byte number, byte data, bool isMidi) {
 						case 15:
 							showPickupAnimation = false;
 							fmBase[36] = data;
+							if (data < 5 && lfoVel) {
+								fmBase[36] = data = 0;
+							}
 							updateFMifNecessary(36);
 							if ((lfoVel) && (!data)) {
 								digit(0, 13);
@@ -748,6 +751,11 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[40] = data;
 							updateFMifNecessary(40);
+
+							if (data < 5 && lfoAt) {
+								fmBase[40] = data = 0;
+							}
+
 							if ((lfoAt) && (data < 1)) {
 								digit(0, 17);
 								digit(1, 26);

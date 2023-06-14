@@ -2,11 +2,13 @@
 #include "pitchEngine.h"
 
 float innerNoteToFreq(float note) {
+	note += x12[octOffset];
 	static float baseFreq = 440.f / 32.f;
 	return baseFreq * float(pow(2, ((note - 9) / 12)));
 }
 
 float noteToFrequencyFloat(float note) {
+	note += x12[octOffset];
 	if (note <= 0) {
 		note = 1;
 	}
@@ -16,6 +18,7 @@ float noteToFrequencyFloat(float note) {
 }
 
 float noteToFrequency(int note) { // FIXME delete if possible?
+	note += x12[octOffset];
 	if (note <= 0) {
 		note = 1;
 	}
@@ -25,6 +28,7 @@ float noteToFrequency(int note) { // FIXME delete if possible?
 }
 
 float noteToFrequencyMpe(int note, int channel) {
+	note += x12[octOffset];
 	if (note <= 0) {
 		note = 1;
 	}
@@ -152,7 +156,6 @@ void updatePitch() {
 }
 
 void setNote(uint8_t channel, uint8_t note) {
-	note += (octOffset * 12);
 	notey[channel] = note;
 
 	float detune;

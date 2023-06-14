@@ -283,13 +283,12 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 		}
 	} else {
 		if (lfoVel) {
-			if (fmBase[36]) {
-				fmBase[37] = velocity << 1;
-				fmBaseLast[37] = fmBase[37] - 1;
-			} else {
-				lfo[0] = velocity << 1;
+			velocityLast = velocity << 1;
+
+			if (fmBase[36] == 0) {
+				lfo[0] = velocityLast;
 				applyLfo();
-			}
+			} //
 		}
 
 		if (mpe) {
