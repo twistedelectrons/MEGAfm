@@ -54,6 +54,7 @@ void lfoBlink() {
 void lfoTick() {
 	for (int i = 0; i < 3; i++) {
 		if ((i == 0) && (lfoVel) && (fmBase[36] == 0)) {
+			lfo[i] = velocityLast;
 		} //
 		else if ((i == 1) && (lfoMod) && (fmBase[38] == 0)) {
 		} //

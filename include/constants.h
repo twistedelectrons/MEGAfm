@@ -6,12 +6,12 @@
 #define MEGAFM_CONSTANTS_H
 
 const byte kVersion0 = 3;
-const byte kVersion1 = 3;
+const byte kVersion1 = 4;
 
 const byte kDefaultSeq[16] = {0, 0, 0, 0, 12, 12, 12, 12, 0, 0, 12, 0, 0, 12, 12, 0};
 
 const bool kAllCC = true;
-
+const byte x12[] = {0, 12, 24, 36};
 const byte kArpRateDisplay[] = {0, 0, 0, 2, 3, 4, 8, 12, 16, 32, 48};       // show tempo divisions
 const int16_t kMidiArpTicks[] = {384, 192, 96, 48, 32, 24, 12, 8, 6, 3, 2}; // arp rates in MIDI ticks
 const float kLfoClockRates[] = {0.6640625, 1.328125, 2.65625, 5.3125, 7.96875, 10.625, 21.25, 31.875, 42.5, 85, 127.5};
