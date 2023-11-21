@@ -101,7 +101,7 @@ extern bool setupMode;
 extern bool fineChanged;
 
 extern byte arpMidiSpeedPending, arpMidiSpeed;
-extern byte fine;
+extern int fine;
 extern byte presetCounts;
 extern bool presetTargetMode;
 extern byte presetTargetModeChanged;

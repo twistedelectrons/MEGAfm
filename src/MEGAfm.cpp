@@ -141,7 +141,7 @@ bool arpJustWentOff;
 bool setupMode;
 bool fineChanged;
 byte arpMidiSpeedPending, arpMidiSpeed;
-byte fine;
+int fine;
 byte presetCounts;
 bool presetTargetMode;
 byte presetTargetModeChanged;

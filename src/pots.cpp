@@ -648,6 +648,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 
 							if (voiceHeld && movedFineKnob) {
 								fine = finePot + map(data, 0, 255, -10, 10);
+								fine = constrain(fine, 0, 255);
 								updateFine();
 
 							} else {
