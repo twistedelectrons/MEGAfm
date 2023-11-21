@@ -591,7 +591,9 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							setupCounter = 0; // prevent entering setup
 							if (voiceHeld) {
-								fine = data;
+								movedFineKnob = true;
+
+								fine = finePot = data;
 								updateFine();
 
 								if (fine > 127) {
@@ -643,18 +645,26 @@ void movedPot(byte number, byte data, bool isMidi) {
 						case 28:
 							showPickupAnimation = false;
 							setupCounter = 0; // prevent entering setup
-							if (voiceHeld) {
-								glide = data >> 4;
-								updateGlideIncrements();
-								fineChanged = true;
-								ledNumber(data >> 2);
+
+							if (voiceHeld && movedFineKnob) {
+								fine = finePot + map(data, 0, 255, -10, 10);
+								updateFine();
+
 							} else {
-								fmBase[50] = data;
-								updateFMifNecessary(50);
-								ledNumber(data >> 2);
-								if (!isMidi) {
-									targetPot = 50;
-									sendCC(number, data >> 1);
+
+								if (voiceHeld) {
+									glide = data >> 4;
+									updateGlideIncrements();
+									fineChanged = true;
+									ledNumber(data >> 2);
+								} else {
+									fmBase[50] = data;
+									updateFMifNecessary(50);
+									ledNumber(data >> 2);
+									if (!isMidi) {
+										targetPot = 50;
+										sendCC(number, data >> 1);
+									}
 								}
 							}
 							break; // fat 1-127

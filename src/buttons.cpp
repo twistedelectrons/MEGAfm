@@ -282,6 +282,7 @@ void buttChanged(Button number, bool value) {
 						break; // arp mode
 
 					case kButtonVoiceMode:
+						movedFineKnob = false;
 						justQuitSetup = false;
 						fineChanged = false;
 						voiceHeld = true;
@@ -602,6 +603,7 @@ void buttChanged(Button number, bool value) {
 				// Released
 				switch (number) {
 					case kButtonVoiceMode:
+						movedFineKnob = false;
 						voiceHeld = false;
 						if (recHeld) {
 							noRecAction = false;

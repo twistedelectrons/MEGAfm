@@ -3,7 +3,7 @@
 
 float innerNoteToFreq(float note) {
 	note += x12[octOffset];
-	static float baseFreq = 440.f / 32.f;
+	static float baseFreq = (440.f / 32.f);
 	return baseFreq * float(pow(2, ((note - 9) / 12)));
 }
 
