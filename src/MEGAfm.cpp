@@ -30,7 +30,9 @@ bool secPast = false;
 byte lastSentCC[2];
 byte lastSentMega[2];
 byte lastSentYm[2];
-
+int finerFine;      // more precise tuning
+bool movedFineKnob; // track if we adjusted tune to override glide knob for finer tuning
+byte finePot;
 // when true we play chords (captured with rec+voicing)
 bool chord;
 // 0=chip1 down chip2 up 1=both chips go up and down (mixed)
@@ -139,7 +141,7 @@ bool arpJustWentOff;
 bool setupMode;
 bool fineChanged;
 byte arpMidiSpeedPending, arpMidiSpeed;
-byte fine;
+int fine;
 byte presetCounts;
 bool presetTargetMode;
 byte presetTargetModeChanged;

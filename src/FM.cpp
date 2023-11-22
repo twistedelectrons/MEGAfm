@@ -28,6 +28,8 @@ void updateSSEG(byte op) {
 }
 
 void updateFine() {
+
+	// scale and offset finer tuning
 	fineChanged = true;
 	finey = fine;
 	finey /= 255;

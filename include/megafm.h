@@ -101,7 +101,7 @@ extern bool setupMode;
 extern bool fineChanged;
 
 extern byte arpMidiSpeedPending, arpMidiSpeed;
-extern byte fine;
+extern int fine;
 extern byte presetCounts;
 extern bool presetTargetMode;
 extern byte presetTargetModeChanged;
@@ -109,6 +109,10 @@ extern int targetPresetModeTimer;
 extern bool targetPresetFlasher;
 extern int scrollDelay, scrollCounter;
 extern byte noiseTableLength[3];
+extern byte finePot;
+
+extern int finerFine;      // more precise tuning
+extern bool movedFineKnob; // track if we adjusted tune to override glide knob for finer tuning
 
 extern byte mem[3950];
 
