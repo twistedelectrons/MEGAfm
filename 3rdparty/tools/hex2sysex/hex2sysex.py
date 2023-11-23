@@ -1,4 +1,4 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python3
 #
 # Copyright 2009 Emilie Gillet.
 #
@@ -69,7 +69,7 @@ def CreateMidifile(
   # first SysEx block everytime stop/play is pressed.
   time = 1
   syx_data = []
-  for i in xrange(0, size, page_size):
+  for i in range(0, size, page_size):
     block = ''.join(map(chr, data[i:i+page_size]))
     padding = page_size - len(block)
     block += '\x00' * padding
@@ -89,13 +89,13 @@ def CreateMidifile(
       options.reset_command)
   t.AddEvent(time, event)
   syx_data.append(event.raw_message)
-  
-  f = file(output_file, 'wb')
-  if options.syx:
-    f.write(''.join(syx_data))
-  else:
-    m.Write(f, format=1)
-  f.close()
+
+  with open(output_file, 'wb') as f:
+    if options.syx:
+      f.write(b''.join(syx_data))
+    else:
+      m.Write(f, format=1)
+    f.close()
 
 
 if __name__ == '__main__':
@@ -173,10 +173,11 @@ if __name__ == '__main__':
     logging.fatal('Specify one, and only one firmware .hex file!')
     sys.exit(1)
 
-  data = hexfile.LoadHexFile(file(args[0]))
-  if not data:
-    logging.fatal('Error while loading .hex file')
-    sys.exit(2)
+  with open(args[0], 'r') as f:
+    data = hexfile.LoadHexFile(f.read().splitlines())
+    if not data:
+      logging.fatal('Error while loading .hex file')
+      sys.exit(2)
 
   output_file = options.output_file
   if not output_file:
