@@ -355,6 +355,7 @@ void loadPreset() {
 	bitWrite(seqLength, 1, bitRead(temp, 1));
 	bitWrite(seqLength, 2, bitRead(temp, 2));
 	bitWrite(seqLength, 3, bitRead(temp, 3));
+	seqLength++;
 
 	bitWrite(glide, 0, bitRead(temp, 4));
 	bitWrite(glide, 1, bitRead(temp, 5));
@@ -696,10 +697,10 @@ void savePreset() {
 	}
 
 	temp = 0;
-	bitWrite(temp, 0, bitRead(seqLength, 0));
-	bitWrite(temp, 1, bitRead(seqLength, 1));
-	bitWrite(temp, 2, bitRead(seqLength, 2));
-	bitWrite(temp, 3, bitRead(seqLength, 3));
+	bitWrite(temp, 0, bitRead(seqLength - 1, 0));
+	bitWrite(temp, 1, bitRead(seqLength - 1, 1));
+	bitWrite(temp, 2, bitRead(seqLength - 1, 2));
+	bitWrite(temp, 3, bitRead(seqLength - 1, 3));
 
 	bitWrite(temp, 4, bitRead(glide, 0));
 	bitWrite(temp, 5, bitRead(glide, 1));

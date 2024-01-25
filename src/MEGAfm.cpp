@@ -106,6 +106,8 @@ int setupCounter;
 bool justQuitSetup;
 bool invertedSquare[3];
 bool invertedSaw[3];
+bool loopChanged;
+bool loopHeld;
 bool showLfoFlag;
 int showSSEGCounter; // used to temporarily show the SSEG settings of the last tweaked operator
 byte lastOperator;   // keep track of the last operator we tweaked to enable SSGEG

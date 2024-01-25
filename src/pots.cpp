@@ -212,12 +212,19 @@ void movedPot(byte number, byte data, bool isMidi) {
 						// OP1
 						case 18:
 							showPickupAnimation = false;
-							fmBase[0] = data;
-							updateFMifNecessary(0);
-							if (voiceMode == kVoicingDualCh3) {
-								ledNumber(data >> 2);
+							if (loopHeld) {
+								loopChanged = true;
+								updateFMifNecessary(3);
+								fmBase[3] = data;
+								ledNumber(data >> 6);
 							} else {
-								ledNumber(-3 + (data >> 5));
+								fmBase[0] = data;
+								updateFMifNecessary(0);
+								if (voiceMode == kVoicingDualCh3) {
+									ledNumber(data >> 2);
+								} else {
+									ledNumber(-3 + (data >> 5));
+								}
 							}
 							if (!isMidi) {
 								isFader = true;
@@ -307,12 +314,19 @@ void movedPot(byte number, byte data, bool isMidi) {
 							// OP2
 						case 31:
 							showPickupAnimation = false;
-							fmBase[18] = data;
-							updateFMifNecessary(18);
-							if (voiceMode == kVoicingDualCh3) {
-								ledNumber(data >> 2);
+							if (loopHeld) {
+								loopChanged = true;
+								updateFMifNecessary(12);
+								fmBase[12] = data;
+								ledNumber(data >> 6);
 							} else {
-								ledNumber(-3 + (data >> 5));
+								fmBase[18] = data;
+								updateFMifNecessary(18);
+								if (voiceMode == kVoicingDualCh3) {
+									ledNumber(data >> 2);
+								} else {
+									ledNumber(-3 + (data >> 5));
+								}
 							}
 							if (!isMidi) {
 								isFader = true;
@@ -401,12 +415,20 @@ void movedPot(byte number, byte data, bool isMidi) {
 							// OP3
 						case 20:
 							showPickupAnimation = false;
-							fmBase[9] = data;
-							updateFMifNecessary(9);
-							if (voiceMode == kVoicingDualCh3) {
-								ledNumber(data >> 2);
+
+							if (loopHeld) {
+								loopChanged = true;
+								updateFMifNecessary(21);
+								fmBase[21] = data;
+								ledNumber(data >> 6);
 							} else {
-								ledNumber(-3 + (data >> 5));
+								fmBase[9] = data;
+								updateFMifNecessary(9);
+								if (voiceMode == kVoicingDualCh3) {
+									ledNumber(data >> 2);
+								} else {
+									ledNumber(-3 + (data >> 5));
+								}
 							}
 							if (!isMidi) {
 								isFader = true;
@@ -495,12 +517,19 @@ void movedPot(byte number, byte data, bool isMidi) {
 							// OP4
 						case 47:
 							showPickupAnimation = false;
-							fmBase[27] = data;
-							updateFMifNecessary(27);
-							if (voiceMode == kVoicingDualCh3) {
-								ledNumber(data >> 2);
+							if (loopHeld) {
+								loopChanged = true;
+								updateFMifNecessary(30);
+								fmBase[30] = data;
+								ledNumber(data >> 6);
 							} else {
-								ledNumber(-3 + (data >> 5));
+								fmBase[27] = data;
+								updateFMifNecessary(27);
+								if (voiceMode == kVoicingDualCh3) {
+									ledNumber(data >> 2);
+								} else {
+									ledNumber(-3 + (data >> 5));
+								}
 							}
 							if (!isMidi) {
 								isFader = true;
