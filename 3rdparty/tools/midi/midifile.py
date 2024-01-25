@@ -1,4 +1,4 @@
-#!/usr/bin/python2.5
+#!/usr/bin/python3
 #
 # Copyright 2009 Emilie Gillet.
 #
@@ -47,7 +47,7 @@ def PackVariableLengthInteger(value):
     to_write = value & 0x7f
     value = value >> 7
     output.insert(0, to_write)
-  for i in xrange(len(output) - 1):
+  for i in range(len(output) - 1):
     output[i] |= 0x80
   output = ''.join(map(chr, output))
   return output
@@ -58,7 +58,7 @@ them into a string."""
 class Event(object):
   def __init__(self):
     pass
-    
+
   def Serialize(self, running_status):
     raise NotImplementedError
 
@@ -68,7 +68,7 @@ class MetaEvent(Event):
     assert len(data) < 256
     self.id = id
     self.data = data
-    
+
   def Serialize(self, running_status):
     return ''.join([
         '\xff',
@@ -173,7 +173,7 @@ class ChannelEvent(Event):
     self.channel = channel
     self._status = mask | (channel - 1)
     self._data = PackInteger(self._status, size=1) + data
-    
+
   def Serialize(self, running_status):
     if self._status == running_status:
       return self._data[1:], self._status
@@ -238,7 +238,7 @@ class PitchBendEvent(ChannelEvent):
 class SystemEvent(Event):
   def __init__(self, id):
     self._id = id
-    
+
   def Serialize(self, running_status):
     return PackInteger(self._id, size=1), running_status
 
@@ -267,16 +267,16 @@ class StopEvent(SystemEvent):
 class SysExEvent(Event):
   def __init__(self, manufacturer_id, device_id, data):
     self.data = data
-    self.message = ''.join([
-        manufacturer_id,
+    self.message = b''.join([
+        manufacturer_id.encode('utf-8'),
         device_id,
-        data,
-        '\xf7'])
-    self.raw_message = '\xf0' + self.message
-    assert all(ord(x) < 128 for x in self.message[:-1])
-    self.message = ''.join([
-        '\xf0',
-        PackVariableLengthInteger(len(self.message)),
+        data.encode('utf-8'),
+        b'\xf7'])
+    self.raw_message = b'\xf0' + self.message
+    # assert all(ord(x) < 128 for x in self.message[:-1])
+    self.message = b''.join([
+        b'\xf0',
+        PackVariableLengthInteger(len(self.message)).encode('utf-8'),
         self.message])
 
   def Serialize(self, running_status):
@@ -299,7 +299,7 @@ def Nibblize(data, add_checksum=True):
 class Track(object):
   def __init__(self):
     self._events = []
-    
+
   def AddEvent(self, time, event):
     self._events.append((time, event))
 
@@ -321,28 +321,28 @@ class Track(object):
       data.append(event_data)
       current_time = time
     return ''.join(data)
-    
+
   def Write(self, file_object):
     file_object.write('MTrk')
     track_data = self.Serialize()
     file_object.write(PackInteger(len(track_data)))
     file_object.write(track_data)
-    
+
   @property
   def events(self):
     return self._events
 
-    
+
 class Writer(object):
   def __init__(self, ppq=96):
     self._tracks = []
     self._ppq = ppq
-  
+
   def AddTrack(self):
     new_track = Track()
     self._tracks.append(new_track)
     return new_track
-    
+
   def _MergeTracks(self):
     new_track = Track()
     for track in self._tracks:
@@ -350,7 +350,7 @@ class Writer(object):
         new_track.AddEvent(*time_event)
     new_track.Sort()
     return new_track
-    
+
   def Write(self, file_object, format=0):
     tracks = self._tracks
     if format == 0:
@@ -365,7 +365,7 @@ class Writer(object):
     else:
       file_object.write(PackInteger(len(self._tracks), size=2))
     file_object.write(PackInteger(self._ppq, size=2))
-    
+
     # Tracks.
     for track in tracks:
       track.Write(file_object)
@@ -377,7 +377,7 @@ class Reader(object):
     self.format = 0
     self.ppq = 96
     self._previous_status = 0
-    
+
   def Read(self, f):
     assert f.read(4) == 'MThd'
     assert struct.unpack('>i', f.read(4))[0] == 6
@@ -386,12 +386,12 @@ class Reader(object):
     num_tracks = struct.unpack('>h', f.read(2))[0]
     self.ppq = struct.unpack('>h', f.read(2))[0]
     self._tempo_map = []
-    
-    for i in xrange(num_tracks):
+
+    for i in range(num_tracks):
       self.tracks.append(self._ReadTrack(f))
     self._CreateCumulativeTempoMap()
-    
-      
+
+
   def _ReadTrack(self, f):
     assert f.read(4) == 'MTrk'
     size = struct.unpack('>i', f.read(4))[0]
@@ -406,7 +406,7 @@ class Reader(object):
           self._tempo_map.append((t, e.bpm))
       size -= event_size
     return events
-    
+
   def _CreateCumulativeTempoMap(self):
     t = 0.0
     current_tempo = 120.0
@@ -419,13 +419,13 @@ class Reader(object):
       current_tempo = tempo
       previous_beat = beat
     self._tempo_map = cumulative_tempo_map
-    
+
   def AbsoluteTime(self, t):
     index = bisect.bisect_left(self._tempo_map, (t, 0, 0))
     index = max(index - 1, 0)
     start_beat, start_seconds, tempo = self._tempo_map[index]
     return start_seconds + float(t - start_beat) / self.ppq * 60.0 / tempo
-    
+
   def _ReadVariableLengthInteger(self, f):
     v = 0
     size = 0
@@ -437,7 +437,7 @@ class Reader(object):
       if not (byte & 0x80):
         break
     return v, size
-    
+
   def _ReadEvent(self, f):
     delta_t, size = self._ReadVariableLengthInteger(f)
     event_byte = ord(f.read(1))
@@ -449,7 +449,7 @@ class Reader(object):
         event_byte = self._previous_status
       else:
         return delta_t, None, size
-    
+
     event_type = event_byte & 0xf0
     channel = event_byte & 0xf
     channel += 1
@@ -527,22 +527,22 @@ class Reader(object):
       size += event_size
       event = SysExEvent(bytes[0:3], bytes[3:5], bytes[5:-1])
     else:
-      print event_byte, '!!'
+      print(event_byte, '!!')
       event = None
     return delta_t, event, size
-    
+
 
 if __name__ == '__main__':
   m = Writer()
   t = m.AddTrack()
   t.AddEvent(0, TempoEvent(120.0))
-  
+
   t = m.AddTrack()
   t.AddEvent(1, SysExEvent(
       '\x00\x20\x77',
       '\x00\x01',
       '\x7f\x7f' + Nibblize('\xff\x00\xcc')))
-  
+
   f = file('output.mid', 'wb')
   m.Write(f, format=0)
   f.close()
