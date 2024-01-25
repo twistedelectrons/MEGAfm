@@ -115,7 +115,7 @@ void fm(byte number, byte data) {
 			ym.setTotalLevel(127 - (data >> fmShifts[number]));
 			break; // op level
 		case 12:
-			op(1);
+			op(2);
 			ym.setRateScaling((data) >> fmShifts[number]);
 			break;
 		case 13:
@@ -152,7 +152,7 @@ void fm(byte number, byte data) {
 			ym.setTotalLevel(127 - (data >> fmShifts[number]));
 			break; // op level
 		case 21:
-			op(2);
+			op(1);
 			ym.setRateScaling(data >> fmShifts[number]);
 			break;
 		case 22:
