@@ -571,30 +571,8 @@ void buttChanged(Button number, bool value) {
 						}
 						break; // retrig
 					case kButtonLoop:
-						if (bankCounter) {
-							if (presetTargetMode) {
-								presetCounts = 40;
-							}
-							bank = 5;
-							ledSet(16 + bank, 1);
-							flashCounter2 = 0;
-							flasher = false;
-							EEPROM.write(3964, bank);
-							clearLfoLeds();
-							if (!presetTargetMode) {
-								loadPreset();
-								resetFunction = 0;
-							}
-							bankCounter = 20;
-						} else {
-							if (!showSSEGCounter) {
-								looping[selectedLfo] = !looping[selectedLfo];
-								showLfo();
-								sendCC(58, looping[selectedLfo]);
-							} else {
-								setSSEG(lastOperator, 1, !bitRead(SSEG[lastOperator], 1)); // flip the SSEG enable bit
-							}
-						}
+						loopChanged = false;
+						loopHeld = true;
 						break; // loop
 					default:
 						break;
@@ -689,7 +667,7 @@ void buttChanged(Button number, bool value) {
 					case kButtonPresetUp:
 						pressedUp = false;
 						if (seqRec) {
-							if (seqLength < 15) {
+							if (seqLength < 16) {
 								seq[seqLength] = 255;
 								seqLength++;
 								ledNumber(seqLength + 1);
@@ -928,13 +906,44 @@ void buttChanged(Button number, bool value) {
 							}
 						}
 						break; // chain3
+					case kButtonLoop:
+						loopHeld = false;
+						if (!loopChanged) {
+							if (bankCounter) {
+								if (presetTargetMode) {
+									presetCounts = 40;
+								}
+								bank = 5;
+								ledSet(16 + bank, 1);
+								flashCounter2 = 0;
+								flasher = false;
+								EEPROM.write(3964, bank);
+								clearLfoLeds();
+								if (!presetTargetMode) {
+									loadPreset();
+									resetFunction = 0;
+								}
+								bankCounter = 20;
+							} else {
+								if (!showSSEGCounter) {
+
+									looping[selectedLfo] = !looping[selectedLfo];
+									showLfo();
+									sendCC(58, looping[selectedLfo]);
+								} else {
+									setSSEG(lastOperator, 1,
+									        !bitRead(SSEG[lastOperator], 1)); // flip the SSEG enable bit
+								}
+							}
+						}
+						break; // loop
 
 					case kButtonSquare:   // square
 					case kButtonTriangle: // triangle
 					case kButtonSaw:      // saw
 					case kButtonNoise:    // noise
 					case kButtonRetrig:   // retrig
-					case kButtonLoop:     // loop
+
 					default:
 						break;
 				}

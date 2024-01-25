@@ -16,6 +16,8 @@
 #define YM_CS2 14
 #define YM_WR 11
 #define YM_IC 30
+extern bool loopChanged;
+extern bool loopHeld;
 extern byte velocityLast; // keep track of velocity for LFO
 extern byte presetChordNumber;
 extern bool newWide; // enable new wide modes

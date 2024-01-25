@@ -152,7 +152,7 @@ void arpFire() {
 				}
 
 				seqStep++;
-				if (seqStep > seqLength) {
+				if (seqStep >= seqLength) {
 					seqStep = 0;
 
 					arpIndex++;
