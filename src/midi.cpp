@@ -23,6 +23,25 @@ static byte syncLfoCounter;
 
 static bool arpClearFlag = false;
 
+void resyncArpLfo() {
+	if (arpClockEnable) {
+		if (arpMidiSpeed != arpMidiSpeedPending || resyncArp) {
+			arpMidiSpeed = arpMidiSpeedPending;
+			arpClockCounter = 0;
+			resyncArp = false;
+		}
+	}
+
+	for (int i = 0; i < 3; i++) {
+		if (lfoClockEnable[i]) {
+			if (lfoClockSpeedPending[i] != lfoClockSpeedPendingLast[i]) {
+				lfoClockSpeed[i] = lfoClockSpeedPending[i];
+				lfoClockSpeedPendingLast[i] = lfoClockSpeedPending[i];
+				lfoStepF[i] = 0;
+			}
+		}
+	}
+}
 void handleAftertouch(byte channel, byte val) {
 	leftDot();
 	if (mpe) {
@@ -74,27 +93,11 @@ void handleClock() {
 		}
 
 		absoluteClockCounter++;
-		if (absoluteClockCounter >= 96) {
+		if (absoluteClockCounter >= 48) {
 			leftDot();
 			absoluteClockCounter = 0;
 
-			if (arpClockEnable) {
-				if (arpMidiSpeed != arpMidiSpeedPending || resyncArp) {
-					arpMidiSpeed = arpMidiSpeedPending;
-					arpClockCounter = 0;
-					resyncArp = false;
-				}
-			}
-
-			for (int i = 0; i < 3; i++) {
-				if (lfoClockEnable[i]) {
-					if (lfoClockSpeedPending[i] != lfoClockSpeedPendingLast[i]) {
-						lfoClockSpeed[i] = lfoClockSpeedPending[i];
-						lfoClockSpeedPendingLast[i] = lfoClockSpeedPending[i];
-						lfoStepF[i] = 0;
-					}
-				}
-			}
+			resyncArpLfo();
 		}
 
 		////////////////////////////////////
@@ -195,7 +198,7 @@ void handleStop() { sync = false; }
 void handleStart() {
 	if (vibratoClockEnable)
 		vibIndex = 0;
-
+	resyncArpLfo();
 	absoluteClockCounter = 0;
 	seqStep = 0;
 	arpClockCounter = 0;

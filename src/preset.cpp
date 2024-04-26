@@ -423,6 +423,8 @@ void loadPreset() {
 	displayFreeze = 0;
 	ledNumber(preset);
 	displayFreeze = 12000;
+
+	arpMidiSpeedPending = map(fmBase[46], 0, 255, 0, 10);
 }
 
 void savePreset() {
