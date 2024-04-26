@@ -12,9 +12,42 @@
 #include "arp.h"
 #include "FM.h"
 
-// static byte testCounts;
-
 void loop() {
+
+	if (mpe || lfoAt) {
+		if (selectedLfo == 2) {
+			showLfo();
+		}
+		// apply polyPressure
+		for (int ch = 0; ch < 12; ch++) {
+			for (int i = 0; i < 37; i++) {
+				if (linked[2][i]) {
+					int valPlusPressure = fmData[i] + map(polyPressure[ch], 0, 255, 0, fmData[41]);
+					valPlusPressure = constrain(valPlusPressure, 0, 255);
+					if (valPlusPressure != valPlusPressureLast[ch][i]) {
+						valPlusPressureLast[ch][i] = valPlusPressure;
+						fmMpe(ch, i, valPlusPressure);
+					}
+				}
+			}
+		}
+	}
+
+	if (lfoVel) {
+		// apply polyVelocity
+		for (int ch = 0; ch < 12; ch++) {
+			for (int i = 0; i < 37; i++) {
+				if (linked[0][i]) {
+					int valPlusVel = fmData[i] + map(polyVel[ch], 0, 255, 0, fmData[37]);
+					valPlusVel = constrain(valPlusVel, 0, 255);
+					if (valPlusVel != valPlusVelLast[ch][i]) {
+						valPlusVelLast[ch][i] = valPlusVel;
+						fmMpe(ch, i, valPlusVel);
+					}
+				}
+			}
+		}
+	}
 
 	if (showLfoFlag) {
 		showLfo();
@@ -24,14 +57,6 @@ void loop() {
 	if (!secPast) {
 		if (millis() > 1000) {
 			secPast = 1;
-		}
-	}
-
-	if (at != atLast) {
-		atLast = at;
-		if ((lfoAt) && (!fmBase[40])) {
-			lfo[2] = at;
-			applyLfo();
 		}
 	}
 

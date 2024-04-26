@@ -25,15 +25,34 @@ static bool arpClearFlag = false;
 
 void handleAftertouch(byte channel, byte val) {
 	leftDot();
-	if (channel == inputChannel) {
-		if (lfoAt) {
-			if (fmBase[40]) {
-				fmBase[41] = val << 1;
-				fmBaseLast[41] = fmBase[41] - 1;
-				ledNumberTimeOut = 20;
-			} else {
-				atDest = val << 1;
-				ledNumberTimeOut = 20;
+	if (mpe) {
+		if (channel > 1 && channel < 14) {
+			channel -= 2;
+			polyPressure[channel] = val << 1;
+			lastMpeVoice = channel;
+		}
+	} else {
+
+		if (channel == inputChannel) {
+			if (lfoAt) {
+				// MONO AT IS SET TO OVERIDE LFO3
+				for (int i = 0; i < 12; i++) {
+					polyPressure[i] = val << 1;
+				}
+			}
+		}
+	}
+}
+
+void handlePolyAT(byte channel, byte note, byte val) {
+
+	leftDot();
+	if (channel == inputChannel && lfoAt) {
+
+		for (int i = 0; i < 12; i++) {
+			if (notey[i] == note - 10) {
+				polyPressure[i] = val << 1;
+				lastMpeVoice = i;
 			}
 		}
 	}
@@ -82,7 +101,7 @@ void handleClock() {
 		////////        ARP          ///////
 		///////////////////////////////////
 
-		if ((arpClockEnable) && (arpMode) && (voiceMode == kVoicingUnison) && (arpMode != 7)) {
+		if ((arpClockEnable) && (arpMode) && (arpMode != 7)) {
 			arpClockCounter++;
 			if ((arpClockCounter >= kMidiArpTicks[arpMidiSpeed])) {
 				arpClockCounter = 0;
@@ -128,24 +147,28 @@ void handleBendy(byte channel, int bend) {
 	leftDot();
 
 	if (mpe) {
-		if (channel > 12)
-			channel = 12;
 
-		bendy = 0;
+		if (channel > 1 && channel < 14) {
 
-		if (bend != 0) {
-			if (bend < 0) {
-				mpeBend[channel - 1] = bend;
-				mpeBend[channel - 1] /= 8192;
-				mpeBend[channel - 1] *= bendDown;
-			} else if (bend > 0) {
-				mpeBend[channel - 1] = bend;
-				mpeBend[channel - 1] /= 8191;
-				mpeBend[channel - 1] *= bendUp;
+			// channel number comes in at 2-13 (set end ch. of MPE controler to 13 (master ch. to 1))
+			channel -= 2; // offset to 0-11
+
+			bendy = 0;
+
+			if (bend != 0) {
+				if (bend < 0) {
+					mpeBend[channel] = bend;
+					mpeBend[channel] /= 8192;
+					mpeBend[channel] *= 48;
+				} else if (bend > 0) {
+					mpeBend[channel] = bend;
+					mpeBend[channel] /= 8191;
+					mpeBend[channel] *= 48;
+				}
 			}
-		}
 
-		setNote(channel - 1, notey[channel - 1]);
+			setNote(channel, notey[channel]);
+		}
 	} else {
 		if (channel == inputChannel) {
 			//-8192 to 8191
@@ -282,26 +305,23 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 			}
 		}
 	} else {
-		if (lfoVel) {
-			velocityLast = velocity << 1;
-
-			if (fmBase[36] == 0) {
-				lfo[0] = velocityLast;
-				applyLfo();
-			} //
-		}
-
 		if (mpe) {
-
 			note += 3;
+			if (channel > 1 && channel < 14) {
+				channel -= 2;
 
-			if (channel > 12)
-				channel = 12;
+				ym.noteOff(channel);
+				notey[channel] = note;
+				setNote(channel, notey[channel]);
+				ym.noteOn(channel);
 
-			ym.noteOff(channel - 1);
-			notey[channel - 1] = note;
-			setNote(channel - 1, notey[channel - 1]);
-			ym.noteOn(channel - 1);
+				if (lfoVel) {
+
+					for (int i = 0; i < 12; i++)
+						if (i == channel)
+							polyVel[i] = velocity << 1;
+				}
+			}
 		} else {
 
 			if (channel == inputChannel) {
@@ -332,30 +352,60 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 						case kVoicingWide6:
 						case kVoicingWide4:
 						case kVoicingWide3:
-							nVoices = nVoicesForMode(voiceMode);
-							ymfChannelsPerVoice = 12 / nVoices;
 
-							voiceSlot = findNextFreeVoiceSlot(voiceSlot, voiceSlots, nVoices);
-							voiceSlots[voiceSlot] = 1;
-							// if gliding jump to last pitch associated to keycounter
-							if (glide) {
-								for (int i = 0; i < ymfChannelsPerVoice; i++) {
-									setNote(ymfChannelsPerVoice * voiceSlot + i, lastNotey[heldKeys]);
-									skipGlide(ymfChannelsPerVoice * voiceSlot + i);
-								}
-							}
-							noteOfVoice[voiceSlot] = note;
-							lastNotey[heldKeys] = note;
+							if ((arpMode) && (fmData[46])) {
+								// ARP
 
-							for (int i = 0; i < ymfChannelsPerVoice; i++) {
-								setNote(ymfChannelsPerVoice * voiceSlot + i, noteOfVoice[voiceSlot]);
-								ym.noteOff(ymfChannelsPerVoice * voiceSlot + i);
-								ym.noteOn(ymfChannelsPerVoice * voiceSlot + i);
-							}
-
-							if (heldKeys < 127)
 								heldKeys++;
 
+								if (heldKeys == 1) {
+									arpClearFlag = false;
+									clearNotes();
+									heldKeys = 1;
+								}
+
+								if ((heldKeys == 1) && (!sync)) {
+									arpCounter = 1023;
+								} // only retrigger arp on first key or if arp is stopped
+
+								addNote(note);
+
+							} else {
+								// NO ARP
+
+								nVoices = nVoicesForMode(voiceMode);
+								ymfChannelsPerVoice = 12 / nVoices;
+
+								voiceSlot = findNextFreeVoiceSlot(voiceSlot, voiceSlots, nVoices);
+								voiceSlots[voiceSlot] = 1;
+								// if gliding jump to last pitch associated to keycounter
+								if (glide) {
+									for (int i = 0; i < ymfChannelsPerVoice; i++) {
+										setNote(ymfChannelsPerVoice * voiceSlot + i, lastNotey[heldKeys]);
+										skipGlide(ymfChannelsPerVoice * voiceSlot + i);
+									}
+								}
+
+								noteOfVoice[voiceSlot] = note;
+								lastNotey[heldKeys] = note;
+
+								for (int i = 0; i < ymfChannelsPerVoice; i++) {
+									setNote(ymfChannelsPerVoice * voiceSlot + i, noteOfVoice[voiceSlot]);
+									ym.noteOff(ymfChannelsPerVoice * voiceSlot + i);
+									ym.noteOn(ymfChannelsPerVoice * voiceSlot + i);
+								}
+
+								if (heldKeys < 127)
+									heldKeys++;
+							}
+							if (lfoVel && velocity) {
+								// set velocity amount to channel
+								for (int ch = 0; ch < 12; ch++) {
+									if (notey[ch] == note) {
+										polyVel[ch] = velocity << 1;
+									}
+								}
+							}
 							break;
 
 						case kVoicingDualCh3:
@@ -364,42 +414,71 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							// dual CH3
 							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 							///////   ////
-							if (stereoCh3) {
-								// fire at the same time
+							if ((arpMode) && (fmData[46])) {
+								// ARP
 
-								//                noteToChannel[note] = 4; unused?
-								ym.noteOff(4);
-								setNote(4, note);
-								ym.noteOn(4); // CHIP1
-								setNote(2, note);
+								heldKeys++;
 
-								//                noteToChannel[note] = 5; unused?
-								ym.noteOff(5);
-								setNote(5, note);
-								ym.noteOn(5); // CHIP2
-								setNote(8, note);
+								if (heldKeys == 1) {
+									arpClearFlag = false;
+									clearNotes();
+									heldKeys = 1;
+								}
+
+								if ((heldKeys == 1) && (!sync)) {
+									arpCounter = 1023;
+								} // only retrigger arp on first key or if arp is stopped
+
+								addNote(note);
+
 							} else {
+								// NO ARP
 
-								ch3Alt = !ch3Alt;
+								if (stereoCh3) {
+									// fire at the same time
 
-								if (ch3Alt) {
-
-									//                  noteToChannel[note] = 4; // unused?
+									//                noteToChannel[note] = 4; unused?
 									ym.noteOff(4);
 									setNote(4, note);
 									ym.noteOn(4); // CHIP1
 									setNote(2, note);
 
-								} else {
-
-									//                  noteToChannel[note] = 5; // unused?
+									//                noteToChannel[note] = 5; unused?
 									ym.noteOff(5);
 									setNote(5, note);
 									ym.noteOn(5); // CHIP2
 									setNote(8, note);
+
+								} else {
+
+									ch3Alt = !ch3Alt;
+
+									if (ch3Alt) {
+
+										//                  noteToChannel[note] = 4; // unused?
+										ym.noteOff(4);
+										setNote(4, note);
+										ym.noteOn(4); // CHIP1
+										setNote(2, note);
+
+									} else {
+
+										//                  noteToChannel[note] = 5; // unused?
+										ym.noteOff(5);
+										setNote(5, note);
+										ym.noteOn(5); // CHIP2
+										setNote(8, note);
+									}
 								}
 							}
-
+							if (lfoVel && velocity) {
+								// set velocity amount to channel
+								for (int ch = 0; ch < 12; ch++) {
+									if (notey[ch] == note - 10) {
+										polyVel[ch] = velocity << 1;
+									}
+								}
+							}
 							break;
 
 						case kVoicingUnison:
@@ -434,25 +513,8 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 								addNote(note);
 
 								for (int i = 0; i < 12; i++) {
-									ym.noteOff(i);
-									setNote(i, note);
-									ym.noteOn(i);
-								}
-							}
-
-							if (seqRec) {
-								if (!seqLength)
-									rootNote1 = note;
-								seq[seqLength] = note - rootNote1 + 127;
-								if (seq[seqLength] == 255) {
-									seq[seqLength]--;
-								}
-								ledNumber(seqLength + 1);
-								if (seqLength < 16) {
-									seqLength++;
-								}
-
-								for (int i = 0; i < 12; i++) {
+									if (lfoVel && velocity)
+										polyVel[i] = velocity << 1;
 									ym.noteOff(i);
 									setNote(i, note);
 									ym.noteOn(i);
@@ -462,6 +524,27 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							break;
 						default:
 							break;
+					}
+
+					if (seqRec) {
+						if (!seqLength)
+							rootNote1 = note;
+						seq[seqLength] = note - rootNote1 + 127;
+						if (seq[seqLength] == 255) {
+							seq[seqLength]--;
+						}
+
+						seqLength++;
+						if (seqLength > 15)
+							seqLength = 0;
+
+						ledNumber(seqLength + 1);
+
+						for (int i = 0; i < 12; i++) {
+							ym.noteOff(i);
+							setNote(i, note);
+							ym.noteOn(i);
+						}
 					}
 
 				} else {
@@ -487,9 +570,8 @@ static void handleNoteOff(byte channel, byte note) {
 
 			note += 3;
 
-			if (channel > 12)
-				channel = 12;
-			ym.noteOff(channel - 1);
+			if (channel > 1 && channel < 14)
+				ym.noteOff(channel - 2);
 		} else {
 
 			if (channel == inputChannel) {
@@ -502,24 +584,41 @@ static void handleNoteOff(byte channel, byte note) {
 					case kVoicingWide6:
 					case kVoicingWide4:
 					case kVoicingWide3:
-						nVoices = nVoicesForMode(voiceMode);
-						ymfChannelsPerVoice = 12 / nVoices;
 
-						heldKeys--;
-						if (heldKeys < 1) {
-							heldKeys = 0;
-						}
+						if (arpMode) {
+							// ARP
 
-						// scan through the noteOfVoices and kill the voice associated to it
-						for (int v = 0; v < nVoices; v++) {
-							if ((voiceSlots[v]) && (noteOfVoice[v] == note)) {
-								voiceSlots[v] = 0;
-								for (int i = 0; i < ymfChannelsPerVoice; i++) {
-									ym.noteOff(ymfChannelsPerVoice * v + i);
+							heldKeys--;
+							removeNote(note);
+
+							if (heldKeys < 1) {
+								heldKeys = 0;
+
+								for (int i = 0; i < 12; i++) {
+									ym.noteOff(i);
+								}
+							}
+
+						} else {
+							// no arp
+							nVoices = nVoicesForMode(voiceMode);
+							ymfChannelsPerVoice = 12 / nVoices;
+
+							heldKeys--;
+							if (heldKeys < 1) {
+								heldKeys = 0;
+							}
+
+							// scan through the noteOfVoices and kill the voice associated to it
+							for (int v = 0; v < nVoices; v++) {
+								if ((voiceSlots[v]) && (noteOfVoice[v] == note)) {
+									voiceSlots[v] = 0;
+									for (int i = 0; i < ymfChannelsPerVoice; i++) {
+										ym.noteOff(ymfChannelsPerVoice * v + i);
+									}
 								}
 							}
 						}
-
 						break;
 
 					case kVoicingDualCh3: // dual CH3
@@ -628,272 +727,286 @@ byte lastData1, lastData2;
 
 void HandleControlChange(byte channel, byte number, byte val) {
 	byte temp;
-	if (toolMode && channel == 16) {
-		switch (number) {
-			case 1:
-				if (val) {
-					thru = 0;
-				} else {
-					thru = 1;
-				}
-				temp = EEPROM.read(3950);
-				bitWrite(temp, 0, !thru);
-				EEPROM.update(3950, temp);
-				break;
-			case 2:
-				if (val) {
-					ignoreVolume = 1;
-				} else {
-					ignoreVolume = 0;
-				}
-				temp = EEPROM.read(3950);
-				bitWrite(temp, 1, ignoreVolume);
-				EEPROM.update(3950, temp);
-				break;
 
-			case 3:
-				if (val) {
-					lfoClockEnable[0] = true;
-				} else {
-					lfoClockEnable[0] = false;
-				}
-				temp = EEPROM.read(3953);
-				bitWrite(temp, 0, lfoClockEnable[0]);
-				EEPROM.update(3953, temp);
-				break;
-			case 4:
-				if (val) {
-					lfoClockEnable[1] = true;
-				} else {
-					lfoClockEnable[1] = false;
-				}
-				temp = EEPROM.read(3953);
-				bitWrite(temp, 1, lfoClockEnable[1]);
-				EEPROM.update(3953, temp);
-				break;
-			case 5:
-				if (val) {
-					lfoClockEnable[2] = true;
-				} else {
-					lfoClockEnable[2] = false;
-				}
-				temp = EEPROM.read(3953);
-				bitWrite(temp, 2, lfoClockEnable[2]);
-				EEPROM.update(3953, temp);
-				break;
+	if (number == 74) {
 
-			case 6:
-				if (val) {
-					vibratoClockEnable = true;
-				} else {
-					vibratoClockEnable = false;
-				}
-				temp = EEPROM.read(3953);
-				bitWrite(temp, 3, vibratoClockEnable);
-				EEPROM.update(3953, temp);
-				break;
-			case 7:
-				if (val) {
-					arpClockEnable = true;
-				} else {
-					arpClockEnable = false;
-				}
-				temp = EEPROM.read(3953);
-				bitWrite(temp, 4, arpClockEnable);
-				EEPROM.update(3953, temp);
-				break;
-			case 18:
-				mydisplay.setIntensity(0, constrain(val, 1, 15));
-				EEPROM.update(3965, constrain(val, 0, 15));
-				break;
-
-			case 19:
-				if (val) {
-					fatMode = true;
-				} else {
-					fatMode = false;
-				}
-				temp = EEPROM.read(3953);
-				bitWrite(temp, 5, fatMode);
-				EEPROM.update(3953, temp);
-				break;
-
-			case 14:
-				if (val) {
-					newFat = true;
-				} else {
-					newFat = false;
-				}
-				temp = EEPROM.read(3953);
-				bitWrite(temp, 6, newFat);
-				EEPROM.update(3953, temp);
-				break;
-
-			case 8:
-				if (val) {
-					pickupMode = true;
-				} else {
-					pickupMode = false;
-				}
-				EEPROM.update(3954, pickupMode);
-				break;
-			case 9:
-				if (val) {
-					mpe = true;
-				} else {
-					mpe = false;
-				}
-				EEPROM.update(3960, mpe);
-				break;
-			case 10:
-				if (val) {
-					lfoVel = true;
-				} else {
-					lfoVel = false;
-				}
-				EEPROM.update(3961, lfoVel);
-				break;
-			case 11:
-				if (val) {
-					lfoMod = true;
-				} else {
-					lfoMod = false;
-				}
-				EEPROM.update(3962, lfoMod);
-				break;
-			case 12:
-				if (val) {
-					lfoAt = true;
-				} else {
-					lfoAt = false;
-				}
-				EEPROM.update(3963, lfoAt);
-				break;
-			case 13:
-				if (val) {
-					stereoCh3 = true;
-				} else {
-					stereoCh3 = false;
-				}
-				EEPROM.update(3966, stereoCh3);
-				break;
-
-			case 15:
-				inputChannel = constrain(val, 1, 16);
-				EEPROM.update(3951, inputChannel);
-				break;
-
-			case 16:
-				bendUp = constrain(val, 1, 48);
-				EEPROM.update(3959, bendUp);
-				break;
-
-			case 17:
-				bendDown = constrain(val, 1, 48);
-				EEPROM.update(3958, bendDown);
-				break;
-
-			case 20:
-				if (val) {
-					newWide = true;
-				} else {
-					newWide = false;
-				}
-				EEPROM.update(3970, newWide);
-				break;
+		if (mpe && channel > 1 && channel < 14) {
+			channel -= 2;
+			// this is mpe pressure.
+			polyPressure[channel] = val << 1;
+			lastMpeVoice = channel;
 		}
-	}
-
-	if (channel == 16 && lastData1 == 19 && lastData2 == 82 && number == 19 && val == 82) {
-		// transmit all the settings to tool. Tool expects noteOff messages on CH16 (yeah I couldn't get webMidi to
-		// parse sysex... )
-
-		sendTool(0, 3); // 3 is MEGAFM
-		sendTool(82, kVersion0);
-		sendTool(83, kVersion1);
-
-		sendTool(1, thru);
-		sendTool(2, ignoreVolume);
-		sendTool(3, lfoClockEnable[0]);
-		sendTool(4, lfoClockEnable[1]);
-		sendTool(5, lfoClockEnable[2]);
-		sendTool(6, vibratoClockEnable);
-		sendTool(7, arpClockEnable);
-		sendTool(8, pickupMode);
-
-		sendTool(9, mpe);
-		sendTool(10, lfoVel);
-		sendTool(11, lfoMod);
-		sendTool(12, lfoAt);
-		sendTool(13, stereoCh3);
-		sendTool(14, newFat); // new fat tuning
-		sendTool(15, inputChannel);
-		sendTool(16, bendUp);
-		sendTool(17, bendDown);
-		sendTool(18, EEPROM.read(3965));
-		sendTool(19, fatMode);
-		sendTool(20, newWide);
-		toolMode = true; // MEGAfm is listening to new settings (CC on CH16)
-	}
-	// did we receive 1982 twice on channel 16?
-
-	if ((lastSentCC[0] == number) && (lastSentCC[1] == val)) {
-		// ignore same CC and DATA as sent to avoid feedback
 	} else {
-		leftDot();
-		if (channel == inputChannel) {
-			if (number == 0) {
-				if (val < 5) {
-					if (bank != val) {
-						bank = val;
-						handleProgramChange(inputChannel, preset - 1);
+
+		if (toolMode && channel == 16) {
+			switch (number) {
+				case 1:
+					if (val) {
+						thru = 0;
+					} else {
+						thru = 1;
 					}
+					temp = EEPROM.read(3950);
+					bitWrite(temp, 0, !thru);
+					EEPROM.update(3950, temp);
+					break;
+				case 2:
+					if (val) {
+						ignoreVolume = 1;
+					} else {
+						ignoreVolume = 0;
+					}
+					temp = EEPROM.read(3950);
+					bitWrite(temp, 1, ignoreVolume);
+					EEPROM.update(3950, temp);
+					break;
+
+				case 3:
+					if (val) {
+						lfoClockEnable[0] = true;
+					} else {
+						lfoClockEnable[0] = false;
+					}
+					temp = EEPROM.read(3953);
+					bitWrite(temp, 0, lfoClockEnable[0]);
+					EEPROM.update(3953, temp);
+					break;
+				case 4:
+					if (val) {
+						lfoClockEnable[1] = true;
+					} else {
+						lfoClockEnable[1] = false;
+					}
+					temp = EEPROM.read(3953);
+					bitWrite(temp, 1, lfoClockEnable[1]);
+					EEPROM.update(3953, temp);
+					break;
+				case 5:
+					if (val) {
+						lfoClockEnable[2] = true;
+					} else {
+						lfoClockEnable[2] = false;
+					}
+					temp = EEPROM.read(3953);
+					bitWrite(temp, 2, lfoClockEnable[2]);
+					EEPROM.update(3953, temp);
+					break;
+
+				case 6:
+					if (val) {
+						vibratoClockEnable = true;
+					} else {
+						vibratoClockEnable = false;
+					}
+					temp = EEPROM.read(3953);
+					bitWrite(temp, 3, vibratoClockEnable);
+					EEPROM.update(3953, temp);
+					break;
+				case 7:
+					if (val) {
+						arpClockEnable = true;
+					} else {
+						arpClockEnable = false;
+					}
+					temp = EEPROM.read(3953);
+					bitWrite(temp, 4, arpClockEnable);
+					EEPROM.update(3953, temp);
+					break;
+				case 18:
+					mydisplay.setIntensity(0, constrain(val, 1, 15));
+					EEPROM.update(3965, constrain(val, 0, 15));
+					break;
+
+				case 19:
+					if (val) {
+						fatMode = true;
+					} else {
+						fatMode = false;
+					}
+					temp = EEPROM.read(3953);
+					bitWrite(temp, 5, fatMode);
+					EEPROM.update(3953, temp);
+					break;
+
+				case 14:
+					if (val) {
+						newFat = true;
+					} else {
+						newFat = false;
+					}
+					temp = EEPROM.read(3953);
+					bitWrite(temp, 6, newFat);
+					EEPROM.update(3953, temp);
+					break;
+
+				case 8:
+					if (val) {
+						pickupMode = true;
+					} else {
+						pickupMode = false;
+					}
+					EEPROM.update(3954, pickupMode);
+					break;
+				case 9:
+					if (val) {
+						mpe = true;
+					} else {
+						mpe = false;
+					}
+					EEPROM.update(3960, mpe);
+					break;
+				case 10:
+					if (val) {
+						lfoVel = true;
+					} else {
+						lfoVel = false;
+					}
+					EEPROM.update(3961, lfoVel);
+					break;
+				case 11:
+					if (val) {
+						lfoMod = true;
+					} else {
+						lfoMod = false;
+					}
+					EEPROM.update(3962, lfoMod);
+					break;
+				case 12:
+					if (val) {
+						lfoAt = true;
+					} else {
+						lfoAt = false;
+					}
+					EEPROM.update(3963, lfoAt);
+					break;
+				case 13:
+					if (val) {
+						stereoCh3 = true;
+					} else {
+						stereoCh3 = false;
+					}
+					EEPROM.update(3966, stereoCh3);
+					break;
+
+				case 15:
+					inputChannel = constrain(val, 1, 16);
+					EEPROM.update(3951, inputChannel);
+					break;
+
+				case 16:
+					bendUp = constrain(val, 1, 48);
+					EEPROM.update(3959, bendUp);
+					break;
+
+				case 17:
+					bendDown = constrain(val, 1, 48);
+					EEPROM.update(3958, bendDown);
+					break;
+
+				case 20:
+					if (val) {
+						newWide = true;
+					} else {
+						newWide = false;
+					}
+					EEPROM.update(3970, newWide);
+					break;
+			}
+		}
+
+		if (channel == 16 && lastData1 == 19 && lastData2 == 82 && number == 19 && val == 82) {
+			// transmit all the settings to tool. Tool expects noteOff messages on CH16 (yeah I couldn't get webMidi
+			// to parse sysex... )
+
+			sendTool(0, 3); // 3 is MEGAFM
+			sendTool(82, kVersion0);
+			sendTool(83, kVersion1);
+
+			sendTool(1, thru);
+			sendTool(2, ignoreVolume);
+			sendTool(3, lfoClockEnable[0]);
+			sendTool(4, lfoClockEnable[1]);
+			sendTool(5, lfoClockEnable[2]);
+			sendTool(6, vibratoClockEnable);
+			sendTool(7, arpClockEnable);
+			sendTool(8, pickupMode);
+
+			sendTool(9, mpe);
+			sendTool(10, lfoVel);
+			sendTool(11, lfoMod);
+			sendTool(12, lfoAt);
+			sendTool(13, stereoCh3);
+			sendTool(14, newFat); // new fat tuning
+			sendTool(15, inputChannel);
+			sendTool(16, bendUp);
+			sendTool(17, bendDown);
+			sendTool(18, EEPROM.read(3965));
+			sendTool(19, fatMode);
+			sendTool(20, newWide);
+			toolMode = true; // MEGAfm is listening to new settings (CC on CH16)
+		}
+		// did we receive 1982 twice on channel 16?
+
+		if ((lastSentCC[0] == number) && (lastSentCC[1] == val)) {
+			// ignore same CC and DATA as sent to avoid feedback
+		} else {
+			leftDot();
+			if (number == 64) {
+				if (mpe) {
+					for (int ch = 0; ch < 16; ch++)
+						pedal_adapter.set_pedal(ch, val >> 6);
+				} else {
+					pedal_adapter.set_pedal(channel, val >> 6);
 				}
-			} else if (number == 50) {
-				movedPot(0, val << 1, 1);
-			} else if (number == 42) {
-				movedPot(42, val << 5, 1);
-			} else if (number == 51) {
-				movedPot(7, val << 1, 1);
-			} else if (number == 49) {
-				movedPot(8, val << 1, 1);
 			}
 
-			else if (number == 1) {
-
-				if (lfoMod) {
-					if (fmBase[38]) {
-						fmBase[39] = val << 1;
-						fmBaseLast[39] = fmBase[39] - 1;
-						ledNumberTimeOut = 20;
-					} else {
-						lfo[1] = val << 1;
-						applyLfo();
+			else if (channel == inputChannel) {
+				if (number == 0) {
+					if (val < 5) {
+						if (bank != val) {
+							bank = val;
+							handleProgramChange(inputChannel, preset - 1);
+						}
 					}
+				} else if (number == 50) {
+					movedPot(0, val << 1, 1);
+				} else if (number == 42) {
+					movedPot(42, val << 5, 1);
+				} else if (number == 51) {
+					movedPot(7, val << 1, 1);
+				} else if (number == 49) {
+					movedPot(8, val << 1, 1);
 				}
-			} else if (number == 7) {
-				if (kAllCC) {
-					movedPot(1, val << 1, 1);
-				}
-			} else if (number == 64) {
-				pedal_adapter.set_pedal(channel, val >= 64);
-				// if (val > 63) {
-				//	pedalDown();
-				// } else {
-				//	pedalUp();
-				// }
-			} else {
-				if (kAllCC) {
-					movedPot(number, val << 1, 1);
+
+				else if (number == 1) {
+
+					if (lfoMod) {
+						if (fmBase[38]) {
+							fmBase[39] = val << 1;
+							fmBaseLast[39] = fmBase[39] - 1;
+							ledNumberTimeOut = 20;
+						} else {
+							lfo[1] = val << 1;
+							applyLfo();
+						}
+					}
+				} else if (number == 7) {
+					if (kAllCC) {
+						movedPot(1, val << 1, 1);
+					}
 				} else {
-					if ((number != 19) && (number != 40) && (number != 16) && (number != 38))
+					if (kAllCC) {
 						movedPot(number, val << 1, 1);
+					} else {
+						if ((number != 19) && (number != 40) && (number != 16) && (number != 38))
+							movedPot(number, val << 1, 1);
+					}
 				}
 			}
 		}
+		lastData1 = number;
+		lastData2 = val;
 	}
-	lastData1 = number;
-	lastData2 = val;
 }
 
 void midiOut(byte note) {
@@ -1123,6 +1236,11 @@ void midiRead() {
 					mStatus = 1;
 					mData = 255;
 					break; // noteOn
+				case 160 ... 175:
+					mChannel = input - 159;
+					mStatus = 7;
+					mData = 255;
+					break; // Poly AfterTouch
 				case 176 ... 191:
 					mChannel = input - 175;
 					mStatus = 3;
@@ -1213,6 +1331,11 @@ void midiRead() {
 						break;
 					case 6:
 						handleProgramChange(mChannel, input);
+						mData = 255;
+						break;
+
+					case 7:
+						handlePolyAT(mChannel, mData, input);
 						mData = 255;
 						break;
 					default:

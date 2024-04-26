@@ -810,12 +810,6 @@ void buttChanged(Button number, bool value) {
 									}
 									arpModeLast = arpMode;
 
-									if ((arpMode) && (voiceMode != kVoicingUnison) && (!mpe)) {
-										voiceMode = kVoicingUnison;
-										showVoiceMode(voiceMode);
-										sendCC(51, voiceMode);
-									}
-
 									switch (arpMode) {
 										case 1:
 											digit(0, 13);
@@ -853,25 +847,25 @@ void buttChanged(Button number, bool value) {
 						break; // arp mode
 					case kButtonArpRec:
 						if (noRecAction) {
-							if (presetTargetMode) {
-								presetTargetMode = false;
-								savePreset();
+							if (mpe) {
+								// no seq in mpe mode
 							} else {
-								if (!seqRec) {
-									seqLength = 0;
-									if (voiceMode != kVoicingUnison) {
-										voiceMode = kVoicingUnison;
-										showVoiceMode(voiceMode);
-									}
-									seqRec = true;
-									displayFreeze = 0;
-									arpMode = 6;
-									ledSet(23, 1);
-									digit(0, 5);
-									digit(1, 18);
+								if (presetTargetMode) {
+									presetTargetMode = false;
+									savePreset();
 								} else {
-									seqRec = false;
-									ledSet(22, 0);
+									if (!seqRec) {
+										seqLength = 0;
+										seqRec = true;
+										displayFreeze = 0;
+										arpMode = 6;
+										ledSet(23, 1);
+										digit(0, 5);
+										digit(1, 18);
+									} else {
+										seqRec = false;
+										ledSet(22, 0);
+									}
 								}
 							}
 						}

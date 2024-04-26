@@ -18,7 +18,6 @@
 #define YM_IC 30
 extern bool loopChanged;
 extern bool loopHeld;
-extern byte velocityLast; // keep track of velocity for LFO
 extern byte presetChordNumber;
 extern bool newWide; // enable new wide modes
 extern bool chord;
@@ -165,15 +164,20 @@ extern VoiceMode voiceMode;
 extern bool sync;
 extern bool ab;
 extern int potLast[64];
-
+extern int lastMpeVoice;
+extern int pressureCounter;
 extern int lfoDepth[3];
 extern bool buttLast[19];
+extern byte keyPressure[128];
 extern int algoLast;
-
+extern int polyPressure[12];
+extern int polyVel[12];
 extern byte fmBase[51], fmBaseLast[51], fmBaseLastNumber[51];
 extern int fmData[51], fmDataLast[51];
 extern bool linked[3][51];
 extern byte lfoRandom[3][32];
+extern byte valPlusPressureLast[12][36];
+extern byte valPlusVelLast[12][36];
 extern byte randomIndex[3];
 extern byte octOffset; // offset the preset by 0-3 octaves
 extern bool pressedUp, pressedDown;
@@ -195,10 +199,10 @@ extern byte lfoShape[3];
 extern byte lfo[3], lfoLast[3];
 extern int lfoStep[3];
 extern int lfoStepLast[3];
-extern int at, atDest, atLast, atGlideCounter;
 extern bool lfoNewRand[3];
 extern int lfoCounter[3], lfoSpeed[3];
 extern bool retrig[3];
+extern byte robin;//used for polyphonic ar voice ordering (round robin)
 extern int fatLast;
 extern float fat;
 extern float bendy;

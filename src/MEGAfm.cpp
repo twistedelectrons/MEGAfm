@@ -29,6 +29,7 @@ byte presetChordNumber;
 bool secPast = false;
 byte lastSentCC[2];
 byte lastSentMega[2];
+byte keyPressure[128];
 byte lastSentYm[2];
 int finerFine;      // more precise tuning
 bool movedFineKnob; // track if we adjusted tune to override glide knob for finer tuning
@@ -162,7 +163,6 @@ bool shuffled;
 bool voiceHeld;
 int lastNumber = 255;
 byte lfoClockSpeed[3];
-byte velocityLast;
 // To keep the lfo beat in sync with the MIDI master clock,
 // this is used to store a new lfo rate until the incoming MIDI clock counter resets,
 // whereas changing immediately would make it go out of sync.
@@ -229,11 +229,17 @@ bool linked[3][51];
 byte octOffset;
 byte lfoRandom[3][32];
 int displayFreeze;
+int pressureCounter;
+int polyPressure[12];
+int polyVel[12];
 int showPresetNumberTimeout; // we show the preset number when this expires (after moving a knob or fader);
 bool timeToShowPresetNumber; // set true when timeout expires
 byte randomIndex[3];
 bool pressedUp, pressedDown;
+byte valPlusPressureLast[12][36];
+byte valPlusVelLast[12][36];
 bool saved;
+int lastMpeVoice;
 int presetFlasher;
 byte updatePitchCounter;
 int shuffleCounter2;
@@ -260,7 +266,7 @@ int at;
  * dest (next) values with some gliding so the aftertouch response isn't too choppy.
  * FYI aftertouch can override one of the LFOs.
  */
-int atDest, atLast, atGlideCounter;
+byte robin; // used for polyphonic ar voice ordering (round robin)
 bool lfoNewRand[3];
 int lfoCounter[3], lfoSpeed[3];
 bool retrig[3];

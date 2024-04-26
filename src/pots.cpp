@@ -706,7 +706,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								fmBase[36] = data = 0;
 							}
 							updateFMifNecessary(36);
-							if ((lfoVel) && (!data)) {
+							if (lfoVel) {
 								digit(0, 13);
 								digit(1, 18);
 							} else {
@@ -796,7 +796,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								fmBase[40] = data = 0;
 							}
 
-							if ((lfoAt) && (data < 1)) {
+							if (lfoAt) {
 								digit(0, 17);
 								digit(1, 26);
 							} else {
