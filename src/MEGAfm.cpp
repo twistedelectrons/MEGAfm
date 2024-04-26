@@ -293,6 +293,8 @@ void enterSetup() {
 }
 
 void setup() {
+
+	arpMidiSpeedPending=1;
 	lastSentCC[0] = 255;
 
 	fillAllLfoTables();

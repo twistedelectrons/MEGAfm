@@ -830,8 +830,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[46] = data;
 							updateFMifNecessary(46);
 							if (sync) {
-								ledNumber(kArpRateDisplay[data >> 5]);
-								arpMidiSpeedPending = data >> 5;
+								ledNumber(kArpRateDisplay[map(data, 0, 255, 0, 10)]);
+								arpMidiSpeedPending = map(data, 0, 255, 0, 10);
 							} else {
 								if (!isMidi)
 									ledNumber(data >> 2);
