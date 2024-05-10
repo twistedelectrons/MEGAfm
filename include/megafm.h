@@ -129,9 +129,10 @@ extern int lastNumber;
 extern byte lfoClockSpeed[3];
 extern byte lfoClockSpeedPending[3];
 extern byte lfoClockSpeedPendingLast[3];
-extern byte absoluteClockCounter;
+extern int masterClockCounter;
 extern bool newFat;
 extern YM2612 ym;
+extern byte latestChannel;//keep track of latest voice for global velocity/aftertouch modulation
 extern int heldKeys;
 extern byte lastNote, dotTimer;
 extern int arpCounter, arpStep, preset;

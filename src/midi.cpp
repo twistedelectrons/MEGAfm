@@ -72,6 +72,7 @@ void handlePolyAT(byte channel, byte note, byte val) {
 			if (notey[i] == note - 10) {
 				polyPressure[i] = val << 1;
 				lastMpeVoice = i;
+				latestChannel = i;
 			}
 		}
 	}
@@ -92,10 +93,10 @@ void handleClock() {
 			}
 		}
 
-		absoluteClockCounter++;
-		if (absoluteClockCounter >= 48) {
+		masterClockCounter++;
+		if (masterClockCounter >= 48) {
 			leftDot();
-			absoluteClockCounter = 0;
+			masterClockCounter = 0;
 
 			resyncArpLfo();
 		}
@@ -199,7 +200,7 @@ void handleStart() {
 	if (vibratoClockEnable)
 		vibIndex = 0;
 	resyncArpLfo();
-	absoluteClockCounter = 0;
+	masterClockCounter = 0;
 	seqStep = 0;
 	arpClockCounter = 0;
 	sync = true;
@@ -324,6 +325,7 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 						if (i == channel)
 							polyVel[i] = velocity << 1;
 				}
+				latestChannel = channel;
 			}
 		} else {
 
@@ -356,7 +358,7 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 						case kVoicingWide4:
 						case kVoicingWide3:
 
-							if ((arpMode) && (fmData[46])) {
+							if (arpMode) {
 								// ARP
 
 								heldKeys++;
@@ -390,13 +392,17 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 								}
 
 								noteOfVoice[voiceSlot] = note;
+								latestChannel = voiceSlot;
+								
 								lastNotey[heldKeys] = note;
 
 								for (int i = 0; i < ymfChannelsPerVoice; i++) {
 									setNote(ymfChannelsPerVoice * voiceSlot + i, noteOfVoice[voiceSlot]);
 									ym.noteOff(ymfChannelsPerVoice * voiceSlot + i);
 									ym.noteOn(ymfChannelsPerVoice * voiceSlot + i);
+									
 								}
+
 
 								if (heldKeys < 127)
 									heldKeys++;
@@ -404,7 +410,7 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							if (lfoVel && velocity) {
 								// set velocity amount to channel
 								for (int ch = 0; ch < 12; ch++) {
-									if (notey[ch] == note) {
+									if ((notey[ch] == note) || arpMode) {
 										polyVel[ch] = velocity << 1;
 									}
 								}
@@ -417,7 +423,7 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							// dual CH3
 							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 							///////   ////
-							if ((arpMode) && (fmData[46])) {
+							if (arpMode) {
 								// ARP
 
 								heldKeys++;
@@ -477,11 +483,12 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							if (lfoVel && velocity) {
 								// set velocity amount to channel
 								for (int ch = 0; ch < 12; ch++) {
-									if (notey[ch] == note - 10) {
+									if ((notey[ch] == note - 10) || arpMode) {
 										polyVel[ch] = velocity << 1;
 									}
 								}
 							}
+							latestChannel = 0;
 							break;
 
 						case kVoicingUnison:
@@ -490,7 +497,7 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							// unison
 							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 							///////   ////
-							if ((arpMode) && (fmData[46])) {
+							if (arpMode) {
 								// ARP
 
 								heldKeys++;
@@ -516,12 +523,13 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 								addNote(note);
 
 								for (int i = 0; i < 12; i++) {
-									if (lfoVel && velocity)
+									if ((lfoVel && velocity) || arpMode)
 										polyVel[i] = velocity << 1;
 									ym.noteOff(i);
 									setNote(i, note);
 									ym.noteOn(i);
 								}
+								latestChannel = 0;
 							}
 
 							break;
@@ -594,24 +602,12 @@ static void handleNoteOff(byte channel, byte note) {
 							heldKeys--;
 							removeNote(note);
 
-							if (heldKeys < 1) {
-								heldKeys = 0;
-
-								for (int i = 0; i < 12; i++) {
-									ym.noteOff(i);
-								}
-							}
-
 						} else {
 							// no arp
 							nVoices = nVoicesForMode(voiceMode);
 							ymfChannelsPerVoice = 12 / nVoices;
 
 							heldKeys--;
-							if (heldKeys < 1) {
-								heldKeys = 0;
-							}
-
 							// scan through the noteOfVoices and kill the voice associated to it
 							for (int v = 0; v < nVoices; v++) {
 								if ((voiceSlots[v]) && (noteOfVoice[v] == note)) {
@@ -659,14 +655,6 @@ static void handleNoteOff(byte channel, byte note) {
 							heldKeys--;
 							removeNote(note);
 
-							if (heldKeys < 1) {
-								heldKeys = 0;
-
-								for (int i = 0; i < 12; i++) {
-									ym.noteOff(i);
-								}
-							}
-
 						} else {
 							// NO ARP
 
@@ -706,6 +694,14 @@ static void handleNoteOff(byte channel, byte note) {
 						break;
 
 						leftDot();
+				}
+				if (heldKeys < 1) {
+					heldKeys = 0;
+
+					clearNotes();
+					for (int i = 0; i < 12; i++) {
+						ym.noteOff(i);
+					}
 				}
 			}
 		}

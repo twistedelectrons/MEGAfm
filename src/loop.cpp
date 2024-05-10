@@ -21,12 +21,24 @@ void loop() {
 		// apply polyPressure
 		for (int ch = 0; ch < 12; ch++) {
 			for (int i = 0; i < 37; i++) {
+				// modulate the operator params (poly)
 				if (linked[2][i]) {
 					int valPlusPressure = fmData[i] + map(polyPressure[ch], 0, 255, 0, fmData[41]);
 					valPlusPressure = constrain(valPlusPressure, 0, 255);
 					if (valPlusPressure != valPlusPressureLast[ch][i]) {
 						valPlusPressureLast[ch][i] = valPlusPressure;
 						fmMpe(ch, i, valPlusPressure);
+					}
+				}
+			}
+			if (ch == latestChannel) {
+				// modulate the global params (mono)
+				for (int i = 37; i < 51; i++) {
+					// modulate the operator params (poly)
+					if (linked[2][i]) {
+						int valPlusPressure = fmData[i] + map(polyPressure[ch], 0, 255, 0, fmData[41]);
+						valPlusPressure = constrain(valPlusPressure, 0, 255);
+						fmData[i] = valPlusPressure;
 					}
 				}
 			}
@@ -43,6 +55,18 @@ void loop() {
 					if (valPlusVel != valPlusVelLast[ch][i]) {
 						valPlusVelLast[ch][i] = valPlusVel;
 						fmMpe(ch, i, valPlusVel);
+					}
+				}
+			}
+
+			if (ch == latestChannel) {
+				// modulate the global params (mono)
+				for (int i = 37; i < 51; i++) {
+					// modulate the operator params (poly)
+					if (linked[0][i]) {
+						int valPlusVel = fmData[i] + map(polyVel[ch], 0, 255, 0, fmData[37]);
+						valPlusVel = constrain(valPlusVel, 0, 255);
+						fmData[i] = valPlusVel;
 					}
 				}
 			}
