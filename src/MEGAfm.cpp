@@ -162,7 +162,7 @@ bool resetHeld;
 bool shuffled;
 bool voiceHeld;
 int lastNumber = 255;
-byte latestChannel;//keep track of latest voice for global velocity/aftertouch modulation
+byte latestChannel; // keep track of latest voice for global velocity/aftertouch modulation
 byte lfoClockSpeed[3];
 // To keep the lfo beat in sync with the MIDI master clock,
 // this is used to store a new lfo rate until the incoming MIDI clock counter resets,

@@ -132,7 +132,7 @@ extern byte lfoClockSpeedPendingLast[3];
 extern int masterClockCounter;
 extern bool newFat;
 extern YM2612 ym;
-extern byte latestChannel;//keep track of latest voice for global velocity/aftertouch modulation
+extern byte latestChannel; // keep track of latest voice for global velocity/aftertouch modulation
 extern int heldKeys;
 extern byte lastNote, dotTimer;
 extern int arpCounter, arpStep, preset;
@@ -203,7 +203,7 @@ extern int lfoStepLast[3];
 extern bool lfoNewRand[3];
 extern int lfoCounter[3], lfoSpeed[3];
 extern bool retrig[3];
-extern byte robin;//used for polyphonic ar voice ordering (round robin)
+extern byte robin; // used for polyphonic ar voice ordering (round robin)
 extern int fatLast;
 extern float fat;
 extern float bendy;

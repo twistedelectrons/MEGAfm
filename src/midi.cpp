@@ -358,25 +358,21 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 						case kVoicingWide4:
 						case kVoicingWide3:
 
-							if (arpMode) {
-								// ARP
+							heldKeys++;
 
-								heldKeys++;
+							if (heldKeys == 1) {
+								arpClearFlag = false;
+								clearNotes();
+								heldKeys = 1;
+							}
 
-								if (heldKeys == 1) {
-									arpClearFlag = false;
-									clearNotes();
-									heldKeys = 1;
-								}
+							if ((heldKeys == 1) && (!sync)) {
+								arpCounter = 1023;
+							} // only retrigger arp on first key or if arp is stopped
 
-								if ((heldKeys == 1) && (!sync)) {
-									arpCounter = 1023;
-								} // only retrigger arp on first key or if arp is stopped
+							addNote(note);
 
-								addNote(note);
-
-							} else {
-								// NO ARP
+							if (!arpMode || (arpMode && !fmData[46])) {
 
 								nVoices = nVoicesForMode(voiceMode);
 								ymfChannelsPerVoice = 12 / nVoices;
@@ -393,19 +389,14 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 
 								noteOfVoice[voiceSlot] = note;
 								latestChannel = voiceSlot;
-								
+
 								lastNotey[heldKeys] = note;
 
 								for (int i = 0; i < ymfChannelsPerVoice; i++) {
 									setNote(ymfChannelsPerVoice * voiceSlot + i, noteOfVoice[voiceSlot]);
 									ym.noteOff(ymfChannelsPerVoice * voiceSlot + i);
 									ym.noteOn(ymfChannelsPerVoice * voiceSlot + i);
-									
 								}
-
-
-								if (heldKeys < 127)
-									heldKeys++;
 							}
 							if (lfoVel && velocity) {
 								// set velocity amount to channel
@@ -423,24 +414,24 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							// dual CH3
 							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 							///////   ////
-							if (arpMode) {
-								// ARP
 
-								heldKeys++;
+							// ARP
 
-								if (heldKeys == 1) {
-									arpClearFlag = false;
-									clearNotes();
-									heldKeys = 1;
-								}
+							heldKeys++;
 
-								if ((heldKeys == 1) && (!sync)) {
-									arpCounter = 1023;
-								} // only retrigger arp on first key or if arp is stopped
+							if (heldKeys == 1) {
+								arpClearFlag = false;
+								clearNotes();
+								heldKeys = 1;
+							}
 
-								addNote(note);
+							if ((heldKeys == 1) && (!sync)) {
+								arpCounter = 1023;
+							} // only retrigger arp on first key or if arp is stopped
 
-							} else {
+							addNote(note);
+
+							if (!arpMode || (arpMode && !fmData[46])) {
 								// NO ARP
 
 								if (stereoCh3) {
@@ -497,27 +488,25 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							// unison
 							////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////   ////
 							///////   ////
-							if (arpMode) {
-								// ARP
 
-								heldKeys++;
+							// ARP
 
-								if (heldKeys == 1) {
-									arpClearFlag = false;
-									clearNotes();
-									heldKeys = 1;
-								}
+							heldKeys++;
 
-								if ((heldKeys == 1) && (!sync)) {
-									arpCounter = 1023;
-								} // only retrigger arp on first key or if arp is stopped
+							if (heldKeys == 1) {
+								arpClearFlag = false;
+								clearNotes();
+								heldKeys = 1;
+							}
 
-								addNote(note);
+							if ((heldKeys == 1) && (!sync)) {
+								arpCounter = 1023;
+							} // only retrigger arp on first key or if arp is stopped
 
-							} else {
+							addNote(note);
+
+							if (!arpMode || (arpMode && !fmData[46])) {
 								// NO ARP
-
-								heldKeys++;
 
 								lastNote = note;
 								addNote(note);
@@ -596,18 +585,16 @@ static void handleNoteOff(byte channel, byte note) {
 					case kVoicingWide4:
 					case kVoicingWide3:
 
-						if (arpMode) {
-							// ARP
+						// ARP
 
-							heldKeys--;
-							removeNote(note);
+						heldKeys--;
+						removeNote(note);
 
-						} else {
+						if (!arpMode || (arpMode && !fmData[46])) {
 							// no arp
 							nVoices = nVoicesForMode(voiceMode);
 							ymfChannelsPerVoice = 12 / nVoices;
 
-							heldKeys--;
 							// scan through the noteOfVoices and kill the voice associated to it
 							for (int v = 0; v < nVoices; v++) {
 								if ((voiceSlots[v]) && (noteOfVoice[v] == note)) {
@@ -649,16 +636,15 @@ static void handleNoteOff(byte channel, byte note) {
 						break;
 
 					case kVoicingUnison: // unison
-						if (arpMode) {
-							// ARP
 
-							heldKeys--;
-							removeNote(note);
+						// ARP
 
-						} else {
+						heldKeys--;
+						removeNote(note);
+
+						if (!arpMode || (arpMode && !fmData[46])) {
 							// NO ARP
 
-							heldKeys--;
 							removeNote(note);
 
 							// LAST KEY UP?
