@@ -18,7 +18,8 @@
 #define YM_IC 30
 extern bool loopChanged;
 extern bool loopHeld;
-extern byte velocityLast; // keep track of velocity for LFO
+extern byte v4Preset; // detect with a magic bit in the preset if it's already been saved within 4.x  or disable arp in
+                      // non unison mode
 extern byte presetChordNumber;
 extern bool newWide; // enable new wide modes
 extern bool chord;
@@ -130,9 +131,10 @@ extern int lastNumber;
 extern byte lfoClockSpeed[3];
 extern byte lfoClockSpeedPending[3];
 extern byte lfoClockSpeedPendingLast[3];
-extern byte absoluteClockCounter;
+extern int masterClockCounter;
 extern bool newFat;
 extern YM2612 ym;
+extern byte latestChannel; // keep track of latest voice for global velocity/aftertouch modulation
 extern int heldKeys;
 extern byte lastNote, dotTimer;
 extern int arpCounter, arpStep, preset;
@@ -165,15 +167,20 @@ extern VoiceMode voiceMode;
 extern bool sync;
 extern bool ab;
 extern int potLast[64];
-
+extern int lastMpeVoice;
+extern int pressureCounter;
 extern int lfoDepth[3];
 extern bool buttLast[19];
+extern byte keyPressure[128];
 extern int algoLast;
-
+extern int polyPressure[12];
+extern int polyVel[12];
 extern byte fmBase[51], fmBaseLast[51], fmBaseLastNumber[51];
 extern int fmData[51], fmDataLast[51];
 extern bool linked[3][51];
 extern byte lfoRandom[3][32];
+extern byte valPlusPressureLast[12][36];
+extern byte valPlusVelLast[12][36];
 extern byte randomIndex[3];
 extern byte octOffset; // offset the preset by 0-3 octaves
 extern bool pressedUp, pressedDown;
@@ -195,10 +202,10 @@ extern byte lfoShape[3];
 extern byte lfo[3], lfoLast[3];
 extern int lfoStep[3];
 extern int lfoStepLast[3];
-extern int at, atDest, atLast, atGlideCounter;
 extern bool lfoNewRand[3];
 extern int lfoCounter[3], lfoSpeed[3];
 extern bool retrig[3];
+extern byte robin; // used for polyphonic ar voice ordering (round robin)
 extern int fatLast;
 extern float fat;
 extern float bendy;

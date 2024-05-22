@@ -136,7 +136,6 @@ void updateLedNumber() {
 }
 
 void clearLfoLeds() { // hide the lfo leds
-
 	ledSet(16, 0);
 	ledSet(17, 0);
 	ledSet(18, 0);
@@ -146,15 +145,84 @@ void clearLfoLeds() { // hide the lfo leds
 }
 
 void showLfo() {
-	if (!bankCounter) {
-		ledSet(16, 0);
-		ledSet(17, 0);
-		ledSet(18, 0);
-		ledSet(19, 0);
-		ledSet(16 + lfoShape[selectedLfo], 1);
+	if ((mpe || lfoAt) && selectedLfo == 2) {
+		switch (map(map(polyPressure[lastMpeVoice], 0, 255, 0, fmData[41]), 0, 255, 0, 7)) {
 
-		ledSet(20, retrig[selectedLfo]);
-		ledSet(21, looping[selectedLfo]);
+			case 0:
+				ledSet(16, 0);
+				ledSet(17, 0);
+				ledSet(18, 0);
+				ledSet(19, 0);
+				ledSet(20, 0);
+				ledSet(21, 0);
+				break;
+
+			case 1:
+				ledSet(16, 1);
+				ledSet(17, 0);
+				ledSet(18, 0);
+				ledSet(19, 0);
+				ledSet(20, 0);
+				ledSet(21, 0);
+				break;
+
+			case 2:
+				ledSet(16, 1);
+				ledSet(17, 1);
+				ledSet(18, 0);
+				ledSet(19, 0);
+				ledSet(20, 0);
+				ledSet(21, 0);
+				break;
+
+			case 3:
+				ledSet(16, 1);
+				ledSet(17, 1);
+				ledSet(18, 1);
+				ledSet(19, 0);
+				ledSet(20, 0);
+				ledSet(21, 0);
+				break;
+
+			case 4:
+				ledSet(16, 1);
+				ledSet(17, 1);
+				ledSet(18, 1);
+				ledSet(19, 1);
+				ledSet(20, 0);
+				ledSet(21, 0);
+				break;
+
+			case 5:
+				ledSet(16, 1);
+				ledSet(17, 1);
+				ledSet(18, 1);
+				ledSet(19, 1);
+				ledSet(20, 1);
+				ledSet(21, 0);
+				break;
+
+			case 6:
+			case 7:
+				ledSet(16, 1);
+				ledSet(17, 1);
+				ledSet(18, 1);
+				ledSet(19, 1);
+				ledSet(20, 1);
+				ledSet(21, 1);
+				break;
+		}
+	} else {
+		if (!bankCounter) {
+			ledSet(16, 0);
+			ledSet(17, 0);
+			ledSet(18, 0);
+			ledSet(19, 0);
+			ledSet(16 + lfoShape[selectedLfo], 1);
+
+			ledSet(20, retrig[selectedLfo]);
+			ledSet(21, looping[selectedLfo]);
+		}
 	}
 }
 

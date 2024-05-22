@@ -2,8 +2,6 @@
 #include <constants.h>
 #include "YM2612.h"
 
-static byte stagger[]{0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11};
-
 void YM2612::setStagger(bool data) { stag = data; }
 
 void YM2612::setup(uint8_t ic_pin, uint8_t cs_pin, uint8_t wr_pin, uint8_t rd_pin, uint8_t a0_pin, uint8_t a1_pin,

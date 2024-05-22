@@ -130,6 +130,7 @@ void loadPreset() {
 		bitWrite(fmBase[6 + offset], 2, bitRead(temp, 2));
 		bitWrite(fmBase[6 + offset], 3, bitRead(temp, 3));
 		bitWrite(fmBase[6 + offset], 4, bitRead(temp, 4));
+		bitWrite(v4Preset, i, bitRead(temp, 5));
 		temp = getByte();
 		bitWrite(fmBase[7 + offset], 0, bitRead(temp, 4)); // Sustain
 		bitWrite(fmBase[7 + offset], 1, bitRead(temp, 5)); //
@@ -164,9 +165,11 @@ void loadPreset() {
 	bitWrite(b, 1, bitRead(temp, 1));
 	bitWrite(b, 2, bitRead(temp, 2));
 	voiceMode = static_cast<VoiceMode>(b);
-	bitWrite(arpMode, 0, bitRead(temp, 3));
-	bitWrite(arpMode, 1, bitRead(temp, 4));
-	bitWrite(arpMode, 2, bitRead(temp, 5));
+	if (v4Preset == 15 || (v4Preset != 15 && voiceMode == kVoicingUnison)) {
+		bitWrite(arpMode, 0, bitRead(temp, 3));
+		bitWrite(arpMode, 1, bitRead(temp, 4));
+		bitWrite(arpMode, 2, bitRead(temp, 5));
+	}
 	bitWrite(lfoShape[0], 0, bitRead(temp, 6));
 	bitWrite(lfoShape[0], 1, bitRead(temp, 7));
 
@@ -423,6 +426,8 @@ void loadPreset() {
 	displayFreeze = 0;
 	ledNumber(preset);
 	displayFreeze = 12000;
+
+	arpMidiSpeedPending = map(fmBase[46], 0, 255, 0, 10);
 }
 
 void savePreset() {
@@ -485,6 +490,7 @@ void savePreset() {
 		bitWrite(temp, 2, bitRead(fmBase[6 + offset], 2));
 		bitWrite(temp, 3, bitRead(fmBase[6 + offset], 3));
 		bitWrite(temp, 4, bitRead(fmBase[6 + offset], 4));
+		bitWrite(temp, 5, 1); // make this preset V4.X
 		store(temp);
 
 		temp = 0;

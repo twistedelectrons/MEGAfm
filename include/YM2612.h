@@ -9,6 +9,8 @@
 #define YM_MASTER_ADDR (0x22)
 #define YM_CHN_ADDR (0x30)
 
+static byte stagger[]{0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11, 6, 12};
+
 #define YM_MA_LFO_E offsetof(Master_t, LFO), 1, 3
 #define YM_MA_LFO_F offsetof(Master_t, LFO), 3, 0
 #define YM_MA_CH3_M offsetof(Master_t, CHAN3_MODE_TIMERS), 2, 6
@@ -112,6 +114,129 @@ class YM2612 {
 		void setDetune(int value) { setOperatorParameter(YM_OP_DT1, value); }
 		void setRateScaling(int value) { setOperatorParameter(YM_OP_RS, value); }
 		void setSSG_EG(int value) { setOperatorParameter(YM_OP_SSG_EG, value); }
+
+		void setAmplitudeModulation(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+
+			setOperatorParameter(channel, YM_OP_AM, (value > 0));
+			chip = 0;
+		}
+		void setAttackRate(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_AR, value);
+			chip = 0;
+		}
+		void setDecayRate(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_D1R, value);
+			chip = 0;
+		}
+		void setSustainRate(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_D2R, value);
+			chip = 0;
+		}
+		void setReleaseRate(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_RR, value);
+			chip = 0;
+		}
+		void setTotalLevel(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_TL, value);
+			chip = 0;
+		}
+		void setSustainLevel(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_D1L, value);
+			chip = 0;
+		}
+		void setMultiply(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_MUL, value);
+			chip = 0;
+		}
+		void setDetune(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_DT1, value);
+			chip = 0;
+		}
+		void setRateScaling(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_RS, value);
+			chip = 0;
+		}
+		void setSSG_EG(int channel, int value) {
+			channel = stagger[channel];
+			if (channel > 5) {
+				channel -= 6;
+				chip = 6;
+			} else {
+				chip = 2;
+			}
+			setOperatorParameter(channel, YM_OP_SSG_EG, value);
+			chip = 0;
+		}
 
 		void noteOn(byte chan);
 		void noteOff(byte chan);

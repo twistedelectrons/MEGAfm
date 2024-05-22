@@ -5,8 +5,59 @@
 #ifndef MEGAFM_CONSTANTS_H
 #define MEGAFM_CONSTANTS_H
 
-const byte kVersion0 = 3;
-const byte kVersion1 = 6;
+#define KNOB_ARP_RATE 6
+#define KNOB_ARP_RANGE 5
+#define KNOB_LFO1_RATE 15
+#define KNOB_LFO2_RATE 10
+#define KNOB_LFO3_RATE 14
+#define KNOB_LFO1_DEPTH 12
+#define KNOB_LFO2_DEPTH 9
+#define KNOB_LFO3_DEPTH 2
+#define KNOB_VIB_RATE 48
+#define KNOB_VIB_DEPTH 13
+#define KNOB_FAT 28
+#define KNOB_VOLUME 1
+#define KNOB_FEEDBACK 3
+#define KNOB_ALGO 4
+
+#define FADER_DETUNE_1 18
+#define FADER_MULT_1 27
+#define FADER_LEVEL_1 19
+#define FADER_ATTACK_1 29
+#define FADER_DECAY_1 21
+#define FADER_SUSTAIN_1 25
+#define FADER_SUSTAIN_RATE_1 17
+#define FADER_RELEASE_1 30
+
+#define FADER_DETUNE_2 31
+#define FADER_MULT_2 32
+#define FADER_LEVEL_2 40
+#define FADER_ATTACK_2 36
+#define FADER_DECAY_2 44
+#define FADER_SUSTAIN_2 42
+#define FADER_SUSTAIN_RATE_2 34
+#define FADER_RELEASE_2 11
+
+#define FADER_DETUNE_3 20
+#define FADER_MULT_3 24
+#define FADER_LEVEL_3 16
+#define FADER_ATTACK_3 8
+#define FADER_DECAY_3 0
+#define FADER_SUSTAIN_3 7
+#define FADER_SUSTAIN_RATE_3 45
+#define FADER_RELEASE_3 37
+
+#define FADER_DETUNE_4 47
+#define FADER_MULT_4 39
+#define FADER_LEVEL_4 38
+#define FADER_ATTACK_4 46
+#define FADER_DECAY_4 33
+#define FADER_SUSTAIN_4 41
+#define FADER_SUSTAIN_RATE_4 43
+#define FADER_RELEASE_4 35
+
+const byte kVersion0 = 4;
+const byte kVersion1 = 1;
 
 const byte kDefaultSeq[16] = {0, 0, 0, 0, 12, 12, 12, 12, 0, 0, 12, 0, 0, 12, 12, 0};
 

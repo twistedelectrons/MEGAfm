@@ -16,7 +16,7 @@ void midiOut(byte note);
 void pedalUp();
 void pedalDown();
 void dumpPreset();
-
+void resyncArpLfo();
 void sendControlChange(byte number, byte value, byte channel);
 void sendNoteOff(byte note, byte velocity, byte channel);
 void sendTool(byte note, byte velocity);
