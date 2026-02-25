@@ -6,8 +6,8 @@ static int lfoCalculated[3];
 static bool notRandomed[3];
 
 void applyLfo() {
-	// calculate the 3 lfos
-	for (int number = 0; number < 3; number++) {
+	// calculate the 3 lfos (don't bother with lfo 3 if mpe is on)
+	for (int number = 0; number < 3 - mpe; number++) {
 		int lfoModifier = lfo[number] - 128;
 		lfoModifier *= 2; // set to +/- 256 range
 		float depth = lfoDepth[number];
@@ -23,13 +23,13 @@ void applyLfo() {
 			fmData[i] = fmBase[i];
 
 			// add lfo accordingly
-			if (linked[0][i]) {
+			if (linked[0][i] && !lfoVel) {
 				fmData[i] += lfoCalculated[0];
 			}
 			if (linked[1][i]) {
 				fmData[i] += lfoCalculated[1];
 			}
-			if (linked[2][i]) {
+			if (linked[2][i] && !mpe && !lfoAt) {
 				fmData[i] += lfoCalculated[2];
 			}
 
@@ -42,23 +42,24 @@ void applyLfo() {
 
 void lfoBlink() {
 	// called when lfo resets to blink the LED
-	if ((!bankCounter) && (!showSSEGCounter)) {
-		ledSet(16 + lfoShape[selectedLfo], 0);
-		if (lfoLedCounter < 15) {
-			lfoLedCounter = 15;
+	if ((mpe && selectedLfo < 2) || (!mpe && !lfoAt)) {
+		if ((!bankCounter) && (!showSSEGCounter)) {
 			ledSet(16 + lfoShape[selectedLfo], 0);
+			if (lfoLedCounter < 15) {
+				lfoLedCounter = 15;
+				ledSet(16 + lfoShape[selectedLfo], 0);
+			}
 		}
 	}
 }
 
 void lfoTick() {
 	for (int i = 0; i < 3; i++) {
-		if ((i == 0) && (lfoVel) && (fmBase[36] == 0)) {
-			lfo[i] = velocityLast;
+		if ((i == 0) && (lfoVel)) {
 		} //
 		else if ((i == 1) && (lfoMod) && (fmBase[38] == 0)) {
 		} //
-		else if ((i == 2) && (lfoAt) && (fmBase[40] == 0)) {
+		else if ((i == 2) && (lfoAt)) {
 		} //
 		else {
 			switch (lfoShape[i]) {
@@ -131,11 +132,11 @@ void lfoTick() {
 void lfoAdvance() {
 	// LFO
 	for (int i = 0; i < 3; i++) {
-		if ((i == 0) && (lfoVel) && (fmBase[36] == 0)) {
+		if ((i == 0) && (lfoVel)) {
 		} //
 		else if ((i == 1) && (lfoMod) && (fmBase[38] == 0)) {
 		} //
-		else if ((i == 2) && (lfoAt) && (fmBase[40] == 0)) {
+		else if ((i == 2) && (lfoAt)) {
 		} //
 		else {
 			if ((lfoClockEnable[i]) && (sync)) {

@@ -239,6 +239,161 @@ void fm(byte number, byte data) {
 	}
 }
 
+// static byte stagger[]{0, 6, 1, 7, 2, 8, 3, 9, 4, 10, 5, 11};
+
+void fmMpe(byte channel, byte number, byte data) {
+	switch (number) {
+		// OP1
+		case 0:
+			op(0);
+			ym.setDetune(channel, detuneFix[data] >> fmShifts[number]);
+			break; // detune
+		case 1:
+			op(0);
+			ym.setMultiply(channel, data >> fmShifts[number]);
+			break; // multiple
+		case 2:
+			op(0);
+			ym.setTotalLevel(channel, 127 - (data >> fmShifts[number]));
+			break; // op level
+		case 3:
+			op(0);
+			ym.setRateScaling(channel, data >> fmShifts[number]);
+			break;
+		case 4:
+			op(0);
+			ym.setAttackRate(channel, 31 - (data >> fmShifts[number]));
+			break; // a
+		case 5:
+			op(0);
+			ym.setDecayRate(channel, 31 - (data >> fmShifts[number]));
+			break; // d
+		case 6:
+			op(0);
+			ym.setSustainRate(channel, 31 - (data >> fmShifts[number]));
+			break; // sustain rate
+		case 7:
+			op(0);
+			ym.setSustainLevel(channel, 15 - (data >> fmShifts[number]));
+			break; // s
+		case 8:
+			op(0);
+			ym.setReleaseRate(channel, 15 - (data >> fmShifts[number]));
+			break; // r
+		// OP2
+		case 9:
+			op(1);
+			ym.setDetune(channel, detuneFix[data] >> fmShifts[number]);
+			break; // detune
+		case 10:
+			op(1);
+			ym.setMultiply(channel, data >> fmShifts[number]);
+			break; // multiple
+		case 11:
+			op(1);
+			ym.setTotalLevel(channel, 127 - (data >> fmShifts[number]));
+			break; // op level
+		case 12:
+			op(2);
+			ym.setRateScaling(channel, (data) >> fmShifts[number]);
+			break;
+		case 13:
+			op(1);
+			ym.setAttackRate(channel, 31 - (data >> fmShifts[number]));
+			break; // a
+		case 14:
+			op(1);
+			ym.setDecayRate(channel, 31 - (data >> fmShifts[number]));
+			break; // d
+		case 15:
+			op(1);
+			ym.setSustainRate(channel, 31 - (data >> fmShifts[number]));
+			break; // sustain rate
+		case 16:
+			op(1);
+			ym.setSustainLevel(channel, 15 - (data >> fmShifts[number]));
+			break; // s
+		case 17:
+			op(1);
+			ym.setReleaseRate(channel, 15 - (data >> fmShifts[number]));
+			break; // r
+		// OP3
+		case 18:
+			op(2);
+			ym.setDetune(channel, detuneFix[data] >> fmShifts[number]);
+			break; // detune
+		case 19:
+			op(2);
+			ym.setMultiply(channel, data >> fmShifts[number]);
+			break; // multiple
+		case 20:
+			op(2);
+			ym.setTotalLevel(channel, 127 - (data >> fmShifts[number]));
+			break; // op level
+		case 21:
+			op(1);
+			ym.setRateScaling(channel, data >> fmShifts[number]);
+			break;
+		case 22:
+			op(2);
+			ym.setAttackRate(channel, 31 - (data >> fmShifts[number]));
+			break; // a
+		case 23:
+			op(2);
+			ym.setDecayRate(channel, 31 - (data >> fmShifts[number]));
+			break; // d
+		case 24:
+			op(2);
+			ym.setSustainRate(channel, 31 - (data >> fmShifts[number]));
+			break; // sustain rate
+		case 25:
+			op(2);
+			ym.setSustainLevel(channel, 15 - (data >> fmShifts[number]));
+			break; // s
+		case 26:
+			op(2);
+			ym.setReleaseRate(channel, 15 - (data >> fmShifts[number]));
+			break; // r
+		// OP4
+		case 27:
+			op(3);
+			ym.setDetune(channel, detuneFix[data] >> fmShifts[number]);
+			break; // detune
+		case 28:
+			op(3);
+			ym.setMultiply(channel, data >> fmShifts[number]);
+			break; // multiple
+		case 29:
+			op(3);
+			ym.setTotalLevel(channel, 127 - (data >> fmShifts[number]));
+			break; // op level
+		case 30:
+			op(3);
+			ym.setRateScaling(channel, data >> fmShifts[number]);
+			break;
+		case 31:
+			op(3);
+			ym.setAttackRate(channel, 31 - (data >> fmShifts[number]));
+			break; // a
+		case 32:
+			op(3);
+			ym.setDecayRate(channel, 31 - (data >> fmShifts[number]));
+			break; // d
+		case 33:
+			op(3);
+			ym.setSustainRate(channel, 31 - (data >> fmShifts[number]));
+			break; // sustain rate
+		case 34:
+			op(3);
+			ym.setSustainLevel(channel, 15 - (data >> fmShifts[number]));
+			break; // s
+		case 35:
+			op(3);
+			ym.setReleaseRate(channel, 15 - (data >> fmShifts[number]));
+			break; // r
+	}
+}
+
 void op(byte number) {
 
 	ym.selectOperator(0, 0);

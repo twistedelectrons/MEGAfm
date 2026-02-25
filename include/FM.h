@@ -15,6 +15,7 @@ void updateFMifNecessary(byte number);
 void fmResetValues();
 void fmUpdate();
 void fm(byte number, byte data);
+void fmMpe(byte channel, byte number, byte data);
 void op(byte number);
 void setupFM();
 void WriteYMData(byte data);

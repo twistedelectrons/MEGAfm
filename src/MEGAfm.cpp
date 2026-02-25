@@ -24,11 +24,14 @@ bool chordNotes[128];
 bool heldNotes[128];
 byte chordRoot;
 byte presetChordNumber;
+byte v4Preset; // detect with a magic bit in the preset if it's already been saved within 4.x  or disable arp in non
+               // unison mode
 // Whether one second has elapsed since device boot.
 // Used in: loop.cpp, pots.cpp
 bool secPast = false;
 byte lastSentCC[2];
 byte lastSentMega[2];
+byte keyPressure[128];
 byte lastSentYm[2];
 int finerFine;      // more precise tuning
 bool movedFineKnob; // track if we adjusted tune to override glide knob for finer tuning
@@ -161,14 +164,14 @@ bool resetHeld;
 bool shuffled;
 bool voiceHeld;
 int lastNumber = 255;
+byte latestChannel; // keep track of latest voice for global velocity/aftertouch modulation
 byte lfoClockSpeed[3];
-byte velocityLast;
 // To keep the lfo beat in sync with the MIDI master clock,
 // this is used to store a new lfo rate until the incoming MIDI clock counter resets,
 // whereas changing immediately would make it go out of sync.
 byte lfoClockSpeedPending[3];
 byte lfoClockSpeedPendingLast[3];
-byte absoluteClockCounter;
+int masterClockCounter;
 YM2612 ym;
 int heldKeys;
 byte lastNote, dotTimer;
@@ -229,11 +232,17 @@ bool linked[3][51];
 byte octOffset;
 byte lfoRandom[3][32];
 int displayFreeze;
+int pressureCounter;
+int polyPressure[12];
+int polyVel[12];
 int showPresetNumberTimeout; // we show the preset number when this expires (after moving a knob or fader);
 bool timeToShowPresetNumber; // set true when timeout expires
 byte randomIndex[3];
 bool pressedUp, pressedDown;
+byte valPlusPressureLast[12][36];
+byte valPlusVelLast[12][36];
 bool saved;
+int lastMpeVoice;
 int presetFlasher;
 byte updatePitchCounter;
 int shuffleCounter2;
@@ -260,7 +269,7 @@ int at;
  * dest (next) values with some gliding so the aftertouch response isn't too choppy.
  * FYI aftertouch can override one of the LFOs.
  */
-int atDest, atLast, atGlideCounter;
+byte robin; // used for polyphonic ar voice ordering (round robin)
 bool lfoNewRand[3];
 int lfoCounter[3], lfoSpeed[3];
 bool retrig[3];
@@ -287,6 +296,8 @@ void enterSetup() {
 }
 
 void setup() {
+
+	arpMidiSpeedPending = 1;
 	lastSentCC[0] = 255;
 
 	fillAllLfoTables();
