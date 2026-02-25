@@ -12,7 +12,7 @@ A million thanks to [Matt Montag](https://github.com/mmontag) & [Florian Jung](h
 
 ## Building and flashing the source code:
 
-Install `platformio` and `python2`. (Yes. I am so sorry :(.)
+Install `platformio`.
 
 To compile the firmware and to generate the firmware update sysex, run:
 
@@ -40,4 +40,3 @@ Thank you, we are looking forward to your contribution! :)
 The MEGAfm firmware under `src/` and `include/` is free software. It is released under the terms of
 the [ISC License](LICENSE.md). The libraries and tools distributed in the `3rdparty/` and `lib/`
 directories have their own copyright and license notes.
-
