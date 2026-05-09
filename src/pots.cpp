@@ -5,9 +5,39 @@
 #include "pickup.h"
 #include "FM.h"
 #include "midi.h"
+#include "nrpn.h"
 #include "pitchEngine.h"
 #include "lfo.h"
 #include "loop.h"
+
+void upodateDisplayArpMidi(byte data) {
+	byte valueToShow = map(data, 0, 255, 0, 12);
+	if (valueToShow > 2) {
+		ledNumber(kArpRateDisplay[valueToShow]);
+	} // it's less than a bar, show division
+	else {
+		digit(0, 25); // b
+		switch (valueToShow) {
+			case 0:
+				digit(1, 4);
+				break;
+			case 1:
+				digit(1, 2);
+				break;
+			case 2:
+				digit(1, 1);
+				break;
+		}
+	} // show number of bars (b1 or b2 or b4)
+}
+
+void updateDisplayLFOWhenSynced(byte data) {
+	if ((lfoClockEnable[selectedLfo]) && (sync)) {
+		upodateDisplayArpMidi(data);
+	} else {
+		ledNumber(data >> 2);
+	}
+}
 
 void movedPot(byte number, byte data, bool isMidi) {
 	if (secPast) {
@@ -17,9 +47,9 @@ void movedPot(byte number, byte data, bool isMidi) {
 		if ((!seqRec) && (!sendReceive)) {
 			if (setupMode) {
 
-				ledSet(10, 0);
-				ledSet(11, 0);
-				ledSet(12, 0);
+				ledSet(LED_VOICE_MODE_WIDE6, 0);
+				ledSet(LED_VOICE_MODE_DUALCH3, 0);
+				ledSet(LED_VOICE_MODE_UNISON, 0);
 
 				switch (number) {
 
@@ -34,6 +64,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							digit(0, 0);
 							digit(1, 12);
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_ARP_CLOCK_SYNC, arpClockEnable);
 						break; // arp rate
 					case KNOB_LFO1_RATE:
 						setupChanged = true;
@@ -46,6 +78,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							digit(0, 0);
 							digit(1, 12);
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_LFO_CLOCK_SYNC, lfoClockEnable[0]);
 						break; // lfo 1 rate
 					case KNOB_LFO2_RATE:
 						setupChanged = true;
@@ -58,6 +92,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							digit(0, 0);
 							digit(1, 12);
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_LFO_CLOCK_SYNC + 1, lfoClockEnable[1]);
 						break; // lfo 2 rate
 					case KNOB_LFO3_RATE:
 						setupChanged = true;
@@ -70,6 +106,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							digit(0, 0);
 							digit(1, 12);
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_LFO_CLOCK_SYNC + 2, lfoClockEnable[2]);
 						break; // lfo 3 rate
 					case KNOB_VIB_RATE:
 						setupChanged = true;
@@ -78,11 +116,12 @@ void movedPot(byte number, byte data, bool isMidi) {
 							digit(0, 0);
 							digit(1, 19);
 						} else {
-							ledSet(9, 0);
 							vibratoClockEnable = 0;
 							digit(0, 0);
 							digit(1, 12);
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_VIB_CLOCK_SYNC, vibratoClockEnable);
 						break; // vib rate
 
 					case KNOB_LFO1_DEPTH:
@@ -109,6 +148,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(1, 12);
 							}
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_LFO_VEL, lfoVel);
 						break; // lfo 1 depth
 
 					case KNOB_LFO2_DEPTH:
@@ -135,6 +176,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(1, 12);
 							}
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_LFO_MOD, lfoMod);
 						break; // lfo 2 depth
 
 					case KNOB_LFO3_DEPTH:
@@ -161,6 +204,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(1, 12);
 							}
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_LFO_AT, lfoAt);
 						break; // lfo 3 depth
 
 					case KNOB_FAT:
@@ -174,6 +219,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							digit(0, 1);
 							digit(1, 27);
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_SET_FAT_MODE, !fatMode);
 						break; // fat
 
 					case KNOB_VOLUME:
@@ -187,6 +234,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							digit(0, 0);
 							digit(1, 12);
 						}
+						if (!isMidi)
+							sendNRPN(NRPN_SET_IGNORE_VOL, ignoreVolume);
 						break; // volume preset
 
 					case KNOB_VIB_DEPTH:
@@ -195,6 +244,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							brightness = 10;                   // default;
 						mydisplay.setIntensity(0, brightness); // 15 = brightest
 						EEPROM.write(3965, brightness);
+						if (!isMidi)
+							sendNRPN(NRPN_SET_BRIGHTNESS, brightness);
 						break;
 				}
 
@@ -217,6 +268,9 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(3);
 								fmBase[3] = data;
 								ledNumber(data >> 6);
+								if (!isMidi) {
+									sendNRPN(NRPN_OP1_BASE + NRPN_OP_RATE_SCALE, data);
+								}
 							} else {
 								fmBase[0] = data;
 								updateFMifNecessary(0);
@@ -225,89 +279,89 @@ void movedPot(byte number, byte data, bool isMidi) {
 								} else {
 									ledNumber(-3 + (data >> 5));
 								}
+								if (!isMidi) {
+									isFader = true;
+									targetPot = 0;
+									sendNRPN(NRPN_OP1_BASE + NRPN_OP_DETUNE, data);
+								}
 							}
-							if (!isMidi) {
-								isFader = true;
-								targetPot = 0;
 
-								sendCC(number, data >> 1);
-							}
 							break; // detune
 						case FADER_MULT_1:
 							showPickupAnimation = false;
 							fmBase[1] = data;
 							updateFMifNecessary(1);
+							showNumber(1, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 1;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_MULT, data);
 							}
 							break; // multiple
 						case FADER_LEVEL_1:
 							showPickupAnimation = false;
 							fmBase[2] = data;
 							updateFMifNecessary(2);
+							showNumber(2, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 2;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_LEVEL, data);
 							}
 							break; // op level
 						case FADER_ATTACK_1:
 							showPickupAnimation = false;
 							fmBase[4] = data;
 							updateFMifNecessary(4);
+							showNumber(4, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 4;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_ATTACK, data);
 							}
 							break; // attack
 						case FADER_DECAY_1:
 							showPickupAnimation = false;
 							fmBase[5] = data;
 							updateFMifNecessary(5);
+							showNumber(5, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 5;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_DECAY, data);
 							}
 							break; // decay1
 						case FADER_SUSTAIN_1:
 							showPickupAnimation = false;
 							fmBase[7] = data;
 							updateFMifNecessary(7);
+							showNumber(7, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 7;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_SUSTAIN_LVL, data);
 							}
 							break; // sustain
 						case FADER_SUSTAIN_RATE_1:
 							showPickupAnimation = false;
 							fmBase[6] = data;
 							updateFMifNecessary(9);
+							showNumber(6, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 6;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_SUSTAIN_RATE, data);
 							}
 							break; // sustain rate
 						case FADER_RELEASE_1:
 							showPickupAnimation = false;
 							fmBase[8] = data;
 							updateFMifNecessary(8);
+							showNumber(8, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 8;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_RELEASE, data);
 							}
 							break; // release
 
@@ -319,6 +373,9 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(12);
 								fmBase[12] = data;
 								ledNumber(data >> 6);
+								if (!isMidi) {
+									sendNRPN(NRPN_OP2_BASE + NRPN_OP_RATE_SCALE, data);
+								}
 							} else {
 								fmBase[18] = data;
 								updateFMifNecessary(18);
@@ -327,88 +384,88 @@ void movedPot(byte number, byte data, bool isMidi) {
 								} else {
 									ledNumber(-3 + (data >> 5));
 								}
-							}
-							if (!isMidi) {
-								isFader = true;
-								targetPot = 18;
-								sendCC(number, data >> 1);
+								if (!isMidi) {
+									isFader = true;
+									targetPot = 18;
+									sendNRPN(NRPN_OP2_BASE + NRPN_OP_DETUNE, data);
+								}
 							}
 							break; // detune
 						case FADER_MULT_2:
 							showPickupAnimation = false;
 							fmBase[19] = data;
 							updateFMifNecessary(19);
+							showNumber(19, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 19;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_MULT, data);
 							}
 							break; // multiple
 						case FADER_LEVEL_2:
 							showPickupAnimation = false;
 							fmBase[20] = data;
 							updateFMifNecessary(20);
+							showNumber(20, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 20;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_LEVEL, data);
 							}
 							break; // op level
 						case FADER_ATTACK_2:
 							showPickupAnimation = false;
 							fmBase[22] = data;
 							updateFMifNecessary(22);
+							showNumber(22, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 22;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_ATTACK, data);
 							}
 							break; // attack WAS 59
 						case FADER_DECAY_2:
 							showPickupAnimation = false;
 							fmBase[23] = data;
 							updateFMifNecessary(23);
+							showNumber(23, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 23;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_DECAY, data);
 							}
 							break; // decay1 WAS 50
 						case FADER_SUSTAIN_2:
 							showPickupAnimation = false;
 							fmBase[25] = data;
 							updateFMifNecessary(25);
+							showNumber(25, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 25;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_SUSTAIN_LVL, data);
 							}
 							break; // sustain WAS 60
 						case FADER_SUSTAIN_RATE_2:
 							showPickupAnimation = false;
 							fmBase[24] = data;
 							updateFMifNecessary(24);
+							showNumber(24, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 24;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_SUSTAIN_RATE, data);
 							}
 							break; // sustain rate WAS 55
 						case FADER_RELEASE_2:
 							showPickupAnimation = false;
 							fmBase[26] = data;
 							updateFMifNecessary(26);
+							showNumber(26, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 26;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_RELEASE, data);
 							}
 							break; // release WAS 52
 
@@ -421,6 +478,9 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(21);
 								fmBase[21] = data;
 								ledNumber(data >> 6);
+								if (!isMidi) {
+									sendNRPN(NRPN_OP3_BASE + NRPN_OP_RATE_SCALE, data);
+								}
 							} else {
 								fmBase[9] = data;
 								updateFMifNecessary(9);
@@ -429,88 +489,88 @@ void movedPot(byte number, byte data, bool isMidi) {
 								} else {
 									ledNumber(-3 + (data >> 5));
 								}
-							}
-							if (!isMidi) {
-								isFader = true;
-								targetPot = 9;
-								sendCC(number, data >> 1);
+								if (!isMidi) {
+									isFader = true;
+									targetPot = 9;
+									sendNRPN(NRPN_OP3_BASE + NRPN_OP_DETUNE, data);
+								}
 							}
 							break; // detune
 						case FADER_MULT_3:
 							showPickupAnimation = false;
 							fmBase[10] = data;
 							updateFMifNecessary(10);
+							showNumber(10, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 10;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_MULT, data);
 							}
 							break; // multiple
 						case FADER_LEVEL_3:
 							showPickupAnimation = false;
 							fmBase[11] = data;
 							updateFMifNecessary(11);
+							showNumber(11, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 11;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_LEVEL, data);
 							}
 							break; // op level
 						case FADER_ATTACK_3:
 							showPickupAnimation = false;
 							fmBase[13] = data;
 							updateFMifNecessary(13);
+							showNumber(13, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 13;
-								showNumber(targetPot, data);
-								sendCC(49, data >> 1);
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_ATTACK, data);
 							}
 							break; // attack
 						case FADER_DECAY_3:
 							showPickupAnimation = false;
 							fmBase[14] = data;
 							updateFMifNecessary(14);
+							showNumber(14, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 14;
-								showNumber(targetPot, data);
-								sendCC(50, data >> 1);
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_DECAY, data);
 							}
 							break; // decay1
 						case FADER_SUSTAIN_3:
 							showPickupAnimation = false;
 							fmBase[16] = data;
 							updateFMifNecessary(16);
+							showNumber(16, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 16;
-								showNumber(targetPot, data);
-								sendCC(51, data >> 1);
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_SUSTAIN_LVL, data);
 							}
 							break; // sustain
 						case FADER_SUSTAIN_RATE_3:
 							showPickupAnimation = false;
 							fmBase[15] = data;
 							updateFMifNecessary(15);
+							showNumber(15, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 15;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_SUSTAIN_RATE, data);
 							}
 							break; // sustain rate
 						case FADER_RELEASE_3:
 							showPickupAnimation = false;
 							fmBase[17] = data;
 							updateFMifNecessary(17);
+							showNumber(17, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 17;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_RELEASE, data);
 							}
 							break; // release
 
@@ -522,6 +582,9 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(30);
 								fmBase[30] = data;
 								ledNumber(data >> 6);
+								if (!isMidi) {
+									sendNRPN(NRPN_OP4_BASE + NRPN_OP_RATE_SCALE, data);
+								}
 							} else {
 								fmBase[27] = data;
 								updateFMifNecessary(27);
@@ -530,89 +593,88 @@ void movedPot(byte number, byte data, bool isMidi) {
 								} else {
 									ledNumber(-3 + (data >> 5));
 								}
-							}
-							if (!isMidi) {
-								isFader = true;
-								targetPot = 27;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								if (!isMidi) {
+									isFader = true;
+									targetPot = 27;
+									sendNRPN(NRPN_OP4_BASE + NRPN_OP_DETUNE, data);
+								}
 							}
 							break; // detune
 						case FADER_MULT_4:
 							showPickupAnimation = false;
 							fmBase[28] = data;
 							updateFMifNecessary(28);
+							showNumber(28, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 28;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_MULT, data);
 							}
 							break; // multiple
 						case FADER_LEVEL_4:
 							showPickupAnimation = false;
 							fmBase[29] = data;
 							updateFMifNecessary(29);
+							showNumber(29, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 29;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_LEVEL, data);
 							}
 							break; // op level
 						case FADER_ATTACK_4:
 							showPickupAnimation = false;
 							fmBase[31] = data;
 							updateFMifNecessary(31);
+							showNumber(31, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 31;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_ATTACK, data);
 							}
 							break; // attack
 						case FADER_DECAY_4:
 							showPickupAnimation = false;
 							fmBase[32] = data;
 							updateFMifNecessary(32);
+							showNumber(32, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 32;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_DECAY, data);
 							}
 							break; // decay1
 						case FADER_SUSTAIN_4:
 							showPickupAnimation = false;
 							fmBase[34] = data;
 							updateFMifNecessary(34);
+							showNumber(34, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 34;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_SUSTAIN_LVL, data);
 							}
 							break; // sustain
 						case FADER_SUSTAIN_RATE_4:
 							showPickupAnimation = false;
 							fmBase[33] = data;
 							updateFMifNecessary(33);
+							showNumber(33, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 33;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_SUSTAIN_RATE, data);
 							}
 							break; // sustain rate
 						case FADER_RELEASE_4:
 							showPickupAnimation = false;
 							fmBase[35] = data;
 							updateFMifNecessary(35);
+							showNumber(35, data);
 							if (!isMidi) {
 								isFader = true;
 								targetPot = 35;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_RELEASE, data);
 							}
 							break; // release
 
@@ -630,7 +692,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 								} else if (fine < 128) {
 									ledNumber(map(fine, 128, 0, 0, 32));
 								}
-
+								if (!isMidi)
+									sendNRPN(NRPN_FINE_TUNE, data);
 							} else {
 
 								vol = 128 - (data >> 1);
@@ -640,7 +703,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 									ledNumber(data >> 2);
 									volumeCounter = 20;
 									if (!isMidi) {
-										sendCC(7, data >> 1);
+										sendNRPN(NRPN_VOLUME, data);
 									}
 								}
 							}
@@ -648,15 +711,12 @@ void movedPot(byte number, byte data, bool isMidi) {
 
 						case KNOB_ALGO:
 							showPickupAnimation = false;
-							if (isMidi) {
-								data -= 1;
-							}
 							fmBase[42] = data;
 							updateFMifNecessary(42);
+							showNumber(42, data);
 							if (!isMidi) {
 								targetPot = 42;
-								showNumber(targetPot, data);
-								sendCC(number, (1 + (data >> 5)));
+								sendNRPN(NRPN_ALGORITHM, data);
 							}
 							break; // algo
 
@@ -664,10 +724,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							fmBase[43] = data;
 							updateFMifNecessary(43);
+							showNumber(43, data);
 							if (!isMidi) {
 								targetPot = 43;
-								showNumber(targetPot, data);
-								sendCC(number, (data >> 1));
+								sendNRPN(NRPN_FEEDBACK, data);
 							}
 							break; // feedback
 
@@ -686,14 +746,16 @@ void movedPot(byte number, byte data, bool isMidi) {
 									glide = data >> 4;
 									updateGlideIncrements();
 									fineChanged = true;
-									ledNumber(data >> 2);
+									ledNumber(data >> 4);
+									if (!isMidi)
+										sendNRPN(NRPN_GLIDE, glide << 4);
 								} else {
 									fmBase[50] = data;
 									updateFMifNecessary(50);
 									ledNumber(data >> 2);
 									if (!isMidi) {
 										targetPot = 50;
-										sendCC(number, data >> 1);
+										sendNRPN(NRPN_FAT, data);
 									}
 								}
 							}
@@ -711,34 +773,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(1, 18);
 							} else {
 								selectedLfo = 0;
-								if ((lfoClockEnable[0]) && (sync)) {
-									byte valueToShow = map(data, 0, 255, 0, 9);
-									if (valueToShow > 2) {
-										ledNumber(kArpRateDisplay[valueToShow]);
-									} // it's less than a bar, show division
-									else {
-										digit(0, 25); // b
-										switch (valueToShow) {
-											case 0:
-												digit(1, 4);
-												break;
-											case 1:
-												digit(1, 2);
-												break;
-											case 2:
-												digit(1, 1);
-												break;
-										}
-									} // show number of bars (b1 or b2 or b4)
-
-								} else {
-									if (!isMidi) {
-										ledNumber(data >> 2);
-									}
-								}
+								updateDisplayLFOWhenSynced(data);
 								if (!isMidi) {
 									targetPot = 36;
-									sendCC(number, data >> 1);
+									sendNRPN(NRPN_LFO1_RATE, data);
 								}
 							}
 							break; // lfo 1 rate
@@ -747,10 +785,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[37] = data;
 							updateFMifNecessary(37);
 							selectedLfo = 0;
+							showNumber(37, data);
 							if (!isMidi) {
 								targetPot = 37;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_LFO1_DEPTH, data);
 							}
 							break; // lfo 1 depth
 
@@ -763,15 +801,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(1, 1);
 							} else {
 								selectedLfo = 1;
-								if ((lfoClockEnable[1]) && (sync)) {
-									ledNumber(kArpRateDisplay[data >> 5]);
-								} else {
-									if (!isMidi)
-										ledNumber(data >> 2);
-								}
+								updateDisplayLFOWhenSynced(data);
 								if (!isMidi) {
 									targetPot = 38;
-									sendCC(number, data >> 1);
+									sendNRPN(NRPN_LFO2_RATE, data);
 								}
 							}
 							break; // lfo 2 rate
@@ -780,10 +813,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[39] = data;
 							updateFMifNecessary(39);
 							selectedLfo = 1;
+							showNumber(39, data);
 							if (!isMidi) {
 								targetPot = 39;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_LFO2_DEPTH, data);
 							}
 							break; // lfo 2 depth
 
@@ -801,15 +834,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 								digit(1, 26);
 							} else {
 								selectedLfo = 2;
-								if ((lfoClockEnable[2]) && (sync)) {
-									ledNumber(kArpRateDisplay[data >> 5]);
-								} else {
-									if (!isMidi)
-										ledNumber(data >> 2);
-								}
+								updateDisplayLFOWhenSynced(data);
 								if (!isMidi) {
 									targetPot = 40;
-									sendCC(number, data >> 1);
+									sendNRPN(NRPN_LFO3_RATE, data);
 								}
 							}
 							break; // lfo 3 rate
@@ -818,10 +846,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[41] = data;
 							updateFMifNecessary(41);
 							selectedLfo = 2;
+							showNumber(41, data);
 							if (!isMidi) {
 								targetPot = 41;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_LFO3_DEPTH, data);
 							}
 							break; // lfo 3 depth
 
@@ -830,28 +858,24 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[46] = data;
 							updateFMifNecessary(46);
 							if (sync) {
-								ledNumber(kArpRateDisplay[map(data, 0, 255, 0, 10)]);
-								arpMidiSpeedPending = map(data, 0, 255, 0, 10);
+								upodateDisplayArpMidi(data);
+								arpMidiSpeedPending = map(data, 0, 255, 0, 12);
 							} else {
-								if (!isMidi)
-									ledNumber(data >> 2);
+								ledNumber(data >> 2);
 							}
 							if (!isMidi) {
 								targetPot = 46;
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_ARP_RATE, data);
 							}
 							break; /// arp rate
 						case KNOB_ARP_RANGE:
 							showPickupAnimation = false;
-							if (isMidi) {
-								data = data << 6;
-							}
 							fmBase[47] = data;
 							updateFMifNecessary(47);
+							showNumber(47, data);
 							if (!isMidi) {
 								targetPot = 47;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_ARP_RANGE, data);
 							}
 							break; // arp range
 
@@ -860,24 +884,23 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[48] = data;
 							updateFMifNecessary(48);
 							if ((vibratoClockEnable) && (sync)) {
-								ledNumber(data >> 5);
+								upodateDisplayArpMidi(data);
 							} else {
-								if (!isMidi)
-									ledNumber(data >> 3);
+								ledNumber(data >> 3);
 							}
 							if (!isMidi) {
 								targetPot = 48;
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_VIB_RATE, data);
 							}
 							break; // vibrato rate WAS 7
 						case KNOB_VIB_DEPTH:
 							showPickupAnimation = false;
 							fmBase[49] = data;
 							updateFMifNecessary(49);
+							showNumber(49, data);
 							if (!isMidi) {
 								targetPot = 49;
-								showNumber(targetPot, data);
-								sendCC(number, data >> 1);
+								sendNRPN(NRPN_VIB_DEPTH, data);
 							}
 							break; // vibrato depth
 					}
@@ -900,10 +923,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 						lastOperator = 0;
 						showSSEG();
 					} else if ((targetPot > 8) && (targetPot < 18)) {
-						lastOperator = 1;
+						lastOperator = 2;
 						showSSEG();
 					} else if ((targetPot > 17) && (targetPot < 27)) {
-						lastOperator = 2;
+						lastOperator = 1;
 						showSSEG();
 					} else if ((targetPot > 26) && (targetPot < 36)) {
 						lastOperator = 3;

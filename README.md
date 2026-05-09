@@ -14,6 +14,8 @@ A million thanks to [Matt Montag](https://github.com/mmontag) & [Florian Jung](h
 
 Install `platformio` and `python2`. (Yes. I am so sorry :(.)
 
+Alternatively, use the included `Dockerfile` and run inside the root directory of the repository `docker build . -t megafm`. Then start a container using `docker run -v $PWD:/app -it megafm bash`. This will give you a working environment for the below command, mapping your local disk inside the docker container.
+
 To compile the firmware and to generate the firmware update sysex, run:
 
 ```

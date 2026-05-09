@@ -26,7 +26,6 @@ jobs:
           docker run -v $(pwd):/workspace -w /workspace --rm megafm make firmware.syx
       - name: Extract version from constants.h
         id: version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/github-script@v7
         with:
           script: |

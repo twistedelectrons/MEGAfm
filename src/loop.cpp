@@ -4,6 +4,7 @@
 #include "lfo.h"
 #include "leds.h"
 #include "midi.h"
+#include "nrpn.h"
 #include "volume.h"
 #include "pitchEngine.h"
 #include "mux.h"
@@ -87,7 +88,7 @@ void loop() {
 	if ((lfoLedCounter > 0) && (!showSSEGCounter)) {
 		lfoLedCounter--;
 		if (lfoLedCounter < 1) {
-			ledSet(16 + lfoShape[selectedLfo], 1);
+			ledSet(LED_SQUARE + lfoShape[selectedLfo], 1);
 		}
 	}
 	/*
@@ -231,7 +232,7 @@ void loop() {
 		if (flashCounter2 > 800) {
 			flasher = !flasher;
 			clearLfoLeds();
-			ledSet(16 + bank, flasher);
+			ledSet(LED_SQUARE + bank, flasher);
 			flashCounter2 = 0;
 		}
 
@@ -267,10 +268,11 @@ void loop() {
 
 		if (arpButtCounter > 3999) {
 			arpButtCounter = 0;
-			arpMode = 0;
+			arpMode = kArpOff;
+			sendNRPN(NRPN_ARP_MODE, arpMode);
 			resetVoices();
 
-			ledSet(23, 0);
+			ledSet(LED_ARP_MODE, 0);
 			digit(0, 21);
 			digit(1, 21);
 			arpJustWentOff = true;
@@ -344,15 +346,10 @@ void loop() {
 			arpFire();
 		}
 
-		seed++;
-		if (!seed) {
-			seed = random(3);
-		}
-
 		if ((bankCounter) && (flashCounter2 > 400)) {
 			flasher = !flasher;
 			clearLfoLeds();
-			ledSet(16 + bank, flasher);
+			ledSet(LED_SQUARE + bank, flasher);
 			flashCounter2 = 0;
 			if ((!pressedUp) && (!pressedDown)) {
 				bankCounter--;
@@ -364,7 +361,7 @@ void loop() {
 
 		if ((seqRec) && (flashCounter > 400)) {
 			flasher = !flasher;
-			ledSet(22, flasher);
+			ledSet(LED_SEQ_REC, flasher);
 			flashCounter = 0;
 		}
 
@@ -401,6 +398,7 @@ void loop() {
 		if ((resetHeld) && (!shuffleTimer)) {
 			resetHeld = false;
 			shuffle();
+			dumpPresetAsSysEx();
 			shuffleCounter = 20;
 		}
 		fmUpdate();

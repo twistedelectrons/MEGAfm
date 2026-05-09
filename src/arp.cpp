@@ -25,7 +25,7 @@ void clearNotes() {
 
 void arpReset() {
 
-	if (arpMode == 2) {
+	if (arpMode == kArpDown) {
 		arpStep = fmData[47] >> 6;
 		arpIndex = 127;
 	} else {
@@ -37,7 +37,7 @@ void arpReset() {
 
 void nextArpStep() { // octave shift
 
-	if (arpMode == 2) {
+	if (arpMode == kArpDown) {
 		arpStep--;
 		if (arpStep < 0)
 			arpStep = fmData[47] >> 6;
