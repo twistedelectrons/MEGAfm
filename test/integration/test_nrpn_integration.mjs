@@ -199,12 +199,13 @@ async function testIngestion(output, input, channel) {
 	];
 
 	for (const tc of testCases) {
+		console.log(`${tc.name}: sending values ${tc.values.join(', ')}`);
 		for (let idx = 0; idx < tc.values.length; idx++) {
 			const value = tc.values[idx];
 			try {
 				// Send NRPN
 				sendNRPN(output, tc.nrpn, value, channel);
-				await sleep(150);  // Allow firmware time to apply change
+				await sleep(10);  // Allow firmware time to apply change
 
 				// Request dump
 				sendNRPN(output, 10, 0, channel);  // NRPN_DUMP_CURRENT_SETTINGS
@@ -245,8 +246,8 @@ async function testLFOLinks(output, input, channel) {
 	//   - Bits 1-7: target pot number
 	//   - Bit 0: link state (0=unlinked, 1=linked)
 	//
-	// Parser now correctly captures all 45 values as an array.
-	// Each LFO can have multiple pots linked simultane ously.
+	// Parser captures all 45 values as an array.
+	// Each LFO can have multiple pots linked simultaneously.
 
 	// Pots excluded from LFO link dumps (operator rate scaling + unused)
 	const excludedPots = new Set([3, 12, 21, 30, 44, 45]);
@@ -283,6 +284,7 @@ async function testLFOLinks(output, input, channel) {
 				let allLinked = true;
 				for (let i = 0; i < values1.length; i++) {
 					if ((values1[i] & 1) !== 1) {
+						console.log(`  ${tc.name}: pot ${values1[i] >> 1} not linked (value ${values1[i]})`);
 						allLinked = false;
 						break;
 					}
@@ -309,6 +311,7 @@ async function testLFOLinks(output, input, channel) {
 				let allUnlinked = true;
 				for (let i = 0; i < values2.length; i++) {
 					if ((values2[i] & 1) !== 0) {
+						console.log(`  ${tc.name}: pot ${values2[i] >> 1} still linked (value ${values2[i]})`);
 						allUnlinked = false;
 						break;
 					}
@@ -371,6 +374,9 @@ Options:
 		console.log(`Channel: ${channel}`);
 		console.log(`Bank: ${args.bank}, Program: ${args.program}\n`);
 
+		console.log(`Turning off MIDI Feedback`);
+		sendNRPN(output, NRPN.SET_SHOW_MIDI_FEEDBACK, 0, channel);
+		await sleep(100);
 		// Run test suites
 		await testIngestion(output, input, channel);
 		await testLFOLinks(output, input, channel);
@@ -381,10 +387,10 @@ Options:
 		);
 		console.log('║  SUMMARY                                                   ║');
 		console.log(
-			`║  Passed: ${g_testsPassed.toString().padEnd(47)}║`
+			`║  Passed: ${g_testsPassed.toString().padEnd(50)}║`
 		);
 		console.log(
-			`║  Failed: ${g_testsFailed.toString().padEnd(47)}║`
+			`║  Failed: ${g_testsFailed.toString().padEnd(50)}║`
 		);
 		console.log(
 			'╚════════════════════════════════════════════════════════════╝\n'
