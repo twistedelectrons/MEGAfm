@@ -198,6 +198,26 @@ void showLfoWaveform(byte selectedLfo) {
 	showPresetNumberTimeout = 12000;
 }
 
+void showNotePriority() {
+	switch (notePriority) {
+		case 0:
+			digit(0, 11);
+			digit(1, 27);
+			delay(800);
+			break; // LO
+		case 1:
+			digit(0, 23);
+			digit(1, 1);
+			delay(800);
+			break; // HI
+		case 2:
+			digit(0, 11);
+			digit(1, 17);
+			delay(800);
+			break; // LA
+	}
+}
+
 void buttChanged(Button number, bool value) {
 	if (millis() > 1000) {
 		if (setupMode) {
@@ -238,23 +258,7 @@ void buttChanged(Button number, bool value) {
 						notePriority++;
 						if (notePriority > 2)
 							notePriority = 0;
-						switch (notePriority) {
-							case 0:
-								digit(0, 11);
-								digit(1, 27);
-								delay(800);
-								break; // LO
-							case 1:
-								digit(0, 23);
-								digit(1, 1);
-								delay(800);
-								break; // HI
-							case 2:
-								digit(0, 11);
-								digit(1, 17);
-								delay(800);
-								break; // LA
-						}
+						showNotePriority();
 						sendNRPN(NRPN_NOTE_PRIORITY, notePriority);
 						break; // retrig
 

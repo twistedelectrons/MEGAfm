@@ -21,6 +21,22 @@ byte nrpn_state = 0;
 //   4000-4009 → 68-77, 5000-5009 → 78-87
 static int16_t lastNRPN[88];
 
+void showOnOff(bool on) {
+	if (!showMidiFeedback)
+		return;
+	if (on) {
+		// On
+		digit(0, 0);
+		digit(1, 19);
+	} else {
+		// OF
+		digit(0, 0);
+		digit(1, 12);
+	}
+	lastNumber = -1;
+	showPresetNumberTimeout = 12000;
+}
+
 static int nrpnIndex(int msg) {
 	if (msg >= NRPN_LFO_SHAPE && msg <= NRPN_LFO_AT)
 		return msg - NRPN_LFO_SHAPE;
@@ -85,6 +101,8 @@ void handleNRPN(int msg, int int_val) {
 
 	if (msg == NRPN_DUMP_CURRENT_SETTINGS) {
 		dumpPresetAsSysEx();
+	} else if (msg == NRPN_SHOW_FEEDBACK) {
+		showMidiFeedback = bool_val;
 	} else if (msg == NRPN_CHANGE_PROGRAM) {
 		if ((int_val >= 0) && (int_val < 600)) {
 			bank = int_val / 100;
@@ -96,6 +114,8 @@ void handleNRPN(int msg, int int_val) {
 			// Shape LFO1: 100, LFO2: 101, LFO3: 102
 			selectedLfo = (byte)(msg - NRPN_LFO_SHAPE);
 			setLFOShape(selectedLfo, byte_val);
+			if (showMidiFeedback)
+				showLfoWaveform(selectedLfo);
 		} else if ((msg >= NRPN_LFO_LOOPING) && (msg <= NRPN_LFO_LOOPING + 2)) {
 			// Looping LFO1: 103, LFO2: 104, LFO3: 105
 			selectedLfo = (byte)(msg - NRPN_LFO_LOOPING);
@@ -135,8 +155,10 @@ void handleNRPN(int msg, int int_val) {
 			showOnOff(bool_val);
 			lastLfoSetting[selectedLfo] = bool_val;
 		}
-		lfoLedOn();
-		showLfo();
+		if (showMidiFeedback) {
+			lfoLedOn();
+			showLfo();
+		}
 	} else if (msg == NRPN_SET_BRIGHTNESS) {
 		// Set brightness (0-15)
 		if (byte_val < 16)
@@ -173,14 +195,19 @@ void handleNRPN(int msg, int int_val) {
 		setIgnoreVolume();
 		showOnOff(ignoreVolume);
 	} else if (msg == NRPN_SET_FAT_MODE) {
-		// Set Fat Mode (0 = semitone, >0 = octave)
-		digit(0, 1);
 		if (bool_val) {
 			fatMode = FAT_MODE_OCTAVE;
-			digit(1, 27); // o(ctave)
 		} else {
 			fatMode = FAT_MODE_SEMITONE;
-			digit(1, 5); // S(emitone)
+		}
+		if (showMidiFeedback) {
+			// Set Fat Mode (0 = semitone, >0 = octave)
+			digit(0, 1);
+			if (fatMode == FAT_MODE_OCTAVE) {
+				digit(1, 27); // o(ctave)
+			} else {
+				digit(1, 5); // S(emitone)
+			}
 		}
 		setFatMode();
 		lastNumber = -1;
@@ -198,7 +225,8 @@ void handleNRPN(int msg, int int_val) {
 		// Set octave offset (0-3)
 		if (byte_val < 4) {
 			octOffset = byte_val;
-			ledNumber(octOffset);
+			if (showMidiFeedback)
+				ledNumber(octOffset);
 		}
 	} else if (msg == NRPN_FINE_TUNE) {
 		// Set Tune (0-255)
@@ -250,11 +278,24 @@ void handleNRPN(int msg, int int_val) {
 	} else if (msg == NRPN_NOTE_PRIORITY) {
 		notePriority = byte_val;
 		setNotePriority();
+		if (showMidiFeedback) {
+			showNotePriority();
+			lastNumber = -1;
+			showPresetNumberTimeout = 12000;
+		}
 	} else if (msg == NRPN_ARP_MODE) {
 		if (byte_val < 8) {
-			arpMode = byte_val;
-			showArpMode();
-			resetVoices();
+			byte newArpMode = byte_val;
+			byte oldArpMode = arpMode;
+			if (newArpMode != oldArpMode) {
+				arpMode = newArpMode;
+				arpModeLast = arpMode;
+				if ((oldArpMode == kArpOff) || (newArpMode == kArpOff))
+					// switching from on to off or vice versa
+					resetVoices();
+				if (showMidiFeedback)
+					showArpMode();
+			}
 		}
 	} else if (msg == NRPN_ARP_CLOCK_SYNC) {
 		arpClockEnable = bool_val;
@@ -294,10 +335,11 @@ void handleNRPN(int msg, int int_val) {
 		// So to link to pot 10, val should be 21 (10*2 + 1) and to unlink it val should be 20 (10*2 + 0)12
 		byte lfo = msg - NRPN_LFO_LINK;
 		bool isLinked = byte_val & 1;
-		targetPot = byte_val >> 1;
+		int targetPot = byte_val >> 1;
 		if (targetPot < 51) {
 			linked[lfo][targetPot] = isLinked;
-			showLink();
+			if (showMidiFeedback)
+				showLink();
 		}
 	} else if (msg == NRPN_OP1_BASE + NRPN_OP_DETUNE) {
 		// Operator 1 Detune

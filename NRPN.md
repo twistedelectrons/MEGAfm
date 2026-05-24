@@ -32,23 +32,19 @@ Most DAWs and MIDI controllers have built-in support for sending NRPN — you ty
 
 ## LFO Parameters
 
-Each LFO (1, 2, 3) has its own NRPN number. Add 0/1/2 to the base number for LFO 1/2/3.
+Each LFO (1, 2, 3) has its own NRPN number. Add 0/1/2 to the base number for LFO 1/2/3 (e.g. 100 = LFO 1, 101 = LFO 2, 102 = LFO 3)
 
 | Parameter          | NRPN #      | Values               | Direction |
 |--------------------|-------------|----------------------|-----------|
-| Shape              | 100–102     | 0–8 (see below)      | Both      |
-| Looping            | 103–105     | On/Off               | Both      |
+| Shape              | 100-102     | 0–8 (see below)      | Both      |
+| Looping            | 103–105     | On/Off  (0, !=0)     | Both      |
 | Retrigger          | 106–108     | On/Off               | Both      |
 | MIDI Clock Sync    | 109–111     | On/Off               | Both      |
+| Rate               | 222-224     | 0–255                | Both      |
+| Depth              | 225-227     | 0–255                | Both      |
 | LFO1 Velocity      | 112         | On/Off               | Both      |
 | LFO2 Mod Wheel     | 113         | On/Off               | Both      |
 | LFO3 Aftertouch    | 114         | On/Off               | Both      |
-| LFO1 Rate          | 222         | 0–255                | Both      |
-| LFO2 Rate          | 223         | 0–255                | Both      |
-| LFO3 Rate          | 224         | 0–255                | Both      |
-| LFO1 Depth         | 225         | 0–255                | Both      |
-| LFO2 Depth         | 226         | 0–255                | Both      |
-| LFO3 Depth         | 227         | 0–255                | Both      |
 
 ### LFO Shape Values
 

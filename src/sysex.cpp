@@ -215,6 +215,7 @@ void dumpPresetAsSysEx() {
 	// Global settings
 	sysexWriteNRPN(NRPN_SET_BRIGHTNESS, EEPROM.read(3965));  // brightness (0-15)
 	sysexWriteNRPN(NRPN_SET_MIDI_THRU, thru);                // MIDI thru
+	sysexWriteNRPN(NRPN_SHOW_FEEDBACK, showMidiFeedback);    // MIDI feedback
 	sysexWriteNRPN(NRPN_SET_PICKUP_MODE, EEPROM.read(3954)); // pickup mode
 	sysexWriteNRPN(NRPN_SET_STEREO_CH3, stereoCh3);          // stereo ch3
 	sysexWriteNRPN(NRPN_SET_MPE_MODE, mpe);                  // MPE mode

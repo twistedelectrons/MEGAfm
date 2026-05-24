@@ -66,7 +66,7 @@ int bendyCounter;
 bool arpNotes[128];
 // Note priority: lowest (0), highest (1), or last (2).
 // Used in: buttons.cpp, megafm.cpp, midi.cpp, voice.cpp
-byte notePriority = 2;
+byte notePriority;
 // Track the last note for glide.
 // Distance to go from last note to future.
 // Used in: midi.cpp, voice.cpp
@@ -285,6 +285,11 @@ int shuffleTimer;
 byte potClock;
 bool mpe;
 
+// if true, show feedback on received nrpn/midi messages for debugging
+// defaults to off to reduce noise on display and save resources,
+// but can be set with NRPN_SHOW_FEEDBACK
+bool showMidiFeedback;
+
 void enterSetup() {
 	digit(0, 5);
 	digit(1, 18);
@@ -297,6 +302,7 @@ void enterSetup() {
 void setup() {
 
 	arpMidiSpeedPending = 1;
+	showMidiFeedback = false;
 	lastSentCC[0] = 255;
 
 	fillAllLfoTables();

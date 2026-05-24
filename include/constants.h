@@ -344,6 +344,7 @@ const int16_t lfoRateLT[] = {
 
 // NRPN message codes
 #define NRPN_DUMP_CURRENT_SETTINGS 10
+#define NRPN_SHOW_FEEDBACK 11  // value: bool
 #define NRPN_CHANGE_PROGRAM 20 // value: 000 - 599 (bank 0-5, program 0-99)
 // LFO settings — add LFO index 0-2 for per-LFO variants
 #define NRPN_LFO_SHAPE 100      // value: 0-8 (see setLFOShape)

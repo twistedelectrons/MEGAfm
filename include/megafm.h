@@ -221,6 +221,8 @@ extern int shuffleTimer;
 extern byte potClock;
 extern bool mpe;
 
+extern bool showMidiFeedback; // if true, show more feedback on received nrpn for debugging
+
 void enterSetup();
 
 #endif // MEGAFM_CMAKE_MEGAFM_R2_4_H

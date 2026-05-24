@@ -179,5 +179,4 @@ void setLFOShape(byte lfo, byte value) {
 			noiseTableLength[lfo] = 5;
 			break;
 	}
-	showLfoWaveform(lfo);
 }
