@@ -23,10 +23,11 @@ Most DAWs and MIDI controllers have built-in support for sending NRPN — you ty
 
 ## Commands (Receive Only)
 
-| Parameter        | NRPN # | Values                                     |
-|------------------|--------|--------------------------------------------|
-| Dump Settings    | 10     | Any value — triggers a SysEx dump          |
-| Program Change   | 20     | 0–599 (bank 0–5 × 100 + program 0–99)     |
+| Parameter        | NRPN # | Values                                        |
+|------------------|--------|-----------------------------------------------|
+| Dump Settings    | 10     | Any value — triggers a SysEx dump             |
+| MIDI Feedback    | 11     | On/Off - update display on MIDI/NRPN messages |
+| Program Change   | 20     | 0–599 (bank 0–5 × 100 + program 0–99)         |
 
 ---
 
