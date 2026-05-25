@@ -225,20 +225,15 @@ void showLfo() {
 }
 
 void showSSEG() {
+
 	ledSet(LED_SQUARE, 0);
-	ledSet(LED_TRIANGLE, 0);
-	ledSet(LED_SAW, 0);
 	ledSet(LED_RANDOM, 0);
 	ledSet(LED_LOOP, 0);
+	ledSet(LED_TRIANGLE, bitRead(SSEG[lastOperator], 0)); // triangle
+	ledSet(LED_SAW, !bitRead(SSEG[lastOperator], 0));     // saw
 	ledSet(LED_RETRIGGER, 0);
-	if (bitRead(SSEG[lastOperator], 1)) {
-		ledSet(LED_LOOP, 1);
-		ledSet(LED_TRIANGLE, bitRead(SSEG[lastOperator], 0)); // saw
-		ledSet(LED_SAW, !bitRead(SSEG[lastOperator], 0));     // saw
-	} else {
-		ledSet(LED_LOOP, 0);
-	}
-	showSSEGCounter = 12000; // show the regular LFO leds when this expires
+	ledSet(LED_LOOP, bitRead(SSEG[lastOperator], 1)); // SSEG enabled or not?
+	showSSEGCounter = 12000;                          // show the regular LFO leds when this expires
 }
 
 void showLink() {

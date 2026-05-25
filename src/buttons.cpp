@@ -661,9 +661,6 @@ void buttChanged(Button number, bool value) {
 							if (!showSSEGCounter) {
 								retrig[selectedLfo] = !retrig[selectedLfo];
 								showLfo();
-								// 6+7 lfo1 on/off
-								// 22+23 lfo2 on/off
-								// 38+39 lfo3 on/off
 								sendNRPN(NRPN_LFO_RETRIG + selectedLfo, retrig[selectedLfo]);
 							}
 						}
@@ -975,9 +972,6 @@ void buttChanged(Button number, bool value) {
 
 									looping[selectedLfo] = !looping[selectedLfo];
 									showLfo();
-									// 8+9 = lfo1 on/off
-									// 24+25 = lfo2 on/off
-									// 40+41 = lfo3 on/off
 									sendNRPN(NRPN_LFO_LOOPING + selectedLfo, looping[selectedLfo]);
 								} else {
 									setSSEG(lastOperator, 1,

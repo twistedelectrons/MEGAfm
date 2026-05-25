@@ -283,9 +283,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(3);
 								fmBase[3] = data;
 								ledNumberCond(data >> 6, isMidi);
-								if (!isMidi) {
-									sendNRPN(NRPN_OP1_BASE + NRPN_OP_RATE_SCALE, data);
-								}
+								sendNRPN(NRPN_OP1_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
 								fmBase[0] = data;
 								updateFMifNecessary(0);
@@ -388,9 +386,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(12);
 								fmBase[12] = data;
 								ledNumberCond(data >> 6, isMidi);
-								if (!isMidi) {
-									sendNRPN(NRPN_OP2_BASE + NRPN_OP_RATE_SCALE, data);
-								}
+								sendNRPN(NRPN_OP2_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
 								fmBase[18] = data;
 								updateFMifNecessary(18);
@@ -493,9 +489,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(21);
 								fmBase[21] = data;
 								ledNumberCond(data >> 6, isMidi);
-								if (!isMidi) {
-									sendNRPN(NRPN_OP3_BASE + NRPN_OP_RATE_SCALE, data);
-								}
+								sendNRPN(NRPN_OP3_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
 								fmBase[9] = data;
 								updateFMifNecessary(9);
@@ -597,9 +591,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 								updateFMifNecessary(30);
 								fmBase[30] = data;
 								ledNumberCond(data >> 6, isMidi);
-								if (!isMidi) {
-									sendNRPN(NRPN_OP4_BASE + NRPN_OP_RATE_SCALE, data);
-								}
+								sendNRPN(NRPN_OP4_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
 								fmBase[27] = data;
 								updateFMifNecessary(27);
@@ -717,9 +709,7 @@ void movedPot(byte number, byte data, bool isMidi) {
 									lastVol = vol;
 									ledNumberCond(data >> 2, isMidi);
 									volumeCounter = 20;
-									if (!isMidi) {
-										sendNRPN(NRPN_VOLUME, data);
-									}
+									sendNRPN(NRPN_VOLUME, data);
 								}
 							}
 							break; // volume
@@ -779,9 +769,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 						case KNOB_LFO1_RATE:
 							showPickupAnimation = false;
 							fmBase[36] = data;
-							if (data < 5 && lfoVel) {
+							if (data < 5 && lfoVel)
 								fmBase[36] = data = 0;
-							}
 							updateFMifNecessary(36);
 							if (lfoVel) {
 								digit(0, 13);
@@ -840,9 +829,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							fmBase[40] = data;
 							updateFMifNecessary(40);
 
-							if (data < 5 && lfoAt) {
+							if (data < 5 && lfoAt)
 								fmBase[40] = data = 0;
-							}
 
 							if (lfoAt) {
 								digit(0, 17);
