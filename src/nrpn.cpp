@@ -21,7 +21,7 @@ byte nrpn_state = 0;
 //   4000-4009 → 68-77, 5000-5009 → 78-87
 static int16_t lastNRPN[88];
 
-void showOnOff(bool on) {
+static void showOnOff(bool on) {
 	if (!showMidiFeedback)
 		return;
 	if (on) {
@@ -372,11 +372,6 @@ void handleNRPN(int msg, int int_val) {
 		}
 	} else if (msg == NRPN_OP1_BASE + NRPN_OP_RATE_SCALE) {
 		// Set rate scaling for operators 1 (0-3)
-		// if (byte_val < 4) {
-		// 	updateFMifNecessary(3);
-		// 	fmBase[3] = byte_val << 6; // 0-3 becomes 0-192 (4 steps: 0, 64, 128, 192)
-		// 	ledNumber(byte_val);
-		// }
 		loopHeld = true;
 		movedPot(FADER_DETUNE_1, byte_val, 1);
 		loopHeld = false;
@@ -411,11 +406,6 @@ void handleNRPN(int msg, int int_val) {
 		}
 	} else if (msg == NRPN_OP2_BASE + NRPN_OP_RATE_SCALE) {
 		// Set rate scaling for operators 2 (0-3)
-		// if (byte_val < 4) {
-		// 	updateFMifNecessary(12);
-		// 	fmBase[12] = byte_val << 6; // 0-3 becomes 0-192 (4 steps: 0, 64, 128, 192)
-		// 	ledNumber(byte_val);
-		// }
 		loopHeld = true;
 		movedPot(FADER_DETUNE_2, byte_val, 1);
 		loopHeld = false;
@@ -450,11 +440,6 @@ void handleNRPN(int msg, int int_val) {
 		}
 	} else if (msg == NRPN_OP3_BASE + NRPN_OP_RATE_SCALE) {
 		// Set rate scaling for operators 3 (0-3)
-		// if (byte_val < 4) {
-		// 	updateFMifNecessary(21);
-		// 	fmBase[21] = byte_val << 6; // 0-3 becomes 0-192 (4 steps: 0, 64, 128, 192)
-		// 	ledNumber(byte_val);
-		// }
 		loopHeld = true;
 		movedPot(FADER_DETUNE_3, byte_val, 1);
 		loopHeld = false;

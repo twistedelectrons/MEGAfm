@@ -32,7 +32,7 @@ const byte presetChords[16][6] = {
 
 static bool resetFunction = false;
 
-void finishSetup() {
+static void finishSetup() {
 	byte temp;
 	ledSet(LED_VOICE_MODE_POLY12, 0);
 	ledSet(LED_LFO1_LINK, 0);
@@ -130,7 +130,7 @@ void showArpMode() {
 	showPresetNumberTimeout = 12000;
 }
 
-void setNoiseTableLength(byte selectedLfo, byte length) {
+static void setNoiseTableLength(byte selectedLfo, byte length) {
 	if (length == noiseTableLength[selectedLfo]) {
 		return;
 	}

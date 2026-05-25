@@ -249,5 +249,3 @@ void YM2612::keyOff(uint8_t chan) {
 	setMasterParameter(YM_MA_OP_CHAN, 0x00 + ((chan / 3) * 4 + chan % 3));
 	chip = 0;
 }
-
-// void YM2612::update() {}

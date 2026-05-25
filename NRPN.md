@@ -7,7 +7,7 @@ The MEGAfm supports NRPN (Non-Registered Parameter Number) messages for controll
 An NRPN message consists of four MIDI CC (Control Change) messages sent in sequence:
 
 | Step | CC # | Purpose           |
-|------|-------|-------------------|
+|------|------|-------------------|
 | 1    | 99   | NRPN number MSB   |
 | 2    | 98   | NRPN number LSB   |
 | 3    | 6    | Value MSB         |
@@ -217,7 +217,7 @@ For example, OP 2 Attack = 3000 + 3 = **3003**.
 | Sustain Level  | +5     | 0–255                                      | Both      |
 | Sustain Rate   | +6     | 0–255                                      | Both      |
 | Release        | +7     | 0–255                                      | Both      |
-| Envelope Mode  | +8     | 0 = Off, 1 = Forward, 2 = Ping Pong       | Receive   |
+| Envelope Mode  | +8     | 0 = Off, 1 = Forward, 2 = Ping Pong        | Receive   |
 | Rate Scaling   | +9     | 0–255                                      | Both      |
 
 ---
@@ -228,10 +228,10 @@ For example, OP 2 Attack = 3000 + 3 = **3003**.
 |-----------|--------------------------|
 | 10        | Dump Settings            |
 | 20        | Program Change           |
-| 100–102   | LFO 1–3 Shape           |
-| 103–105   | LFO 1–3 Looping         |
-| 106–108   | LFO 1–3 Retrigger       |
-| 109–111   | LFO 1–3 Clock Sync      |
+| 100–102   | LFO 1–3 Shape            |
+| 103–105   | LFO 1–3 Looping          |
+| 106–108   | LFO 1–3 Retrigger        |
+| 109–111   | LFO 1–3 Clock Sync       |
 | 112       | LFO1 Velocity            |
 | 113       | LFO2 Mod Wheel           |
 | 114       | LFO3 Aftertouch          |
@@ -239,7 +239,7 @@ For example, OP 2 Attack = 3000 + 3 = **3003**.
 | 220–232   | Continuous Parameters    |
 | 300–304   | Arpeggiator              |
 | 500–502   | Vibrato                  |
-| 1000–1002 | LFO 1–3 Link            |
+| 1000–1002 | LFO 1–3 Link             |
 | 2000–2009 | Operator 1               |
 | 3000–3009 | Operator 2               |
 | 4000–4009 | Operator 3               |

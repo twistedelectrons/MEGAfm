@@ -14,10 +14,10 @@ bool _processingSysex = false;
 bool processingSysex() { return _processingSysex; }
 
 static void sysexWriteNRPN(int msg, int val) {
-	Serial.write(msg >> 7);   // CC 99 for NRPN parameter MSB
-	Serial.write(msg & 0x7F); // CC 98 for NRPN parameter LSB
-	Serial.write(val >> 7);   // CC 6 for NRPN data MSB
-	Serial.write(val & 0x7F); // CC 38 for NRPN data LSB
+	Serial.write(msg >> 7);   // parameter MSB
+	Serial.write(msg & 0x7F); // parameter LSB
+	Serial.write(val >> 7);   // data MSB
+	Serial.write(val & 0x7F); // data LSB
 }
 
 void sysExReset() { sysExDataIndex = 0; }
@@ -136,7 +136,7 @@ void dumpPresetAsSysEx() {
 	//   octOffset)
 	//    4  Arp (mode, clock, rate, range)
 	//    3  Vibrato (clock, rate, depth)
-	//  135  LFO links (3 LFOs × 45 pots, skipping unused slots 3,12,21,23,30,45)
+	//  135  LFO links (3 LFOs × 45 pots, skipping unused slots 3,12,21,30,44,45)
 	//   40  Operators (4 ops × 10 params each)
 	// ----
 	//  220  total
