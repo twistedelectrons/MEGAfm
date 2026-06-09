@@ -1,6 +1,7 @@
 #ifndef MEGAFM_CMAKE_SETTERS_H
 #define MEGAFM_CMAKE_SETTERS_H
 
+void setShowMidiFeedback();
 void setThru();
 void setLFO1Clock();
 void setLFO2Clock();

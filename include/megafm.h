@@ -196,7 +196,6 @@ extern byte selectedLfo, selectedLfoLast;
 extern bool cleared;
 extern byte chainPressed;
 extern byte targetPot, targetPotLast;
-extern byte masterChannelOut;
 
 extern float ch3x[4];
 extern byte lfoShape[3];

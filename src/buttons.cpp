@@ -76,6 +76,10 @@ static void finishSetup() {
 		EEPROM.update(3954, 0);
 	}
 
+	temp = 0;
+	bitWrite(temp, 0, showMidiFeedback);
+	EEPROM.update(3955, temp);
+
 	EEPROM.update(3961, lfoVel);
 	EEPROM.update(3962, lfoMod);
 	EEPROM.update(3963, lfoAt);

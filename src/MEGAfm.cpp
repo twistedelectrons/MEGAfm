@@ -254,7 +254,6 @@ bool cleared;
 /** Which LFO chain button is being pressed. 1, 2, or 3; 0 = none. */
 byte chainPressed;
 byte targetPot, targetPotLast;
-byte masterChannelOut = 1;
 float ch3x[4];
 byte lfoShape[3];
 byte lfo[3], lfoLast[3];
@@ -302,7 +301,6 @@ void enterSetup() {
 void setup() {
 
 	arpMidiSpeedPending = 1;
-	showMidiFeedback = false;
 	lastSentCC[0] = 255;
 
 	fillAllLfoTables();
@@ -549,6 +547,8 @@ void setup() {
 	newFat = bitRead(EEPROM.read(3953), 6);
 
 	ignoreVolume = bitRead(EEPROM.read(3950), 1);
+
+	showMidiFeedback = bitRead(EEPROM.read(3955), 0);
 
 	bank = EEPROM.read(3964);
 	if (bank > 5)

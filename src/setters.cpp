@@ -6,6 +6,12 @@
 #include "buttons.h"
 #include "leds.h"
 
+void setShowMidiFeedback() {
+	byte temp = EEPROM.read(3955);
+	bitWrite(temp, 0, showMidiFeedback);
+	EEPROM.update(3955, temp);
+}
+
 void setThru() {
 	byte temp = EEPROM.read(3950);
 	bitWrite(temp, 0, !thru);

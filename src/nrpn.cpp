@@ -76,10 +76,10 @@ void sendNRPN(int msg, int value) {
 	if (idx >= 0)
 		lastNRPN[idx] = value;
 
-	sendControlChange(99, msg >> 7, masterChannelOut);     // NRPN MSB
-	sendControlChange(98, msg & 0x7F, masterChannelOut);   // NRPN LSB
-	sendControlChange(6, value >> 7, masterChannelOut);    // Data Entry MSB
-	sendControlChange(38, value & 0x7F, masterChannelOut); // Data Entry LSB
+	sendControlChange(99, msg >> 7, inputChannel);     // NRPN MSB
+	sendControlChange(98, msg & 0x7F, inputChannel);   // NRPN LSB
+	sendControlChange(6, value >> 7, inputChannel);    // Data Entry MSB
+	sendControlChange(38, value & 0x7F, inputChannel); // Data Entry LSB
 }
 
 void handleNRPN(int msg, int int_val) {
@@ -103,6 +103,7 @@ void handleNRPN(int msg, int int_val) {
 		dumpPresetAsSysEx();
 	} else if (msg == NRPN_SHOW_FEEDBACK) {
 		showMidiFeedback = bool_val;
+		setShowMidiFeedback();
 	} else if (msg == NRPN_CHANGE_PROGRAM) {
 		if ((int_val >= 0) && (int_val < 600)) {
 			bank = int_val / 100;
