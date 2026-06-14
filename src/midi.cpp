@@ -8,20 +8,22 @@
 #include "preset.h"
 #include "voice.h"
 #include "midi.h"
+#include "nrpn.h"
+#include "sysex.h"
 #include "pots.h"
+#include "buttons.h"
 #include "midi_pedal.hpp"
+#include "FM.h"
+#include "setters.h"
 
 static byte voiceSlot;
 static bool ch3Alt;
-static const float vibIncrements[8] = {5.312, 7.968, 10.625, 14.166, 15.937, 31.875, 42.5, 63.75};
 static float vibIndexF;
-
-static byte lastCC[60];
 
 static int arpClockCounter;
 static byte syncLfoCounter;
 
-static bool arpClearFlag = false;
+static bool resetNextArpRecStep = false;
 
 void resyncArpLfo() {
 	if (arpClockEnable) {
@@ -42,6 +44,7 @@ void resyncArpLfo() {
 		}
 	}
 }
+
 void handleAftertouch(byte channel, byte val) {
 	leftDot();
 	if (mpe) {
@@ -85,7 +88,7 @@ void handleClock() {
 		////////////////////////////////////
 		if (vibratoClockEnable) {
 			if (fmData[48]) {
-				vibIndexF += vibIncrements[fmData[48] >> 5];
+				vibIndexF += kLfoClockRates[map(fmData[48], 0, 255, 0, 12)];
 				if (vibIndexF > 255) {
 					vibIndexF -= 256;
 				}
@@ -212,8 +215,10 @@ void handleStart() {
 	}
 }
 
+void handleContinue() { handleStart(); }
+
 void handleProgramChange(byte channel, byte program) {
-	if ((program < 99) && (channel == inputChannel)) {
+	if ((program < 100) && (channel == inputChannel)) {
 
 		preset = program;
 		loadPreset();
@@ -258,7 +263,6 @@ static void handleNoteOff(byte channel, byte note);
 static MidiPedalAdapter pedal_adapter(handleNoteOn, handleNoteOff);
 
 static void handleNoteOn(byte channel, byte note, byte velocity) {
-	// byte distanceFromNewNote; // unused
 	if (channel == inputChannel)
 		heldNotes[note] = true;
 
@@ -334,7 +338,7 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 				note += 3;
 				rootNote = note;
 
-				if (velocity) {
+				if (velocity > 0) {
 
 					// Retrigger LFOs
 					for (int i = 0; i < 3; i++) {
@@ -344,10 +348,10 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 					}
 
 					// Reset Arpeggiator
-					if (arpMode == 6) {
+					if (arpMode == kArpSequence1) {
 						arpStep = seqStep = 0;
 						arpIndex = 0;
-					} else if (arpMode == 7) {
+					} else if (arpMode == kArpSequence2) {
 						arpCounter = 1023;
 					} // next manual arp step
 
@@ -364,7 +368,6 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 								heldKeys++;
 
 								if (heldKeys == 1) {
-									arpClearFlag = false;
 									clearNotes();
 									heldKeys = 1;
 								}
@@ -427,7 +430,6 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 								heldKeys++;
 
 								if (heldKeys == 1) {
-									arpClearFlag = false;
 									clearNotes();
 									heldKeys = 1;
 								}
@@ -501,7 +503,6 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 								heldKeys++;
 
 								if (heldKeys == 1) {
-									arpClearFlag = false;
 									clearNotes();
 									heldKeys = 1;
 								}
@@ -536,6 +537,10 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 					}
 
 					if (seqRec) {
+						if (resetNextArpRecStep) {
+							seqLength = 0;
+							resetNextArpRecStep = false;
+						}
 						if (!seqLength)
 							rootNote1 = note;
 						seq[seqLength] = note - rootNote1 + 127;
@@ -543,11 +548,14 @@ static void handleNoteOn(byte channel, byte note, byte velocity) {
 							seq[seqLength]--;
 						}
 
-						seqLength++;
-						if (seqLength > 15)
-							seqLength = 0;
+						sendNRPN(NRPN_ARP_SET_STEP, (seqLength << 8) | seq[seqLength]);
 
-						ledNumber(seqLength + 1);
+						seqLength++;
+						if (seqLength > 15) {
+							ledNumber(1);
+							resetNextArpRecStep = true;
+						} else
+							ledNumber(seqLength + 1);
 
 						for (int i = 0; i < 12; i++) {
 							ym.noteOff(i);
@@ -666,20 +674,20 @@ static void handleNoteOff(byte channel, byte note) {
 								clearNotes();
 
 								for (int i = 0; i < 12; i++) {
-									pedalOff[i] = 1;
+									ym.noteOff(i);
 								}
 
 							} else {
 								// NOT LAST KEY, CHANGE NOTE
 
 								switch (notePriority) {
-									case 0:
+									case NOTE_PRIORITY_LOWEST:
 										note = getLow();
 										break; // LOWEST
-									case 1:
+									case NOTE_PRIORITY_HIGHEST:
 										note = getHigh();
 										break; // HIGHEST
-									case 2:
+									case NOTE_PRIORITY_LAST:
 										note = getLast();
 										break; // LAST
 								}
@@ -706,23 +714,9 @@ static void handleNoteOff(byte channel, byte note) {
 	}
 }
 
-void sendCC(byte number, int value) {
-
-	if (lastCC[number] != value) {
-		lastCC[number] = value;
-		rightDot();
-		sendControlChange(number, value, masterChannelOut);
-	}
-}
-
-void sendMidiButt(byte number, int value) {
-	rightDot();
-	sendCC(number, value);
-}
-
 byte lastData1, lastData2;
 
-void HandleControlChange(byte channel, byte number, byte val) {
+void handleControlChange(byte channel, byte number, byte val) {
 	byte temp;
 
 	if (number == 74) {
@@ -734,7 +728,6 @@ void HandleControlChange(byte channel, byte number, byte val) {
 			lastMpeVoice = channel;
 		}
 	} else {
-
 		if (toolMode && channel == 16) {
 			switch (number) {
 				case 1:
@@ -743,9 +736,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						thru = 1;
 					}
-					temp = EEPROM.read(3950);
-					bitWrite(temp, 0, !thru);
-					EEPROM.update(3950, temp);
+					setThru();
 					break;
 				case 2:
 					if (val) {
@@ -753,20 +744,15 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						ignoreVolume = 0;
 					}
-					temp = EEPROM.read(3950);
-					bitWrite(temp, 1, ignoreVolume);
-					EEPROM.update(3950, temp);
+					setIgnoreVolume();
 					break;
-
 				case 3:
 					if (val) {
 						lfoClockEnable[0] = true;
 					} else {
 						lfoClockEnable[0] = false;
 					}
-					temp = EEPROM.read(3953);
-					bitWrite(temp, 0, lfoClockEnable[0]);
-					EEPROM.update(3953, temp);
+					setLFO1Clock();
 					break;
 				case 4:
 					if (val) {
@@ -774,9 +760,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						lfoClockEnable[1] = false;
 					}
-					temp = EEPROM.read(3953);
-					bitWrite(temp, 1, lfoClockEnable[1]);
-					EEPROM.update(3953, temp);
+					setLFO2Clock();
 					break;
 				case 5:
 					if (val) {
@@ -784,20 +768,15 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						lfoClockEnable[2] = false;
 					}
-					temp = EEPROM.read(3953);
-					bitWrite(temp, 2, lfoClockEnable[2]);
-					EEPROM.update(3953, temp);
+					setLFO3Clock();
 					break;
-
 				case 6:
 					if (val) {
 						vibratoClockEnable = true;
 					} else {
 						vibratoClockEnable = false;
 					}
-					temp = EEPROM.read(3953);
-					bitWrite(temp, 3, vibratoClockEnable);
-					EEPROM.update(3953, temp);
+					setVibratoClock();
 					break;
 				case 7:
 					if (val) {
@@ -805,24 +784,19 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						arpClockEnable = false;
 					}
-					temp = EEPROM.read(3953);
-					bitWrite(temp, 4, arpClockEnable);
-					EEPROM.update(3953, temp);
+					setArpClock();
 					break;
 				case 18:
 					mydisplay.setIntensity(0, constrain(val, 1, 15));
 					EEPROM.update(3965, constrain(val, 0, 15));
 					break;
-
 				case 19:
 					if (val) {
 						fatMode = true;
 					} else {
 						fatMode = false;
 					}
-					temp = EEPROM.read(3953);
-					bitWrite(temp, 5, fatMode);
-					EEPROM.update(3953, temp);
+					setFatMode();
 					break;
 
 				case 14:
@@ -842,7 +816,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						pickupMode = false;
 					}
-					EEPROM.update(3954, pickupMode);
+					setPickupMode();
 					break;
 				case 9:
 					if (val) {
@@ -850,7 +824,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						mpe = false;
 					}
-					EEPROM.update(3960, mpe);
+					setMPEMode();
 					break;
 				case 10:
 					if (val) {
@@ -858,7 +832,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						lfoVel = false;
 					}
-					EEPROM.update(3961, lfoVel);
+					setLFO1Vel();
 					break;
 				case 11:
 					if (val) {
@@ -866,7 +840,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						lfoMod = false;
 					}
-					EEPROM.update(3962, lfoMod);
+					setLFO2Mod();
 					break;
 				case 12:
 					if (val) {
@@ -874,7 +848,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						lfoAt = false;
 					}
-					EEPROM.update(3963, lfoAt);
+					setLFO3Aftertouch();
 					break;
 				case 13:
 					if (val) {
@@ -882,7 +856,7 @@ void HandleControlChange(byte channel, byte number, byte val) {
 					} else {
 						stereoCh3 = false;
 					}
-					EEPROM.update(3966, stereoCh3);
+					setStereoCh3();
 					break;
 
 				case 15:
@@ -947,7 +921,9 @@ void HandleControlChange(byte channel, byte number, byte val) {
 		if ((lastSentCC[0] == number) && (lastSentCC[1] == val)) {
 			// ignore same CC and DATA as sent to avoid feedback
 		} else {
+
 			leftDot();
+
 			if (number == 64) {
 				if (mpe) {
 					for (int ch = 0; ch < 16; ch++)
@@ -959,24 +935,13 @@ void HandleControlChange(byte channel, byte number, byte val) {
 
 			else if (channel == inputChannel) {
 				if (number == 0) {
-					if (val < 5) {
+					if (val < 6) {
 						if (bank != val) {
 							bank = val;
-							handleProgramChange(inputChannel, preset - 1);
+							handleProgramChange(inputChannel, preset);
 						}
 					}
-				} else if (number == 50) {
-					movedPot(0, val << 1, 1);
-				} else if (number == 42) {
-					movedPot(42, val << 5, 1);
-				} else if (number == 51) {
-					movedPot(7, val << 1, 1);
-				} else if (number == 49) {
-					movedPot(8, val << 1, 1);
-				}
-
-				else if (number == 1) {
-
+				} else if (number == 1) { // Modulation
 					if (lfoMod) {
 						if (fmBase[38]) {
 							fmBase[39] = val << 1;
@@ -987,17 +952,37 @@ void HandleControlChange(byte channel, byte number, byte val) {
 							applyLfo();
 						}
 					}
-				} else if (number == 7) {
-					if (kAllCC) {
-						movedPot(1, val << 1, 1);
-					}
+				} else if (number == 99) {
+					// NRPN BEGIN ////////////////////////////////////
+					nrpn_msg = val;
+					nrpn_state = 1;
+				} else if ((number == 98) && (nrpn_state == 1)) {
+					nrpn_msg = (nrpn_msg << 7) | val;
+					nrpn_state = 2;
+				} else if ((number == 6) && (nrpn_state == 2)) {
+					nrpn_data = val;
+					nrpn_state = 3;
+				} else if ((number == 38) && (nrpn_state == 3)) {
+					nrpn_data = (nrpn_data << 7) | val;
+					handleNRPN(nrpn_msg, nrpn_data);
+					// Handle NRPN with 14 bit message
+					nrpn_msg = 0;
+					nrpn_data = 0;
+					nrpn_state = 0;
+					// NRPN DONE //////////////////////////////////////
 				} else {
-					if (kAllCC) {
-						movedPot(number, val << 1, 1);
-					} else {
-						if ((number != 19) && (number != 40) && (number != 16) && (number != 38))
-							movedPot(number, val << 1, 1);
-					}
+					byte pot = number;
+					// Rewrite CC -> POT for some
+					if (number == 50)
+						pot = 0;
+					else if (number == 51)
+						pot = 7;
+					else if (number == 49)
+						pot = 8;
+					else if (number == 7)
+						pot = 1;
+
+					movedPot(pot, val << 1, 1);
 				}
 			}
 		}
@@ -1006,162 +991,6 @@ void HandleControlChange(byte channel, byte number, byte val) {
 	}
 }
 
-void midiOut(byte note) {
-	rightDot();
-	// midiB.sendNoteOff(lastNote+1,127,masterChannelOut);
-	// midiB.sendNoteOn(note+1,velocityLast,masterChannelOut);
-	lastNote = note;
-}
-
-void dumpPreset() {
-	for (int number = 0; number < 58; number++) {
-		switch (number) {
-			// OP1
-			case 18:
-				sendCC(number, fmBase[0] >> 1);
-				break; // detune
-			case 27:
-				sendCC(number, fmBase[1] >> 1);
-				break; // multiple
-			case 19:
-				sendCC(number, fmBase[2] >> 1);
-				break; // op level
-			case 29:
-				sendCC(number, fmBase[4] >> 1);
-				break; // attack
-			case 21:
-				sendCC(number, fmBase[5] >> 1);
-				break; // decay1
-			case 25:
-				sendCC(number, fmBase[7] >> 1);
-				break; // sustain
-			case 17:
-				sendCC(number, fmBase[6] >> 1);
-				break; // sustain rate
-			case 30:
-				sendCC(number, fmBase[8] >> 1);
-				break; // release
-			// OP2
-			case 31:
-				sendCC(number, fmBase[18] >> 1);
-				break; // detune
-			case 32:
-				sendCC(number, fmBase[19] >> 1);
-				break; // multiple
-			case 40:
-				sendCC(number, fmBase[20] >> 1);
-				break; // op level
-			case 36:
-				sendCC(number, fmBase[22] >> 1);
-				break; // attack
-			case 44:
-				sendCC(number, fmBase[23] >> 1);
-				break; // decay1
-			case 42:
-				sendCC(number, fmBase[25] >> 1);
-				break; // sustain
-			case 34:
-				sendCC(number, fmBase[24] >> 1);
-				break; // sustain rate
-			case 11:
-				sendCC(number, fmBase[26] >> 1);
-				break; // release
-			// OP3
-			case 20:
-				sendCC(number, fmBase[9] >> 1);
-				break; // detune
-			case 24:
-				sendCC(number, fmBase[10] >> 1);
-				break; // multiple
-			case 16:
-				sendCC(number, fmBase[11] >> 1);
-				break; // op level
-			case 8:
-				sendCC(49, fmBase[13] >> 1);
-				break; // attack
-			case 0:
-				sendCC(50, fmBase[14] >> 1);
-				break; // decay1
-			case 7:
-				sendCC(51, fmBase[16] >> 1);
-				break; // sustain
-			case 45:
-				sendCC(number, fmBase[15] >> 1);
-				break; // sustain rate
-			case 37:
-				sendCC(number, fmBase[17] >> 1);
-				break; // release
-			// OP4
-			case 47:
-				sendCC(number, fmBase[27] >> 1);
-				break; // detune
-			case 39:
-				sendCC(number, fmBase[28] >> 1);
-				break; // multiple
-			case 38:
-				sendCC(number, fmBase[29] >> 1);
-				break; // op level
-			case 46:
-				sendCC(number, fmBase[31] >> 1);
-				break; // attack
-			case 33:
-				sendCC(number, fmBase[32] >> 1);
-				break; // decay1
-			case 41:
-				sendCC(number, fmBase[34] >> 1);
-				break; // sustain
-			case 43:
-				sendCC(number, fmBase[33] >> 1);
-				break; // sustain rate
-			case 35:
-				sendCC(number, fmBase[35] >> 1);
-				break; // release
-
-			case 1:
-				sendCC(7, vol >> 1);
-				break; // volume //SEND FINE!!!!!!!!!!!!
-			case 4:
-				sendCC(number, (1 + (fmBase[42] >> 5)));
-				break; // algo
-			case 3:
-				sendCC(number, fmBase[43] >> 1);
-				break; // feedback
-			case 28:
-				sendCC(number, fmBase[50] >> 1);
-				break; // fat 1-127 // SEND GLIDE!!!!!!!!!!!!
-			case 15:
-				sendCC(number, fmBase[36] >> 1);
-				break; // lfo 1 rate
-			case 12:
-				sendCC(number, fmBase[37] >> 1);
-				break; // lfo 1 depth
-			case 10:
-				sendCC(number, fmBase[38] >> 1);
-				break; // lfo 2 rate
-			case 9:
-				sendCC(number, fmBase[39] >> 1);
-				break; // lfo 2 depth
-			case 14:
-				sendCC(number, fmBase[40] >> 1);
-				break; // lfo 3 rate
-			case 2:
-				sendCC(number, fmBase[41] >> 1);
-				break; // lfo 3 depth
-			case 6:
-				sendCC(number, fmBase[46] >> 1);
-				break; /// arp rate
-			case 5:
-				sendCC(number, fmBase[47] >> 1);
-				break; // arp range
-			case 48:
-				sendCC(number, fmBase[48] >> 1);
-				break; // vibrato rate WAS 7
-			case 13:
-				sendCC(number, fmBase[49] >> 1);
-				break; // vibrato depth
-		}
-	}
-}
 static byte mStatus;
 static byte mData;
 static byte mChannel;
@@ -1179,7 +1008,6 @@ void sendControlChange(byte number, byte value, byte channel) {
 
 void sendNoteOff(byte note, byte velocity, byte channel) {
 	if (!thru) {
-
 		Serial.write(127 + channel);
 		Serial.write(note);
 		Serial.write(velocity);
@@ -1200,16 +1028,29 @@ void sendNoteOn(byte note, byte velocity, byte channel) {
 	}
 }
 
+void resetMidiReadStatus() {
+	mStatus = 0;
+	mData = 0;
+}
+
 void midiRead() {
 	while (Serial.available()) {
 		byte input = Serial.read();
 		if (thru) {
-
 			Serial.write(input);
 		}
 
 		if (input > 127) {
 			// Status
+			if ((mStatus == 8) && (input == 247)) { // input == F7
+				// In SysEx and receivd Sysex end; handle data and end sysex mode
+				sysExAppendByte(247);
+				handleIncomingSysEx();
+			} else if ((mStatus == 8) && ((input != 248) || (input != 250) || (input != 251) || (input != 252))) {
+				// In SysEx but received a non-F7 status byte that is not clock, start, continue or stop; this is an
+				// error
+				sysExExitStatus(SYSEX_STATUS_BYTE_ERROR);
+			}
 			switch (input) {
 				case 248:
 					handleClock();
@@ -1218,6 +1059,7 @@ void midiRead() {
 					handleStart();
 					break; // start
 				case 251:
+					handleContinue();
 					break; // continue
 				case 252:
 					handleStop();
@@ -1258,7 +1100,14 @@ void midiRead() {
 					mStatus = 4;
 					mData = 255;
 					break; // Pitch Bend
-
+				case 240:  // F0
+					// SysEx start
+					mStatus = 8;
+					mData = 0;
+					sysExReset();
+					sysExAppendByte(240);
+					break;
+				// case 247=F7, end of sysex, is handeled above
 				default:
 					mStatus = 0;
 					mData = 255;
@@ -1299,6 +1148,7 @@ void midiRead() {
 							// handleNoteOff(mChannel, mData + midiNoteOffset);
 						}
 						mData = 255;
+
 						break; // noteOn
 					case 2:
 
@@ -1315,7 +1165,7 @@ void midiRead() {
 						mData = 255;
 						break;
 					case 3:
-						HandleControlChange(mChannel, mData, input);
+						handleControlChange(mChannel, mData, input);
 						mData = 255;
 						break;
 					case 4:
@@ -1330,10 +1180,13 @@ void midiRead() {
 						handleProgramChange(mChannel, input);
 						mData = 255;
 						break;
-
 					case 7:
 						handlePolyAT(mChannel, mData, input);
 						mData = 255;
+						break;
+					case 8:
+						sysExAppendByte(input);
+						mData = 0;
 						break;
 					default:
 						break;

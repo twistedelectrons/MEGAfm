@@ -35,11 +35,11 @@ void sendDump() {
 		case 0:
 			if (!ab) {
 				for (int i = 0; i < 3950; i++) {
-					mem[i] = EEPROM.read(i);
+					sysexBuffer[i] = EEPROM.read(i);
 				}
 			} else {
 				for (int i = 0; i < 3950; i++) {
-					mem[i] = eRead(i);
+					sysexBuffer[i] = eRead(i);
 				}
 			}
 			break;
@@ -50,7 +50,7 @@ void sendDump() {
 			if (ab)
 				offset += 3950;
 			for (int i = 0; i < 3950; i++) {
-				mem[i] = eRead(offset + i);
+				sysexBuffer[i] = eRead(offset + i);
 			}
 			break;
 	}
@@ -66,13 +66,13 @@ void sendDump() {
 
 	for (int i = 0; i < 3950; i++) {
 
-		if (mem[i] > 127) {
-			Serial.write(mem[i] - 128);
+		if (sysexBuffer[i] > 127) {
+			Serial.write(sysexBuffer[i] - 128);
 			delay(1);
 			Serial.write(1);
 			delay(1);
 		} else {
-			Serial.write(mem[i]);
+			Serial.write(sysexBuffer[i]);
 			delay(1);
 			Serial.write(nill);
 			delay(1);
@@ -121,14 +121,12 @@ void recieveDump() {
 				} else {
 					flash += val[dump];
 					//
-					mem[dumpCounter - 2] = flash;
+					sysexBuffer[dumpCounter - 2] = flash;
 					dumpCounter++;
 				}
 			}
 		}
 	}
-
-	// byte ledLast; // unused
 
 	ledNumber(1);
 
@@ -140,7 +138,7 @@ void recieveDump() {
 		case 0:
 			if (!ab) {
 				for (int i = 0; i < 3950; i++) {
-					EEPROM.write(i, mem[i]);
+					EEPROM.write(i, sysexBuffer[i]);
 					count1++;
 					if (count1 > 39) {
 						count1 = 0;
@@ -150,7 +148,7 @@ void recieveDump() {
 				}
 			} else {
 				for (int i = 0; i < 3950; i++) {
-					eWrite(i, mem[i]);
+					eWrite(i, sysexBuffer[i]);
 					delay(2);
 					count1++;
 					if (count1 > 39) {
@@ -171,7 +169,7 @@ void recieveDump() {
 			if (ab)
 				offset += 3950;
 			for (int i = 0; i < 3950; i++) {
-				eWrite(i + offset, mem[i]);
+				eWrite(i + offset, sysexBuffer[i]);
 				count1++;
 				if (count1 > 39) {
 					count1 = 0;

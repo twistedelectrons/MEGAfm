@@ -7,6 +7,7 @@
 #include "dump.h"
 #include "lfo.h"
 #include "midi.h"
+#include "nrpn.h"
 #include "voice.h"
 #include "FM.h"
 
@@ -31,17 +32,204 @@ const byte presetChords[16][6] = {
 
 static bool resetFunction = false;
 
+static void finishSetup() {
+	byte temp;
+	ledSet(LED_VOICE_MODE_POLY12, 0);
+	ledSet(LED_LFO1_LINK, 0);
+	ledSet(LED_LFO2_LINK, 0);
+	ledSet(LED_LFO3_LINK, 0);
+
+	if (arpMode) {
+		ledSet(LED_ARP_MODE, 1);
+	} else {
+		ledSet(LED_ARP_MODE, 0);
+	}
+
+	EEPROM.write(3967, notePriority);
+
+	temp = EEPROM.read(3950);
+	bitWrite(temp, 0, !thru);
+	bitWrite(temp, 1, ignoreVolume);
+	bitWrite(temp, 2, bitRead(noiseTableLength[0] - 2, 0));
+	bitWrite(temp, 3, bitRead(noiseTableLength[0] - 2, 1));
+	bitWrite(temp, 4, bitRead(noiseTableLength[1] - 2, 0));
+	bitWrite(temp, 5, bitRead(noiseTableLength[1] - 2, 1));
+	bitWrite(temp, 6, bitRead(noiseTableLength[2] - 2, 0));
+	bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
+	EEPROM.update(3950, temp);
+
+	bitWrite(temp, 0, fatSpreadMode);
+	EEPROM.write(3968, fatSpreadMode);
+
+	temp = 0;
+	bitWrite(temp, 0, lfoClockEnable[0]);
+	bitWrite(temp, 1, lfoClockEnable[1]);
+	bitWrite(temp, 2, lfoClockEnable[2]);
+	bitWrite(temp, 3, vibratoClockEnable);
+	bitWrite(temp, 4, arpClockEnable);
+	bitWrite(temp, 5, fatMode);
+	EEPROM.update(3953, temp);
+
+	if (pickupMode) {
+		EEPROM.update(3954, 1);
+	} else {
+		EEPROM.update(3954, 0);
+	}
+
+	temp = 0;
+	bitWrite(temp, 0, showMidiFeedback);
+	EEPROM.update(3955, temp);
+
+	EEPROM.update(3961, lfoVel);
+	EEPROM.update(3962, lfoMod);
+	EEPROM.update(3963, lfoAt);
+
+	showVoiceMode(voiceMode);
+
+	digit(0, 21);
+	digit(1, 21);
+}
+
+void showArpMode() {
+	switch (arpMode) {
+		case kArpOff:
+			digit(0, 0);
+			digit(1, 12);
+			break; // off
+		case kArpUp:
+			digit(0, 13);
+			digit(1, 14);
+			break; // up
+		case kArpDown:
+			digit(0, 15);
+			digit(1, 19);
+			break; // dn
+		case kArpUpDown:
+			digit(0, 13);
+			digit(1, 15);
+			break; // ud
+		case kArpRandom1:
+			digit(0, 16);
+			digit(1, 1);
+			break; // r1
+		case kArpRandom2:
+			digit(0, 16);
+			digit(1, 2);
+			break; // r2
+		case kArpSequence1:
+			digit(0, 5);
+			digit(1, 1);
+			break; // s1
+		case kArpSequence2:
+			digit(0, 5);
+			digit(1, 2);
+			break; // s2
+	}
+	if (arpMode > 0) {
+		ledSet(LED_ARP_MODE, 1);
+	} else {
+		ledSet(LED_ARP_MODE, 0);
+	}
+	lastNumber = -1;
+	showPresetNumberTimeout = 12000;
+}
+
+static void setNoiseTableLength(byte selectedLfo, byte length) {
+	if (length == noiseTableLength[selectedLfo]) {
+		return;
+	}
+
+	noiseTableLength[selectedLfo] = length;
+	if (noiseTableLength[selectedLfo] > 5) {
+		noiseTableLength[selectedLfo] = 2;
+	}
+
+	byte temp = EEPROM.read(3950);
+	bitWrite(temp, 0, !thru);
+	bitWrite(temp, 1, ignoreVolume);
+	bitWrite(temp, 2, bitRead(noiseTableLength[0] - 2, 0));
+	bitWrite(temp, 3, bitRead(noiseTableLength[0] - 2, 1));
+	bitWrite(temp, 4, bitRead(noiseTableLength[1] - 2, 0));
+	bitWrite(temp, 5, bitRead(noiseTableLength[1] - 2, 1));
+	bitWrite(temp, 6, bitRead(noiseTableLength[2] - 2, 0));
+	bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
+	EEPROM.update(3950, temp);
+	fillRandomLfo(selectedLfo);
+}
+
+void showLfoWaveform(byte selectedLfo) {
+	switch (lfoShape[selectedLfo]) {
+		case kSquare:
+			if (invertedSquare[selectedLfo]) {
+				// S-
+				digit(0, 5);
+				digit(1, 20);
+			} else {
+				// S
+				digit(0, 5);
+				digit(1, 21);
+			}
+			break;
+		case kTriangle:
+			// tr (iangle)
+			digit(0, 26);
+			digit(1, 16);
+			break;
+		case kSaw:
+			if (invertedSaw[selectedLfo]) {
+				// Ra (mp)
+				digit(0, 16);
+				digit(1, 17);
+			} else {
+				// Sa (w)
+				digit(0, 5);
+				digit(1, 17);
+			}
+			break;
+		case kRandom:
+			if (noiseTableLength[selectedLfo] == 2) {
+				// blank
+				digit(0, 21);
+				digit(1, 21);
+			} else {
+				// 8, 16, 32
+				ledNumber(1 << noiseTableLength[selectedLfo]);
+			}
+			break;
+	}
+
+	lastNumber = -1;
+	showPresetNumberTimeout = 12000;
+}
+
+void showNotePriority() {
+	switch (notePriority) {
+		case 0:
+			digit(0, 11);
+			digit(1, 27);
+			delay(800);
+			break; // LO
+		case 1:
+			digit(0, 23);
+			digit(1, 1);
+			delay(800);
+			break; // HI
+		case 2:
+			digit(0, 11);
+			digit(1, 17);
+			delay(800);
+			break; // LA
+	}
+}
+
 void buttChanged(Button number, bool value) {
 	if (millis() > 1000) {
 		if (setupMode) {
 			if (!value && millis() > 2000) {
-				byte temp;
-
 				switch (number) {
 					case kButtonChainLfo1:
 						thru = !thru;
-						ledSet(13, thru);
-
+						ledSet(LED_LFO1_LINK, thru);
 						digit(0, 26);
 						if (thru) {
 							digit(1, 1);
@@ -49,13 +237,12 @@ void buttChanged(Button number, bool value) {
 							digit(1, 0);
 						}
 						delay(800);
-
+						sendNRPN(NRPN_SET_MIDI_THRU, thru);
 						break; // chain1
 
 					case kButtonChainLfo2:
 						pickupMode = !pickupMode;
-						ledSet(14, pickupMode);
-
+						ledSet(LED_LFO2_LINK, pickupMode);
 						if (pickupMode) {
 							digit(0, 14);
 							digit(1, 14);
@@ -68,34 +255,20 @@ void buttChanged(Button number, bool value) {
 							digit(1, 14);
 							delay(400);
 						}
+						sendNRPN(NRPN_SET_PICKUP_MODE, pickupMode);
 						break; // chain 2
 
 					case kButtonRetrig:
 						notePriority++;
 						if (notePriority > 2)
 							notePriority = 0;
-						switch (notePriority) {
-							case 0:
-								digit(0, 11);
-								digit(1, 27);
-								delay(800);
-								break; // LO
-							case 1:
-								digit(0, 23);
-								digit(1, 1);
-								delay(800);
-								break; // HI
-							case 2:
-								digit(0, 11);
-								digit(1, 17);
-								delay(800);
-								break; // LA
-						}
+						showNotePriority();
+						sendNRPN(NRPN_NOTE_PRIORITY, notePriority);
 						break; // retrig
 
 					case kButtonChainLfo3:
 						stereoCh3 = !stereoCh3;
-						ledSet(15, stereoCh3);
+						ledSet(LED_LFO3_LINK, stereoCh3);
 						EEPROM.update(3966, stereoCh3);
 						if (stereoCh3) {
 							digit(0, 5);
@@ -106,12 +279,12 @@ void buttChanged(Button number, bool value) {
 							digit(1, 3);
 							delay(800);
 						}
-
+						sendNRPN(NRPN_SET_STEREO_CH3, stereoCh3);
 						break; // chain 3
 
 					case kButtonArpMode:
-						setupChanged = true;
 						mpe = !mpe;
+						setupChanged = true;
 						if (mpe) {
 							digit(0, 17);
 							digit(1, 10);
@@ -126,12 +299,14 @@ void buttChanged(Button number, bool value) {
 							EEPROM.write(3959, bendUp);
 						}
 						EEPROM.write(3960, mpe);
-						ledSet(23, !mpe);
+						ledSet(LED_ARP_MODE, !mpe);
+						sendNRPN(NRPN_SET_MPE_MODE, mpe);
 						break; // MPE mode
 
 					case kButtonNoise:
 						fatSpreadMode = !fatSpreadMode;
-						ledSet(19, fatSpreadMode);
+						ledSet(LED_RANDOM, fatSpreadMode);
+						sendNRPN(NRPN_SET_FAT_SPREAD, fatSpreadMode);
 						break; // NOISE
 
 					case kButtonVoiceMode:
@@ -142,57 +317,7 @@ void buttChanged(Button number, bool value) {
 						justQuitSetup = true;
 						// save setup values here
 
-						ledSet(9, 0);
-						ledSet(13, 0);
-						ledSet(14, 0);
-						ledSet(15, 0);
-
-						if (arpMode) {
-							ledSet(23, 1);
-						} else {
-							ledSet(23, 0);
-						}
-
-						EEPROM.write(3967, notePriority);
-
-						temp = EEPROM.read(3950);
-						bitWrite(temp, 0, !thru);
-						bitWrite(temp, 1, ignoreVolume);
-						bitWrite(temp, 2, bitRead(noiseTableLength[0] - 2, 0));
-						bitWrite(temp, 3, bitRead(noiseTableLength[0] - 2, 1));
-						bitWrite(temp, 4, bitRead(noiseTableLength[1] - 2, 0));
-						bitWrite(temp, 5, bitRead(noiseTableLength[1] - 2, 1));
-						bitWrite(temp, 6, bitRead(noiseTableLength[2] - 2, 0));
-						bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
-						EEPROM.update(3950, temp);
-
-						bitWrite(temp, 0, fatSpreadMode);
-						EEPROM.write(3968, fatSpreadMode);
-
-						temp = 0;
-						bitWrite(temp, 0, lfoClockEnable[0]);
-						bitWrite(temp, 1, lfoClockEnable[1]);
-						bitWrite(temp, 2, lfoClockEnable[2]);
-						bitWrite(temp, 3, vibratoClockEnable);
-						bitWrite(temp, 4, arpClockEnable);
-						bitWrite(temp, 5, fatMode);
-						EEPROM.update(3953, temp);
-
-						if (pickupMode) {
-							EEPROM.update(3954, 1);
-						} else {
-							EEPROM.update(3954, 0);
-						}
-
-						EEPROM.update(3961, lfoVel);
-						EEPROM.update(3962, lfoMod);
-						EEPROM.update(3963, lfoAt);
-
-						showVoiceMode(voiceMode);
-
-						digit(0, 21);
-						digit(1, 21);
-
+						finishSetup();
 						break;
 					default:
 						break;
@@ -209,7 +334,7 @@ void buttChanged(Button number, bool value) {
 							ab = !ab;
 						}
 						bank = 0;
-						ledSet(16 + bank, 1);
+						ledSet(LED_SQUARE + bank, 1);
 						flashCounter2 = 0;
 						showSendReceive();
 
@@ -219,7 +344,7 @@ void buttChanged(Button number, bool value) {
 							ab = !ab;
 						}
 						bank = 1;
-						ledSet(16 + bank, 1);
+						ledSet(LED_SQUARE + bank, 1);
 						flashCounter2 = 0;
 						showSendReceive();
 						break; // triangle
@@ -228,7 +353,7 @@ void buttChanged(Button number, bool value) {
 							ab = !ab;
 						}
 						bank = 2;
-						ledSet(16 + bank, 1);
+						ledSet(LED_SQUARE + bank, 1);
 						flashCounter2 = 0;
 						showSendReceive();
 						break; // saw
@@ -237,7 +362,7 @@ void buttChanged(Button number, bool value) {
 							ab = !ab;
 						}
 						bank = 3;
-						ledSet(16 + bank, 1);
+						ledSet(LED_SQUARE + bank, 1);
 						flashCounter2 = 0;
 						showSendReceive();
 						break; // noise
@@ -246,7 +371,7 @@ void buttChanged(Button number, bool value) {
 							ab = !ab;
 						}
 						bank = 4;
-						ledSet(16 + bank, 1);
+						ledSet(LED_SQUARE + bank, 1);
 						flashCounter2 = 0;
 						showSendReceive();
 						break; // retrig
@@ -255,7 +380,7 @@ void buttChanged(Button number, bool value) {
 							ab = !ab;
 						}
 						bank = 5;
-						ledSet(16 + bank, 1);
+						ledSet(LED_SQUARE + bank, 1);
 						flashCounter2 = 0;
 						showSendReceive();
 						break; // loop
@@ -298,6 +423,7 @@ void buttChanged(Button number, bool value) {
 								fineChanged = true; // prevents voice mode change
 								setupCounter = 0;   // prevents entering setup
 								ledNumber(octOffset);
+								sendNRPN(NRPN_SET_OCT_OFFSET, octOffset);
 							} else {
 								if (arpModeHeld) {
 									changedChannel = true;
@@ -334,7 +460,7 @@ void buttChanged(Button number, bool value) {
 								ledNumber(octOffset);
 								fineChanged = true; // prevents voice mode change
 								setupCounter = 0;   // prevents entering setup
-
+								sendNRPN(NRPN_SET_OCT_OFFSET, octOffset);
 							} else {
 								if (arpModeHeld) {
 									changedChannel = true;
@@ -398,7 +524,7 @@ void buttChanged(Button number, bool value) {
 								presetCounts = 40;
 							}
 							bank = 0;
-							ledSet(16 + bank, 1);
+							ledSet(LED_SQUARE + bank, 1);
 							flashCounter2 = 0;
 							flasher = false;
 							EEPROM.write(3964, bank);
@@ -410,13 +536,15 @@ void buttChanged(Button number, bool value) {
 							bankCounter = 20;
 						} else {
 							if (!showSSEGCounter) {
-								if (lfoShape[selectedLfo] == 0) {
+								if (lfoShape[selectedLfo] == kSquare) {
 									invertedSquare[selectedLfo] = !invertedSquare[selectedLfo];
 								} else {
-									lfoShape[selectedLfo] = 0;
-									lfoLedOn();
+									lfoShape[selectedLfo] = kSquare;
+									invertedSquare[selectedLfo] = false;
 									showLfo();
 								}
+								sendNRPN(NRPN_LFO_SHAPE + selectedLfo, invertedSquare[selectedLfo]);
+								showLfoWaveform(selectedLfo);
 							}
 						}
 						break; // square
@@ -427,7 +555,7 @@ void buttChanged(Button number, bool value) {
 								presetCounts = 40;
 							}
 							bank = 1;
-							ledSet(16 + bank, 1);
+							ledSet(LED_SQUARE + bank, 1);
 							flashCounter2 = 0;
 							flasher = false;
 							EEPROM.write(3964, bank);
@@ -439,9 +567,10 @@ void buttChanged(Button number, bool value) {
 							bankCounter = 20;
 						} else {
 							if (!showSSEGCounter) {
-								lfoShape[selectedLfo] = 1;
-								lfoLedOn();
+								lfoShape[selectedLfo] = kTriangle;
 								showLfo();
+								sendNRPN(NRPN_LFO_SHAPE + selectedLfo, 2);
+								showLfoWaveform(selectedLfo);
 							}
 
 							else {
@@ -456,7 +585,7 @@ void buttChanged(Button number, bool value) {
 								presetCounts = 40;
 							}
 							bank = 2;
-							ledSet(16 + bank, 1);
+							ledSet(LED_SQUARE + bank, 1);
 							flashCounter2 = 0;
 							flasher = false;
 							EEPROM.write(3964, bank);
@@ -468,28 +597,15 @@ void buttChanged(Button number, bool value) {
 							bankCounter = 20;
 						} else {
 							if (!showSSEGCounter) {
-								if (lfoShape[selectedLfo] == 2) {
+								if (lfoShape[selectedLfo] == kSaw) {
 									invertedSaw[selectedLfo] = !invertedSaw[selectedLfo];
-
-									if (invertedSaw[selectedLfo]) {
-										digit(0, 5);
-										digit(1, 17);
-									} else {
-										digit(0, 16);
-										digit(1, 17);
-									}
 								} else {
-									lfoShape[selectedLfo] = 2;
-									lfoLedOn();
+									lfoShape[selectedLfo] = kSaw;
+									invertedSaw[selectedLfo] = false;
 									showLfo();
-									if (invertedSaw[selectedLfo]) {
-										digit(0, 5);
-										digit(1, 17);
-									} else {
-										digit(0, 16);
-										digit(1, 17);
-									}
 								}
+								sendNRPN(NRPN_LFO_SHAPE + selectedLfo, 3 + invertedSaw[selectedLfo]);
+								showLfoWaveform(selectedLfo);
 							} else {
 								setSSEG(lastOperator, 0, 0); // operator bitIndex value}
 							}
@@ -502,7 +618,7 @@ void buttChanged(Button number, bool value) {
 								presetCounts = 40;
 							}
 							bank = 3;
-							ledSet(16 + bank, 1);
+							ledSet(LED_SQUARE + bank, 1);
 							flashCounter2 = 0;
 							flasher = false;
 							EEPROM.write(3964, bank);
@@ -515,33 +631,16 @@ void buttChanged(Button number, bool value) {
 						} else {
 							if (!showSSEGCounter) {
 								// Change LFOLENGTH
-								if (lfoShape[selectedLfo] == 3) {
-									noiseTableLength[selectedLfo]++;
-									if (noiseTableLength[selectedLfo] > 5) {
-										noiseTableLength[selectedLfo] = 2;
-									}
-
-									if (noiseTableLength[selectedLfo] == 2) {
-										digit(0, 21);
-										digit(1, 21);
-									} else {
-										ledNumber(1 << noiseTableLength[selectedLfo]);
-									}
-
-									byte temp = EEPROM.read(3950);
-									bitWrite(temp, 0, !thru);
-									bitWrite(temp, 1, ignoreVolume);
-									bitWrite(temp, 2, bitRead(noiseTableLength[0] - 2, 0));
-									bitWrite(temp, 3, bitRead(noiseTableLength[0] - 2, 1));
-									bitWrite(temp, 4, bitRead(noiseTableLength[1] - 2, 0));
-									bitWrite(temp, 5, bitRead(noiseTableLength[1] - 2, 1));
-									bitWrite(temp, 6, bitRead(noiseTableLength[2] - 2, 0));
-									bitWrite(temp, 7, bitRead(noiseTableLength[2] - 2, 1));
-									EEPROM.update(3950, temp);
+								if (lfoShape[selectedLfo] == kRandom) {
+									setNoiseTableLength(selectedLfo, noiseTableLength[selectedLfo] + 1);
+								} else {
+									lfoShape[selectedLfo] = kRandom;
+									setNoiseTableLength(selectedLfo, 2);
+									showLfo();
 								}
-								lfoShape[selectedLfo] = 3;
-								fillRandomLfo(selectedLfo);
-								showLfo();
+								sendNRPN(NRPN_LFO_SHAPE + selectedLfo, noiseTableLength[selectedLfo] + 3);
+
+								showLfoWaveform(selectedLfo);
 							}
 						}
 						break; // noise
@@ -552,7 +651,7 @@ void buttChanged(Button number, bool value) {
 								presetCounts = 40;
 							}
 							bank = 4;
-							ledSet(16 + bank, 1);
+							ledSet(LED_SQUARE + bank, 1);
 							flashCounter2 = 0;
 							flasher = false;
 							EEPROM.write(3964, bank);
@@ -566,7 +665,7 @@ void buttChanged(Button number, bool value) {
 							if (!showSSEGCounter) {
 								retrig[selectedLfo] = !retrig[selectedLfo];
 								showLfo();
-								sendCC(57, retrig[selectedLfo]);
+								sendNRPN(NRPN_LFO_RETRIG + selectedLfo, retrig[selectedLfo]);
 							}
 						}
 						break; // retrig
@@ -649,7 +748,7 @@ void buttChanged(Button number, bool value) {
 											voiceMode = kVoicingDualCh3;
 										}
 										showVoiceMode(voiceMode);
-										sendCC(51, voiceMode);
+										sendNRPN(NRPN_SET_VOICE_MODE, voiceMode);
 
 										// Reset notes after a voiceChange
 										resetVoices();
@@ -669,6 +768,7 @@ void buttChanged(Button number, bool value) {
 						if (seqRec) {
 							if (seqLength < 16) {
 								seq[seqLength] = 255;
+								sendNRPN(NRPN_ARP_SET_STEP, (seqLength << 8) | 255);
 								seqLength++;
 								ledNumber(seqLength + 1);
 							}
@@ -749,6 +849,7 @@ void buttChanged(Button number, bool value) {
 							if (!shuffled) {
 								if (!resetFunction) {
 									loadZero();
+									dumpPresetAsSysEx();
 									digit(0, 14);
 									digit(1, 0);
 								} else {
@@ -767,79 +868,26 @@ void buttChanged(Button number, bool value) {
 						if (!mpe) {
 							if (!changedChannel) {
 
-								if ((arpMode == 0) && (arpJustWentOff)) {
+								if ((arpMode == kArpOff) && (arpJustWentOff)) {
 									arpJustWentOff = false;
-								} else if ((arpMode == 0) && (!arpJustWentOff)) {
+								} else if ((arpMode == kArpOff) && (!arpJustWentOff)) {
 
 									resetVoices();
 
-									ledSet(23, 1);
 									arpMode = arpModeLast;
-									switch (arpMode) {
-										case 1:
-											digit(0, 13);
-											digit(1, 14);
-											break; // up
-										case 2:
-											digit(0, 15);
-											digit(1, 19);
-											break; // dn
-										case 3:
-											digit(0, 13);
-											digit(1, 15);
-											break; // ud
-										case 4:
-											digit(1, 1);
-											digit(0, 16);
-											break; // r1
-										case 5:
-											digit(1, 2);
-											digit(0, 16);
-											break; // r2
-										case 6:
-											digit(0, 5);
-											digit(1, 18);
-											break; // se
-									}
+									sendNRPN(NRPN_ARP_MODE, arpMode);
+									showArpMode();
+									ledSet(LED_ARP_MODE, 1);
 								} else if (arpMode > 0) {
 
 									arpMode++;
-									if (arpMode > 7) {
-										arpMode = 1;
+									if (arpMode >= kArpModeCount) {
+										arpMode = kArpUp;
 										resyncArp = true;
 									}
 									arpModeLast = arpMode;
-
-									switch (arpMode) {
-										case 1:
-											digit(0, 13);
-											digit(1, 14);
-											break; // up
-										case 2:
-											digit(0, 15);
-											digit(1, 19);
-											break; // dn
-										case 3:
-											digit(0, 13);
-											digit(1, 15);
-											break; // ud
-										case 4:
-											digit(1, 1);
-											digit(0, 16);
-											break; // r1
-										case 5:
-											digit(1, 2);
-											digit(0, 16);
-											break; // r2
-										case 6:
-											digit(0, 5);
-											digit(1, 1);
-											break; // s1
-										case 7:
-											digit(0, 5);
-											digit(1, 2);
-											break; // s2
-									}
+									sendNRPN(NRPN_ARP_MODE, arpMode);
+									showArpMode();
 								}
 							}
 						}
@@ -850,6 +898,7 @@ void buttChanged(Button number, bool value) {
 							if (mpe) {
 								// no seq in mpe mode
 							} else {
+
 								if (presetTargetMode) {
 									presetTargetMode = false;
 									savePreset();
@@ -858,13 +907,14 @@ void buttChanged(Button number, bool value) {
 										seqLength = 0;
 										seqRec = true;
 										displayFreeze = 0;
-										arpMode = 6;
-										ledSet(23, 1);
+										arpMode = kArpSequence1;
+										sendNRPN(NRPN_ARP_MODE, arpMode);
+										ledSet(LED_ARP_MODE, 1);
 										digit(0, 5);
 										digit(1, 18);
 									} else {
 										seqRec = false;
-										ledSet(22, 0);
+										ledSet(LED_SEQ_REC, 0);
 									}
 								}
 							}
@@ -877,6 +927,7 @@ void buttChanged(Button number, bool value) {
 							if (!cleared) {
 								linked[0][targetPot] = !linked[0][targetPot];
 								showLink();
+								sendNRPN(NRPN_LFO_LINK, 2 * targetPot + linked[0][targetPot]);
 							}
 						}
 						break; // chain1
@@ -887,6 +938,7 @@ void buttChanged(Button number, bool value) {
 							if (!cleared) {
 								linked[1][targetPot] = !linked[1][targetPot];
 								showLink();
+								sendNRPN(NRPN_LFO_LINK + 1, 2 * targetPot + linked[1][targetPot]);
 							}
 						}
 						break; // chain2
@@ -897,6 +949,7 @@ void buttChanged(Button number, bool value) {
 							if (!cleared) {
 								linked[2][targetPot] = !linked[2][targetPot];
 								showLink();
+								sendNRPN(NRPN_LFO_LINK + 2, 2 * targetPot + linked[2][targetPot]);
 							}
 						}
 						break; // chain3
@@ -908,7 +961,7 @@ void buttChanged(Button number, bool value) {
 									presetCounts = 40;
 								}
 								bank = 5;
-								ledSet(16 + bank, 1);
+								ledSet(LED_SQUARE + bank, 1);
 								flashCounter2 = 0;
 								flasher = false;
 								EEPROM.write(3964, bank);
@@ -923,7 +976,7 @@ void buttChanged(Button number, bool value) {
 
 									looping[selectedLfo] = !looping[selectedLfo];
 									showLfo();
-									sendCC(58, looping[selectedLfo]);
+									sendNRPN(NRPN_LFO_LOOPING + selectedLfo, looping[selectedLfo]);
 								} else {
 									setSSEG(lastOperator, 1,
 									        !bitRead(SSEG[lastOperator], 1)); // flip the SSEG enable bit

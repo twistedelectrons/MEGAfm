@@ -19,7 +19,7 @@ void loadZero() {
 	bank = 0;
 	presetTp = preset;
 	preset = 0;
-	loadPreset();
+	loadPreset(true);
 	preset = presetTp;
 	bank = bankTp;
 }
@@ -32,6 +32,7 @@ void panel() {
 	muxChannel = 16;
 	digit(0, 14);
 	digit(1, 17);
+	dumpArpAsSysEx();
 	delay(500);
 }
 
@@ -62,7 +63,7 @@ void clearSSEG(bool allBanks) {
 	}
 }
 
-void loadPreset() {
+void loadPreset(bool inLoadZero) {
 	if (pickupMode) {
 		for (int i = 0; i < 49; i++) {
 			pickup[i] = 0;
@@ -154,7 +155,7 @@ void loadPreset() {
 	}
 
 	voiceMode = kVoicingPoly12;
-	arpMode = 0;
+	arpMode = kArpOff;
 	lfoShape[0] = 0;
 	lfoShape[1] = 0;
 	lfoShape[2] = 0;
@@ -379,9 +380,9 @@ void loadPreset() {
 	}
 
 	if ((arpMode) && (!mpe)) {
-		ledSet(23, 1);
+		ledSet(LED_ARP_MODE, 1);
 	} else {
-		ledSet(23, 0);
+		ledSet(LED_ARP_MODE, 0);
 	}
 	//
 
@@ -406,7 +407,8 @@ void loadPreset() {
 	showVoiceMode(voiceMode);
 	Serial.begin(31250);
 	fmResetValues();
-	dumpPreset();
+	if (!inLoadZero)
+		dumpPresetAsSysEx();
 	startTimer();
 
 	// make sure fmBaseLast != fmBase (to reset the engine)
@@ -741,9 +743,9 @@ void shuffle() {
 		seq[i] = random(25);
 	}
 	if ((random(2)) && (random(2)) && (random(2))) {
-		arpMode = random(6);
+		arpMode = random(6); // 0-5 = all modes but sequencer
 	} else {
-		arpMode = 0;
+		arpMode = kArpOff;
 	}
 	showVoiceMode(voiceMode);
 }

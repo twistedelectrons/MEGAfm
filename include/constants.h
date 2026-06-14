@@ -56,17 +56,63 @@
 #define FADER_SUSTAIN_RATE_4 43
 #define FADER_RELEASE_4 35
 
-const byte kVersion0 = 4;
-const byte kVersion1 = 1;
+// LED 1-8 = algorithm
+#define LED_VOICE_MODE_POLY12 9
+#define LED_VOICE_MODE_WIDE6 10
+#define LED_VOICE_MODE_DUALCH3 11
+#define LED_VOICE_MODE_UNISON 12
+#define LED_LFO1_LINK 13
+#define LED_LFO2_LINK 14
+#define LED_LFO3_LINK 15
+#define LED_SQUARE 16
+#define LED_TRIANGLE 17
+#define LED_SAW 18
+#define LED_RANDOM 19
+#define LED_RETRIGGER 20
+#define LED_LOOP 21
+#define LED_SEQ_REC 22
+#define LED_ARP_MODE 23
+
+const byte kVersion0 = 5;
+const byte kVersion1 = 0;
 
 const byte kDefaultSeq[16] = {0, 0, 0, 0, 12, 12, 12, 12, 0, 0, 12, 0, 0, 12, 12, 0};
 
-const bool kAllCC = true;
 const byte x12[] = {0, 12, 24, 36};
-const byte kArpRateDisplay[] = {0, 0, 0, 2, 3, 4, 8, 12, 16, 32, 48};       // show tempo divisions
-const int16_t kMidiArpTicks[] = {384, 192, 96, 48, 32, 24, 12, 8, 6, 3, 2}; // arp rates in MIDI ticks
-const float kLfoClockRates[] = {0.6640625, 1.328125, 2.65625, 5.3125, 7.96875, 10.625, 21.25, 31.875, 42.5, 85, 127.5};
+/*
+    With PPQN = 24, a quarter note = 24 ticks:
+
+    384 = 16 quarter notes = 4 whole notes = 0.6640625
+    192 = 8 quarter notes = 2 whole notes = 1.328125
+    96 = 4 quarter notes = Whole note (1/1) = 2.65625
+    48 = 2 quarter notes = Half note (1/2) = 5.3125
+    32 = 96 / 3 = Half note triplet (1/2T) = 7.96875
+    24 = 1 quarter note = Quarter note (1/4) = 10.625
+    16 = 48 / 3 = Quarter note triplet (1/4T) = 15.9375
+    12 = 24 / 2 = Eighth note (1/8) = 21.25
+    8 = 24 / 3 = Eighth note triplet (1/8T) = 31.875
+    6 = 24 / 4 = Sixteenth note (1/16) = 42.5
+    4 = 12 / 3 = Sixteenth note triplet (1/16T) = 63.75
+    3 = 24 / 8 = Thirty-second note (1/32) = 85
+    2 = 6 / 3 = Thirty-second note triplet (1/32T) = 127.5
+*/
+const byte kArpRateDisplay[] = {0, 0, 0, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48};       // show tempo divisions
+const int16_t kMidiArpTicks[] = {384, 192, 96, 48, 32, 24, 16, 12, 8, 6, 4, 3, 2}; // arp rates in MIDI ticks
+const float kLfoClockRates[] = {0.6640625, 1.328125, 2.65625, 5.3125, 7.96875, 10.625, 15.9375,
+                                21.25,     31.875,   42.5,    63.75,  85,      127.5}; // 255 / kMidiArpTicks
 const uint16_t kBankOffsets[] = {0, 7900, 15800, 23700, 31600, 39500};
+
+enum ArpMode {
+	kArpOff = 0,
+	kArpUp = 1,
+	kArpDown = 2,
+	kArpUpDown = 3,
+	kArpRandom1 = 4,
+	kArpRandom2 = 5,
+	kArpSequence1 = 6,
+	kArpSequence2 = 7
+};
+const int kArpModeCount = 8;
 
 enum VoiceMode {
 	kVoicingPoly12 = 0,
@@ -77,6 +123,15 @@ enum VoiceMode {
 	kVoicingWide3 = 5
 };
 const int kVoiceModeCount = 6;
+
+enum kLfoShape {
+	kSquare = 0,
+	kTriangle = 1,
+	kSaw = 2,
+	kRandom = 3,
+};
+
+enum kEnvelopeMode { kEnvelopeOff = 0, kEnvelopeOnce = 1, kEnvelopPingPong = 2 };
 
 const byte kFactoryPresets[] = {
     105, 22,  43,  52,  63,  5,   68,  91,  16,  31,  31,  243, 182, 78,  32,  62,  63,  3,   8,   127, 16,  21,  16,
@@ -286,4 +341,71 @@ const int16_t lfoRateLT[] = {
     1726, 1777, 1829, 1881, 1932, 1984, 2035, 2087, 2138, 2190, 2241, 2293, 2344, 2396, 2448, 2499, 2551, 2602, 2654,
     2705, 2757, 2808, 2860, 2912, 2963, 3015, 3066, 3118, 3169, 3221, 3272, 3324, 3375, 3427, 3479, 3530, 3582, 3633,
     3685, 3736, 3788, 3839, 3891, 3943, 3994, 4046, 4097};
+
+// NRPN message codes
+#define NRPN_DUMP_CURRENT_SETTINGS 10
+#define NRPN_SHOW_FEEDBACK 11  // value: bool
+#define NRPN_CHANGE_PROGRAM 20 // value: 000 - 599 (bank 0-5, program 0-99)
+// LFO settings — add LFO index 0-2 for per-LFO variants
+#define NRPN_LFO_SHAPE 100      // value: 0-8 (see setLFOShape)
+#define NRPN_LFO_LOOPING 103    // value: bool
+#define NRPN_LFO_RETRIG 106     // value: bool
+#define NRPN_LFO_CLOCK_SYNC 109 // value: bool
+#define NRPN_LFO_VEL 112        // value: bool (LFO1 velocity)
+#define NRPN_LFO_MOD 113        // value: bool (LFO2 mod wheel)
+#define NRPN_LFO_AT 114         // value: bool (LFO3 aftertouch)
+// Device settings
+#define NRPN_SET_BRIGHTNESS 200  // value: 0-15
+#define NRPN_SET_MIDI_THRU 201   // value: bool
+#define NRPN_SET_PICKUP_MODE 202 // value: bool
+#define NRPN_SET_STEREO_CH3 203  // value: bool
+#define NRPN_SET_MPE_MODE 204    // value: bool
+#define NRPN_SET_FAT_SPREAD 205  // value: bool
+#define NRPN_SET_IGNORE_VOL 206  // value: bool
+#define NRPN_SET_FAT_MODE 207    // value: bool (0=octave, 1=semitone)
+#define NRPN_SET_VOICE_MODE 208  // value: VoiceMode (0-5)
+#define NRPN_SET_OCT_OFFSET 209  // value: 0-3
+// Knob parameters
+#define NRPN_FINE_TUNE 220     // value: 0-255
+#define NRPN_GLIDE 221         // value: 0-255
+#define NRPN_LFO1_RATE 222     // value: 0-255
+#define NRPN_LFO2_RATE 223     // value: 0-255
+#define NRPN_LFO3_RATE 224     // value: 0-255
+#define NRPN_LFO1_DEPTH 225    // value: 0-255
+#define NRPN_LFO2_DEPTH 226    // value: 0-255
+#define NRPN_LFO3_DEPTH 227    // value: 0-255
+#define NRPN_FAT 228           // value: 0-255
+#define NRPN_VOLUME 229        // value: 0-255
+#define NRPN_FEEDBACK 230      // value: 0-255
+#define NRPN_ALGORITHM 231     // value: 0-255
+#define NRPN_NOTE_PRIORITY 232 // value: 0-2
+// Arp
+#define NRPN_ARP_MODE 300       // value: ArpMode (0-7)
+#define NRPN_ARP_CLOCK_SYNC 301 // value: bool
+#define NRPN_ARP_RATE 302       // value: 0-255
+#define NRPN_ARP_RANGE 303      // value: 0-255
+#define NRPN_ARP_SET_STEP 304   // value: 8-bit step value, 4 bit step index
+// Vibrato
+#define NRPN_VIB_CLOCK_SYNC 500 // value: bool
+#define NRPN_VIB_RATE 501       // value: 0-255
+#define NRPN_VIB_DEPTH 502      // value: 0-255
+// LFO link — add LFO index 0-2; value = 2*targetPot + linked
+#define NRPN_LFO_LINK 1000
+// Operator FM parameters: NRPN_OPn_BASE + NRPN_OP_<param>
+// or using NRPN_OP1_BASE + NRPN_OP_STRIDE * opIndex + NRPN_OP_<param>
+#define NRPN_OP_STRIDE 1000
+#define NRPN_OP1_BASE 2000
+#define NRPN_OP2_BASE 3000
+#define NRPN_OP3_BASE 4000
+#define NRPN_OP4_BASE 5000
+#define NRPN_OP_DETUNE 0
+#define NRPN_OP_MULT 1
+#define NRPN_OP_LEVEL 2
+#define NRPN_OP_ATTACK 3
+#define NRPN_OP_DECAY 4
+#define NRPN_OP_SUSTAIN_LVL 5
+#define NRPN_OP_SUSTAIN_RATE 6
+#define NRPN_OP_RELEASE 7
+#define NRPN_OP_ENV_MODE 8
+#define NRPN_OP_RATE_SCALE 9
 #endif // MEGAFM_CONSTANTS_H

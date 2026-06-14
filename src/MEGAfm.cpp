@@ -15,6 +15,8 @@ cd /Users/a/Documents/bootloaderT cd /Users/a/Documents/bootloaderT&&cp -f /priv
 #include "leds.h"
 #include "isr.h"
 #include "preset.h"
+#include "midi.h"
+#include "nrpn.h"
 
 // check that we didn't do a rec+voicing before latching arp rec mode
 bool newWide; // enable new wide modes
@@ -40,7 +42,7 @@ byte finePot;
 bool chord;
 // 0=chip1 down chip2 up 1=both chips go up and down (mixed)
 bool fatSpreadMode;
-// animate the pickup funciton with dots that move up or down
+// animate the pickup function with dots that move up or down
 int pickupFrame;
 bool pickupIsFader;
 bool pickupFrameUp;
@@ -49,7 +51,7 @@ bool showPickupAnimation;
 bool pickupAnimationNewFrame;
 // Whether the knobs/sliders should use 'pickup' behavior
 // Used in: buttons.cpp, megafm.cpp, pots.cpp
-bool pickupMode = true;
+bool pickupMode;
 // When pickup mode is active we set this high when the preset value has been reached (picked up) after a preset change.
 // Used in: pickup.cpp, pots.cpp, preset.cpp
 bool pickup[49];
@@ -64,7 +66,7 @@ int bendyCounter;
 bool arpNotes[128];
 // Note priority: lowest (0), highest (1), or last (2).
 // Used in: buttons.cpp, megafm.cpp, midi.cpp, voice.cpp
-byte notePriority = 2;
+byte notePriority;
 // Track the last note for glide.
 // Distance to go from last note to future.
 // Used in: midi.cpp, voice.cpp
@@ -91,7 +93,7 @@ bool flasher;
 int flashCounter, flashCounter2, bankCounter;
 bool toolMode;
 /**
- * When set to true, megaFM boots in test mode (hold reset sat startup
+ * When set to true, megaFM boots in test mode (hold reset at startup
  * to enter test mode after a factory reset) : (plays some chords at
  * various volumes and fires a note on every channel in a loop). This
  * is used for me to check that the chips and volume control circuits
@@ -155,7 +157,7 @@ bool targetPresetFlasher;
 int scrollDelay, scrollCounter;
 byte noiseTableLength[3];
 // Buffer for sysex preset dumps.
-byte mem[3950];
+byte sysexBuffer[3950];
 int notey[12];
 byte arpMode, arpModeLast;
 bool looping[3];
@@ -184,7 +186,6 @@ bool newFat;
 /**
  * Whether to turn off the voice slot when the pedal is lifted.
  */
-bool pedalOff[12];
 bool pedal;
 /**
  * Used to track if any notes are stored in the arpeggiator stack/array (true=empty).
@@ -232,7 +233,6 @@ bool linked[3][51];
 byte octOffset;
 byte lfoRandom[3][32];
 int displayFreeze;
-int pressureCounter;
 int polyPressure[12];
 int polyVel[12];
 int showPresetNumberTimeout; // we show the preset number when this expires (after moving a knob or fader);
@@ -254,7 +254,6 @@ bool cleared;
 /** Which LFO chain button is being pressed. 1, 2, or 3; 0 = none. */
 byte chainPressed;
 byte targetPot, targetPotLast;
-byte masterChannelOut = 1;
 float ch3x[4];
 byte lfoShape[3];
 byte lfo[3], lfoLast[3];
@@ -282,17 +281,21 @@ int vibPitch;
 byte presetTp;
 int vibCounter;
 int shuffleTimer;
-byte seed;
 byte potClock;
 bool mpe;
+
+// if true, show feedback on received nrpn/midi messages for debugging
+// defaults to off to reduce noise on display and save resources,
+// but can be set with NRPN_SHOW_FEEDBACK
+bool showMidiFeedback;
 
 void enterSetup() {
 	digit(0, 5);
 	digit(1, 18);
 	setupMode = true;
-	ledSet(13, thru);
-	ledSet(14, pickupMode);
-	ledSet(19, fatSpreadMode);
+	ledSet(LED_LFO1_LINK, thru);
+	ledSet(LED_LFO2_LINK, pickupMode);
+	ledSet(LED_LFO3_LINK, fatSpreadMode);
 }
 
 void setup() {
@@ -368,6 +371,8 @@ void setup() {
 	Serial.begin(31250);
 	// midiSetup();
 
+	initLastNRPN();
+
 	mux(13);
 	if ((!digitalRead(A1)) ||
 	    ((EEPROM.read(0) == 255) && (EEPROM.read(1) == 255) && (EEPROM.read(2) == 255) && (EEPROM.read(3) == 255))) {
@@ -383,7 +388,6 @@ void setup() {
 		newWide = false;
 		EEPROM.update(3969, 82);
 
-		loadPreset();
 		eWrite(69, 69);
 		if (eRead(69) != 69) {
 
@@ -544,6 +548,8 @@ void setup() {
 
 	ignoreVolume = bitRead(EEPROM.read(3950), 1);
 
+	showMidiFeedback = bitRead(EEPROM.read(3955), 0);
+
 	bank = EEPROM.read(3964);
 	if (bank > 5)
 		bank = 0;
@@ -553,7 +559,6 @@ void setup() {
 	}
 
 	if (!sendReceive) {
-		loadPreset();
 		loadPreset();
 	}
 }

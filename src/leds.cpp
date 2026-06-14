@@ -126,7 +126,6 @@ void showNumber(byte movedPotOrFader, byte value) {
 }
 
 void updateLedNumber() {
-
 	if (setupMode) {
 		if (!setupChanged) {
 			digit(0, 5);
@@ -136,12 +135,12 @@ void updateLedNumber() {
 }
 
 void clearLfoLeds() { // hide the lfo leds
-	ledSet(16, 0);
-	ledSet(17, 0);
-	ledSet(18, 0);
-	ledSet(19, 0);
-	ledSet(20, 0);
-	ledSet(21, 0);
+	ledSet(LED_SQUARE, 0);
+	ledSet(LED_TRIANGLE, 0);
+	ledSet(LED_SAW, 0);
+	ledSet(LED_RANDOM, 0);
+	ledSet(LED_RETRIGGER, 0);
+	ledSet(LED_LOOP, 0);
 }
 
 void showLfo() {
@@ -149,108 +148,108 @@ void showLfo() {
 		switch (map(map(polyPressure[lastMpeVoice], 0, 255, 0, fmData[41]), 0, 255, 0, 7)) {
 
 			case 0:
-				ledSet(16, 0);
-				ledSet(17, 0);
-				ledSet(18, 0);
-				ledSet(19, 0);
-				ledSet(20, 0);
-				ledSet(21, 0);
+				ledSet(LED_SQUARE, 0);
+				ledSet(LED_TRIANGLE, 0);
+				ledSet(LED_SAW, 0);
+				ledSet(LED_RANDOM, 0);
+				ledSet(LED_RETRIGGER, 0);
+				ledSet(LED_LOOP, 0);
 				break;
 
 			case 1:
-				ledSet(16, 1);
-				ledSet(17, 0);
-				ledSet(18, 0);
-				ledSet(19, 0);
-				ledSet(20, 0);
-				ledSet(21, 0);
+				ledSet(LED_SQUARE, 1);
+				ledSet(LED_TRIANGLE, 0);
+				ledSet(LED_SAW, 0);
+				ledSet(LED_RANDOM, 0);
+				ledSet(LED_RETRIGGER, 0);
+				ledSet(LED_LOOP, 0);
 				break;
 
 			case 2:
-				ledSet(16, 1);
-				ledSet(17, 1);
-				ledSet(18, 0);
-				ledSet(19, 0);
-				ledSet(20, 0);
-				ledSet(21, 0);
+				ledSet(LED_SQUARE, 1);
+				ledSet(LED_TRIANGLE, 1);
+				ledSet(LED_SAW, 0);
+				ledSet(LED_RANDOM, 0);
+				ledSet(LED_RETRIGGER, 0);
+				ledSet(LED_LOOP, 0);
 				break;
 
 			case 3:
-				ledSet(16, 1);
-				ledSet(17, 1);
-				ledSet(18, 1);
-				ledSet(19, 0);
-				ledSet(20, 0);
-				ledSet(21, 0);
+				ledSet(LED_SQUARE, 1);
+				ledSet(LED_TRIANGLE, 1);
+				ledSet(LED_SAW, 1);
+				ledSet(LED_RANDOM, 0);
+				ledSet(LED_RETRIGGER, 0);
+				ledSet(LED_LOOP, 0);
 				break;
 
 			case 4:
-				ledSet(16, 1);
-				ledSet(17, 1);
-				ledSet(18, 1);
-				ledSet(19, 1);
-				ledSet(20, 0);
-				ledSet(21, 0);
+				ledSet(LED_SQUARE, 1);
+				ledSet(LED_TRIANGLE, 1);
+				ledSet(LED_SAW, 1);
+				ledSet(LED_RANDOM, 1);
+				ledSet(LED_RETRIGGER, 0);
+				ledSet(LED_LOOP, 0);
 				break;
 
 			case 5:
-				ledSet(16, 1);
-				ledSet(17, 1);
-				ledSet(18, 1);
-				ledSet(19, 1);
-				ledSet(20, 1);
-				ledSet(21, 0);
+				ledSet(LED_SQUARE, 1);
+				ledSet(LED_TRIANGLE, 1);
+				ledSet(LED_SAW, 1);
+				ledSet(LED_RANDOM, 1);
+				ledSet(LED_RETRIGGER, 1);
+				ledSet(LED_LOOP, 0);
 				break;
 
 			case 6:
 			case 7:
-				ledSet(16, 1);
-				ledSet(17, 1);
-				ledSet(18, 1);
-				ledSet(19, 1);
-				ledSet(20, 1);
-				ledSet(21, 1);
+				ledSet(LED_SQUARE, 1);
+				ledSet(LED_TRIANGLE, 1);
+				ledSet(LED_SAW, 1);
+				ledSet(LED_RANDOM, 1);
+				ledSet(LED_RETRIGGER, 1);
+				ledSet(LED_LOOP, 1);
 				break;
 		}
 	} else {
 		if (!bankCounter) {
-			ledSet(16, 0);
-			ledSet(17, 0);
-			ledSet(18, 0);
-			ledSet(19, 0);
-			ledSet(16 + lfoShape[selectedLfo], 1);
-
-			ledSet(20, retrig[selectedLfo]);
-			ledSet(21, looping[selectedLfo]);
+			ledSet(LED_SQUARE, 0);
+			ledSet(LED_TRIANGLE, 0);
+			ledSet(LED_SAW, 0);
+			ledSet(LED_RANDOM, 0);
+			ledSet(LED_SQUARE + lfoShape[selectedLfo], 1);
+			ledSet(LED_RETRIGGER, retrig[selectedLfo]);
+			ledSet(LED_LOOP, looping[selectedLfo]);
 		}
 	}
 }
 
 void showSSEG() {
-	ledSet(16, 0);
-	ledSet(19, 0);
-	ledSet(21, 0);
-	ledSet(17, bitRead(SSEG[lastOperator], 0));  // triangle
-	ledSet(18, !bitRead(SSEG[lastOperator], 0)); // saw
-	ledSet(20, 0);
-	ledSet(21, bitRead(SSEG[lastOperator], 1)); // SSEG enabled or not?
-	showSSEGCounter = 12000;                    // show the regular LFO leds when this expires
+
+	ledSet(LED_SQUARE, 0);
+	ledSet(LED_RANDOM, 0);
+	ledSet(LED_LOOP, 0);
+	ledSet(LED_TRIANGLE, bitRead(SSEG[lastOperator], 0)); // triangle
+	ledSet(LED_SAW, !bitRead(SSEG[lastOperator], 0));     // saw
+	ledSet(LED_RETRIGGER, 0);
+	ledSet(LED_LOOP, bitRead(SSEG[lastOperator], 1)); // SSEG enabled or not?
+	showSSEGCounter = 12000;                          // show the regular LFO leds when this expires
 }
 
 void showLink() {
-	ledSet(13, linked[0][targetPot]);
-	ledSet(14, linked[1][targetPot]);
-	ledSet(15, linked[2][targetPot]);
+	ledSet(LED_LFO1_LINK, linked[0][targetPot]);
+	ledSet(LED_LFO2_LINK, linked[1][targetPot]);
+	ledSet(LED_LFO3_LINK, linked[2][targetPot]);
 }
 
 void showVoiceMode(VoiceMode voiceMode) {
 
 	if (mpe) {
 
-		ledSet(9, 1);
-		ledSet(10, 0);
-		ledSet(11, 0);
-		ledSet(12, 0);
+		ledSet(LED_VOICE_MODE_POLY12, 1);
+		ledSet(LED_VOICE_MODE_WIDE6, 0);
+		ledSet(LED_VOICE_MODE_DUALCH3, 0);
+		ledSet(LED_VOICE_MODE_UNISON, 0);
 
 	} else {
 		// FIXME clean this up, too!
@@ -262,10 +261,10 @@ void showVoiceMode(VoiceMode voiceMode) {
 		//              kVoicingPoly12, kVoicingWide6, kVoicingDualCh3, kVoicingUnison, kVoicingWide4, kVoicingWide3
 		uint8_t leds[] = {0x1, 0x2, 0x4, 0x8, 0xF, 0xE};
 
-		ledSet(9, leds[voiceMode] & 1);
-		ledSet(10, leds[voiceMode] & 2);
-		ledSet(11, leds[voiceMode] & 4);
-		ledSet(12, leds[voiceMode] & 8);
+		ledSet(LED_VOICE_MODE_POLY12, leds[voiceMode] & 1);
+		ledSet(LED_VOICE_MODE_WIDE6, leds[voiceMode] & 2);
+		ledSet(LED_VOICE_MODE_DUALCH3, leds[voiceMode] & 4);
+		ledSet(LED_VOICE_MODE_UNISON, leds[voiceMode] & 8);
 
 		resetVoices(); // What does this do here?! FIXME clean this up!
 	}
@@ -288,12 +287,12 @@ void showSendReceive() {
 
 	showPresetNumberTimeout = 0;
 
-	ledSet(16, 0);
-	ledSet(17, 0);
-	ledSet(18, 0);
-	ledSet(19, 0);
-	ledSet(20, 0);
-	ledSet(21, 0);
+	ledSet(LED_SQUARE, 0);
+	ledSet(LED_TRIANGLE, 0);
+	ledSet(LED_SAW, 0);
+	ledSet(LED_RANDOM, 0);
+	ledSet(LED_RETRIGGER, 0);
+	ledSet(LED_LOOP, 0);
 
 	if (sendReceive == 1) {
 		digit(0, 16);
@@ -307,7 +306,6 @@ void showSendReceive() {
 	}
 }
 
-int lastValue;
 void ledNumber(int value) {
 
 	if (!displayFreeze && !sendReceive) {
@@ -339,7 +337,6 @@ void ledNumber(int value) {
 		}
 	}
 	showPresetNumberTimeout = 12000;
-	lastValue = value;
 }
 
 void ledNumberForced(int value) {
@@ -870,3 +867,5 @@ void ledSet(byte number, bool value) {
 			break;
 	}
 }
+
+void lfoLedOn() { ledSet(LED_SQUARE + lfoShape[selectedLfo], 1); }

@@ -13,7 +13,7 @@ void addNote(byte note) {
 	arpNotes[note] = 1;
 
 	// sort lastNotePriority
-	if (notePriority == 2) {
+	if (notePriority == NOTE_PRIORITY_LAST) {
 		orderIndx = (orderIndx + 1) % 20;
 		noteOrder[orderIndx] = note;
 	}

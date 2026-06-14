@@ -1,28 +1,46 @@
 name: build
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches: [main]
 
 jobs:
   build:
-    name: Compile firmware
-    runs-on: ubuntu-22.04
+    name: Build Firmware
+    runs-on: ubuntu-latest
     steps:
-      - run: sudo sed -i -e "s/# \(deb.*universe.*\)/\1/g" /etc/apt/sources.list
-      - run: sudo apt-get update
-      - run: sudo apt-get install python2 python3 python3-pip clang-format
-      - run: pip3 install -U platformio
-      - uses: actions/checkout@v2
-      - run: make check_fmt
-      - run: make firmware.syx
-      - uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v4
+      - name: Set up docker buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build docker image
+        uses: docker/build-push-action@v7
         with:
-          name: firmware.syx
-          path: firmware.syx
-      - name: Pull request artifacts
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: gavv/pull-request-artifacts@v1.0.0
+          load: true
+          tags: megafm
+      - name: Check Format
+        run: |
+          docker run -v $(pwd):/workspace -w /workspace --rm megafm make check_fmt
+      - name: Build Firmware
+        run: |
+          docker run -v $(pwd):/workspace -w /workspace --rm megafm make firmware.syx
+      - name: Extract version from constants.h
+        id: version
+        uses: actions/github-script@v7
         with:
-          commit: ${{ github.event.pull_request.head.sha }}
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts-branch: artifacts
-          artifacts: firmware.syx
+          script: |
+            const fs = require('fs');
+            const content = fs.readFileSync('include/constants.h', 'utf8');
+            const version0 = content.match(/const byte kVersion0[^0-9]*([0-9]+)/)[1];
+            const version1 = content.match(/const byte kVersion1[^0-9]*([0-9]+)/)[1];
+            core.setOutput('version', `${version0}.${version1}`);
+      - name: Rename firmware
+        run: mv firmware.syx MEGAfm.${{ steps.version.outputs.version }}.syx
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          files: MEGAfm.${{ steps.version.outputs.version }}.syx
+          name: MEGAfm v${{ steps.version.outputs.version }}
+          generate_release_notes: true

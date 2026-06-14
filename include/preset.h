@@ -4,7 +4,7 @@
 void loadZero();
 void panel();
 void setIndex();
-void loadPreset();
+void loadPreset(bool inLoadZero = false);
 void savePreset();
 void shuffle();
 byte getByte();
