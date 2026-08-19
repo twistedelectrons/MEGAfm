@@ -46,27 +46,29 @@ class MidiPedalAdapter {
 		    : pedal_down{0}, note_on_callback(note_on_callback), note_off_callback(note_off_callback) {}
 
 		void set_pedal(uint8_t channel, bool pedal) {
+			if (pedal_downLast[channel] != pedal) {
+				pedal_downLast[channel] = pedal;
+				this->pedal_down[channel] = pedal;
 
-			this->pedal_down[channel] = pedal;
-
-			// when pedal goes down, we want to transfer the notes that are held to sustained
-			if (pedal) {
-				for (int i = 0; i < 128; i++) {
-					sustainedNotes[channel].set(i, heldNotes[channel].get(i));
-				}
-			} else {
-
-				// when pedal goes up, we want to kill the notes that are sustained
-				for (int i = 0; i < 128; i++) {
-					if (!heldNotes[channel].get(i) && sustainedNotes[channel].get(i)) {
-						//*(only if not held by fingers)
-						note_off_callback(channel, i);
+				// when pedal goes down, we want to transfer the notes that are held to sustained
+				if (pedal) {
+					for (int i = 0; i < 128; i++) {
+						sustainedNotes[channel].set(i, heldNotes[channel].get(i));
 					}
-				}
+				} else {
 
-				// clear sustained notes
-				for (int i = 0; i < 128; i++) {
-					sustainedNotes[channel].set(i, 0);
+					// when pedal goes up, we want to kill the notes that are sustained
+					for (int i = 0; i < 128; i++) {
+						if (!heldNotes[channel].get(i) && sustainedNotes[channel].get(i)) {
+							//*(only if not held by fingers)
+							note_off_callback(channel, i);
+						}
+					}
+
+					// clear sustained notes
+					for (int i = 0; i < 128; i++) {
+						sustainedNotes[channel].set(i, 0);
+					}
 				}
 			}
 		}
@@ -109,7 +111,7 @@ class MidiPedalAdapter {
 		BooleanArray128 heldNotes[16];
 		BooleanArray128 sustainedNotes[16];
 		bool pedal_down[16];
-
+		bool pedal_downLast[16];
 		note_on_callback_t note_on_callback;
 		note_off_callback_t note_off_callback;
 };

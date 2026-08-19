@@ -4,6 +4,7 @@
 #include "lfo.h"
 #include "leds.h"
 #include "midi.h"
+#include "nrpn.h"
 #include "volume.h"
 #include "pitchEngine.h"
 #include "mux.h"
@@ -12,9 +13,66 @@
 #include "arp.h"
 #include "FM.h"
 
-// static byte testCounts;
-
 void loop() {
+
+	if (mpe || lfoAt) {
+		if (selectedLfo == 2 && !showSSEGCounter) {
+			showLfo();
+		}
+		// apply polyPressure
+		for (int ch = 0; ch < 12; ch++) {
+			for (int i = 0; i < 37; i++) {
+				// modulate the operator params (poly)
+				if (linked[2][i]) {
+					int valPlusPressure = fmData[i] + map(polyPressure[ch], 0, 255, 0, fmData[41]);
+					valPlusPressure = constrain(valPlusPressure, 0, 255);
+					if (valPlusPressure != valPlusPressureLast[ch][i]) {
+						valPlusPressureLast[ch][i] = valPlusPressure;
+						fmMpe(ch, i, valPlusPressure);
+					}
+				}
+			}
+			if (ch == latestChannel) {
+				// modulate the global params (mono)
+				for (int i = 37; i < 51; i++) {
+					// modulate the operator params (poly)
+					if (linked[2][i]) {
+						int valPlusPressure = fmData[i] + map(polyPressure[ch], 0, 255, 0, fmData[41]);
+						valPlusPressure = constrain(valPlusPressure, 0, 255);
+						fmData[i] = valPlusPressure;
+					}
+				}
+			}
+		}
+	}
+
+	if (lfoVel) {
+		// apply polyVelocity
+		for (int ch = 0; ch < 12; ch++) {
+			for (int i = 0; i < 37; i++) {
+				if (linked[0][i]) {
+					int valPlusVel = fmData[i] + map(polyVel[ch], 0, 255, 0, fmData[37]);
+					valPlusVel = constrain(valPlusVel, 0, 255);
+					if (valPlusVel != valPlusVelLast[ch][i]) {
+						valPlusVelLast[ch][i] = valPlusVel;
+						fmMpe(ch, i, valPlusVel);
+					}
+				}
+			}
+
+			if (ch == latestChannel) {
+				// modulate the global params (mono)
+				for (int i = 37; i < 51; i++) {
+					// modulate the operator params (poly)
+					if (linked[0][i]) {
+						int valPlusVel = fmData[i] + map(polyVel[ch], 0, 255, 0, fmData[37]);
+						valPlusVel = constrain(valPlusVel, 0, 255);
+						fmData[i] = valPlusVel;
+					}
+				}
+			}
+		}
+	}
 
 	if (showLfoFlag) {
 		showLfo();
@@ -27,18 +85,10 @@ void loop() {
 		}
 	}
 
-	if (at != atLast) {
-		atLast = at;
-		if ((lfoAt) && (!fmBase[40])) {
-			lfo[2] = at;
-			applyLfo();
-		}
-	}
-
 	if ((lfoLedCounter > 0) && (!showSSEGCounter)) {
 		lfoLedCounter--;
 		if (lfoLedCounter < 1) {
-			ledSet(16 + lfoShape[selectedLfo], 1);
+			ledSet(LED_SQUARE + lfoShape[selectedLfo], 1);
 		}
 	}
 	/*
@@ -182,7 +232,7 @@ void loop() {
 		if (flashCounter2 > 800) {
 			flasher = !flasher;
 			clearLfoLeds();
-			ledSet(16 + bank, flasher);
+			ledSet(LED_SQUARE + bank, flasher);
 			flashCounter2 = 0;
 		}
 
@@ -218,10 +268,11 @@ void loop() {
 
 		if (arpButtCounter > 3999) {
 			arpButtCounter = 0;
-			arpMode = 0;
+			arpMode = kArpOff;
+			sendNRPN(NRPN_ARP_MODE, arpMode);
 			resetVoices();
 
-			ledSet(23, 0);
+			ledSet(LED_ARP_MODE, 0);
 			digit(0, 21);
 			digit(1, 21);
 			arpJustWentOff = true;
@@ -295,15 +346,10 @@ void loop() {
 			arpFire();
 		}
 
-		seed++;
-		if (!seed) {
-			seed = random(3);
-		}
-
 		if ((bankCounter) && (flashCounter2 > 400)) {
 			flasher = !flasher;
 			clearLfoLeds();
-			ledSet(16 + bank, flasher);
+			ledSet(LED_SQUARE + bank, flasher);
 			flashCounter2 = 0;
 			if ((!pressedUp) && (!pressedDown)) {
 				bankCounter--;
@@ -315,7 +361,7 @@ void loop() {
 
 		if ((seqRec) && (flashCounter > 400)) {
 			flasher = !flasher;
-			ledSet(22, flasher);
+			ledSet(LED_SEQ_REC, flasher);
 			flashCounter = 0;
 		}
 
@@ -352,6 +398,7 @@ void loop() {
 		if ((resetHeld) && (!shuffleTimer)) {
 			resetHeld = false;
 			shuffle();
+			dumpPresetAsSysEx();
 			shuffleCounter = 20;
 		}
 		fmUpdate();

@@ -16,7 +16,10 @@
 #define YM_CS2 14
 #define YM_WR 11
 #define YM_IC 30
-extern byte velocityLast; // keep track of velocity for LFO
+extern bool loopChanged;
+extern bool loopHeld;
+extern byte v4Preset; // detect with a magic bit in the preset if it's already been saved within 4.x  or disable arp in
+                      // non unison mode
 extern byte presetChordNumber;
 extern bool newWide; // enable new wide modes
 extern bool chord;
@@ -114,7 +117,7 @@ extern byte finePot;
 extern int finerFine;      // more precise tuning
 extern bool movedFineKnob; // track if we adjusted tune to override glide knob for finer tuning
 
-extern byte mem[3950];
+extern byte sysexBuffer[3950];
 
 extern int notey[12];
 extern byte arpMode, arpModeLast;
@@ -128,9 +131,10 @@ extern int lastNumber;
 extern byte lfoClockSpeed[3];
 extern byte lfoClockSpeedPending[3];
 extern byte lfoClockSpeedPendingLast[3];
-extern byte absoluteClockCounter;
+extern int masterClockCounter;
 extern bool newFat;
 extern YM2612 ym;
+extern byte latestChannel; // keep track of latest voice for global velocity/aftertouch modulation
 extern int heldKeys;
 extern byte lastNote, dotTimer;
 extern int arpCounter, arpStep, preset;
@@ -138,7 +142,6 @@ extern float lfoStepF[3];
 extern bool arpModeHeld;
 extern byte inputChannel;
 extern bool changedChannel;
-extern bool pedalOff[12];
 extern bool emptyStack;
 extern bool chordNotes[128];
 extern bool heldNotes[128];
@@ -146,6 +149,9 @@ extern byte chordRoot;
 extern bool fatMode;
 constexpr bool FAT_MODE_SEMITONE = false;
 constexpr bool FAT_MODE_OCTAVE = true;
+constexpr byte NOTE_PRIORITY_LOWEST = 0;
+constexpr byte NOTE_PRIORITY_HIGHEST = 1;
+constexpr byte NOTE_PRIORITY_LAST = 2;
 
 extern int arpButtCounter;
 extern float finey;
@@ -163,15 +169,19 @@ extern VoiceMode voiceMode;
 extern bool sync;
 extern bool ab;
 extern int potLast[64];
-
+extern int lastMpeVoice;
 extern int lfoDepth[3];
 extern bool buttLast[19];
+extern byte keyPressure[128];
 extern int algoLast;
-
+extern int polyPressure[12];
+extern int polyVel[12];
 extern byte fmBase[51], fmBaseLast[51], fmBaseLastNumber[51];
 extern int fmData[51], fmDataLast[51];
 extern bool linked[3][51];
 extern byte lfoRandom[3][32];
+extern byte valPlusPressureLast[12][36];
+extern byte valPlusVelLast[12][36];
 extern byte randomIndex[3];
 extern byte octOffset; // offset the preset by 0-3 octaves
 extern bool pressedUp, pressedDown;
@@ -186,17 +196,16 @@ extern byte selectedLfo, selectedLfoLast;
 extern bool cleared;
 extern byte chainPressed;
 extern byte targetPot, targetPotLast;
-extern byte masterChannelOut;
 
 extern float ch3x[4];
 extern byte lfoShape[3];
 extern byte lfo[3], lfoLast[3];
 extern int lfoStep[3];
 extern int lfoStepLast[3];
-extern int at, atDest, atLast, atGlideCounter;
 extern bool lfoNewRand[3];
 extern int lfoCounter[3], lfoSpeed[3];
 extern bool retrig[3];
+extern byte robin; // used for polyphonic ar voice ordering (round robin)
 extern int fatLast;
 extern float fat;
 extern float bendy;
@@ -207,10 +216,11 @@ extern int vibPitch;
 extern byte presetTp;
 extern int vibCounter;
 extern int shuffleTimer;
-extern byte seed;
 
 extern byte potClock;
 extern bool mpe;
+
+extern bool showMidiFeedback; // if true, show more feedback on received nrpn for debugging
 
 void enterSetup();
 

@@ -1,0 +1,14 @@
+{
+  "name": "megafm-nrpn-integration-tests",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "NRPN integration tests for MEGAfm hardware",
+  "main": "test_nrpn_integration.mjs",
+  "scripts": {
+    "test": "node test_nrpn_integration.mjs",
+    "list-devices": "node test_nrpn_integration.mjs --list-devices"
+  },
+  "dependencies": {
+    "easymidi": "^3.1.0"
+  }
+}

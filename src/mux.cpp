@@ -5,7 +5,6 @@
 #include "buttons.h"
 
 static const byte range = 7;
-static const byte range2 = 10;
 
 static void Aon() { PORTB |= _BV(0); }
 static void Aoff() { PORTB &= ~_BV(0); }

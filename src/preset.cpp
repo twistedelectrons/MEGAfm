@@ -19,7 +19,7 @@ void loadZero() {
 	bank = 0;
 	presetTp = preset;
 	preset = 0;
-	loadPreset();
+	loadPreset(true);
 	preset = presetTp;
 	bank = bankTp;
 }
@@ -32,6 +32,7 @@ void panel() {
 	muxChannel = 16;
 	digit(0, 14);
 	digit(1, 17);
+	dumpArpAsSysEx();
 	delay(500);
 }
 
@@ -62,7 +63,7 @@ void clearSSEG(bool allBanks) {
 	}
 }
 
-void loadPreset() {
+void loadPreset(bool inLoadZero) {
 	if (pickupMode) {
 		for (int i = 0; i < 49; i++) {
 			pickup[i] = 0;
@@ -130,6 +131,7 @@ void loadPreset() {
 		bitWrite(fmBase[6 + offset], 2, bitRead(temp, 2));
 		bitWrite(fmBase[6 + offset], 3, bitRead(temp, 3));
 		bitWrite(fmBase[6 + offset], 4, bitRead(temp, 4));
+		bitWrite(v4Preset, i, bitRead(temp, 5));
 		temp = getByte();
 		bitWrite(fmBase[7 + offset], 0, bitRead(temp, 4)); // Sustain
 		bitWrite(fmBase[7 + offset], 1, bitRead(temp, 5)); //
@@ -153,7 +155,7 @@ void loadPreset() {
 	}
 
 	voiceMode = kVoicingPoly12;
-	arpMode = 0;
+	arpMode = kArpOff;
 	lfoShape[0] = 0;
 	lfoShape[1] = 0;
 	lfoShape[2] = 0;
@@ -164,9 +166,11 @@ void loadPreset() {
 	bitWrite(b, 1, bitRead(temp, 1));
 	bitWrite(b, 2, bitRead(temp, 2));
 	voiceMode = static_cast<VoiceMode>(b);
-	bitWrite(arpMode, 0, bitRead(temp, 3));
-	bitWrite(arpMode, 1, bitRead(temp, 4));
-	bitWrite(arpMode, 2, bitRead(temp, 5));
+	if (v4Preset == 15 || (v4Preset != 15 && voiceMode == kVoicingUnison)) {
+		bitWrite(arpMode, 0, bitRead(temp, 3));
+		bitWrite(arpMode, 1, bitRead(temp, 4));
+		bitWrite(arpMode, 2, bitRead(temp, 5));
+	}
 	bitWrite(lfoShape[0], 0, bitRead(temp, 6));
 	bitWrite(lfoShape[0], 1, bitRead(temp, 7));
 
@@ -355,6 +359,7 @@ void loadPreset() {
 	bitWrite(seqLength, 1, bitRead(temp, 1));
 	bitWrite(seqLength, 2, bitRead(temp, 2));
 	bitWrite(seqLength, 3, bitRead(temp, 3));
+	seqLength++;
 
 	bitWrite(glide, 0, bitRead(temp, 4));
 	bitWrite(glide, 1, bitRead(temp, 5));
@@ -375,9 +380,9 @@ void loadPreset() {
 	}
 
 	if ((arpMode) && (!mpe)) {
-		ledSet(23, 1);
+		ledSet(LED_ARP_MODE, 1);
 	} else {
-		ledSet(23, 0);
+		ledSet(LED_ARP_MODE, 0);
 	}
 	//
 
@@ -402,7 +407,8 @@ void loadPreset() {
 	showVoiceMode(voiceMode);
 	Serial.begin(31250);
 	fmResetValues();
-	dumpPreset();
+	if (!inLoadZero)
+		dumpPresetAsSysEx();
 	startTimer();
 
 	// make sure fmBaseLast != fmBase (to reset the engine)
@@ -422,6 +428,8 @@ void loadPreset() {
 	displayFreeze = 0;
 	ledNumber(preset);
 	displayFreeze = 12000;
+
+	arpMidiSpeedPending = map(fmBase[46], 0, 255, 0, 10);
 }
 
 void savePreset() {
@@ -484,6 +492,7 @@ void savePreset() {
 		bitWrite(temp, 2, bitRead(fmBase[6 + offset], 2));
 		bitWrite(temp, 3, bitRead(fmBase[6 + offset], 3));
 		bitWrite(temp, 4, bitRead(fmBase[6 + offset], 4));
+		bitWrite(temp, 5, 1); // make this preset V4.X
 		store(temp);
 
 		temp = 0;
@@ -696,10 +705,10 @@ void savePreset() {
 	}
 
 	temp = 0;
-	bitWrite(temp, 0, bitRead(seqLength, 0));
-	bitWrite(temp, 1, bitRead(seqLength, 1));
-	bitWrite(temp, 2, bitRead(seqLength, 2));
-	bitWrite(temp, 3, bitRead(seqLength, 3));
+	bitWrite(temp, 0, bitRead(seqLength - 1, 0));
+	bitWrite(temp, 1, bitRead(seqLength - 1, 1));
+	bitWrite(temp, 2, bitRead(seqLength - 1, 2));
+	bitWrite(temp, 3, bitRead(seqLength - 1, 3));
 
 	bitWrite(temp, 4, bitRead(glide, 0));
 	bitWrite(temp, 5, bitRead(glide, 1));
@@ -734,9 +743,9 @@ void shuffle() {
 		seq[i] = random(25);
 	}
 	if ((random(2)) && (random(2)) && (random(2))) {
-		arpMode = random(6);
+		arpMode = random(6); // 0-5 = all modes but sequencer
 	} else {
-		arpMode = 0;
+		arpMode = kArpOff;
 	}
 	showVoiceMode(voiceMode);
 }

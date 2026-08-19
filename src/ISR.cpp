@@ -38,18 +38,6 @@ void isr() {
 		}
 	}
 
-	if ((lfoAt) && (!fmBase[40]) && (atDest != at)) {
-		atGlideCounter++;
-		if (atGlideCounter > 5) {
-			atGlideCounter = 0;
-			if (at > atDest) {
-				at--;
-			} else if (at < atDest) {
-				at++;
-			}
-		}
-	}
-
 	if ((voiceHeld) && (setupCounter)) {
 		setupCounter--;
 		if (!setupCounter) {

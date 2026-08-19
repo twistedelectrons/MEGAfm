@@ -25,7 +25,7 @@ void clearNotes() {
 
 void arpReset() {
 
-	if (arpMode == 2) {
+	if (arpMode == kArpDown) {
 		arpStep = fmData[47] >> 6;
 		arpIndex = 127;
 	} else {
@@ -37,7 +37,7 @@ void arpReset() {
 
 void nextArpStep() { // octave shift
 
-	if (arpMode == 2) {
+	if (arpMode == kArpDown) {
 		arpStep--;
 		if (arpStep < 0)
 			arpStep = fmData[47] >> 6;
@@ -50,9 +50,9 @@ void nextArpStep() { // octave shift
 }
 
 void arpTick() {
-	if (heldKeys && arpMode && voiceMode == kVoicingUnison && fmData[46]) {
+	if (heldKeys && arpMode && fmData[46]) {
 
-		if ((!sync) || ((sync) && (!arpClockEnable))) {
+		if (!sync || (sync && !arpClockEnable)) {
 			arpCounter += fmData[46];
 		}
 	}
@@ -61,7 +61,6 @@ void arpTick() {
 static int arpRootNote;
 
 void arpFire() {
-	//  byte nextNote = 0; // unused
 
 	if (heldKeys) {
 		if (retrig[0])
@@ -152,7 +151,7 @@ void arpFire() {
 				}
 
 				seqStep++;
-				if (seqStep > seqLength) {
+				if (seqStep >= seqLength) {
 					seqStep = 0;
 
 					arpIndex++;
@@ -168,12 +167,64 @@ void arpFire() {
 				break;
 		}
 
+		switch (voiceMode) {
+
+			case kVoicingPoly12:
+				robin = constrain(robin, 0, 11);
+				robin++;
+				if (robin > 11) {
+					robin = 0;
+				}
+				if (robin == 0) {
+					ym.noteOff(11);
+
+				} else {
+					ym.noteOff(robin - 1);
+				}
+				setNote(robin, lastNote);
+				ym.noteOn(robin);
+
+				break;
+
+			case kVoicingDualCh3:
+			case kVoicingWide3:
+			case kVoicingWide4:
+			case kVoicingWide6:
+
+				robin = constrain(robin, 0, 5);
+
+				robin++;
+				if (robin > 5) {
+					robin = 0;
+				}
+				if (robin < 1) {
+					ym.noteOff(5);
+					ym.noteOff(11);
+				} else {
+					ym.noteOff(robin - 1);
+					ym.noteOff(robin + 5);
+				}
+				setNote(robin, lastNote);
+				ym.noteOn(robin);
+				setNote(robin + 6, lastNote);
+				ym.noteOn(robin + 6);
+
+				break;
+
+			case kVoicingUnison:
+				for (int i = 0; i < 12; i++) {
+					ym.noteOff(i);
+					if (lastNote) {
+						setNote(i, lastNote);
+						ym.noteOn(i);
+					}
+				}
+				break;
+		}
+	}
+	if (!heldKeys) {
 		for (int i = 0; i < 12; i++) {
 			ym.noteOff(i);
-			if (lastNote) {
-				setNote(i, lastNote);
-				ym.noteOn(i);
-			}
 		}
 	}
 }
