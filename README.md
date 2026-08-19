@@ -12,7 +12,7 @@ A million thanks to [Matt Montag](https://github.com/mmontag) & [Florian Jung](h
 
 ## Building and flashing the source code:
 
-Install `platformio` and `python2`. (Yes. I am so sorry :(.)
+Install `platformio`.
 
 Alternatively, use the included `Dockerfile` and run inside the root directory of the repository `docker build . -t megafm`. Then start a container using `docker run -v $PWD:/app -it megafm bash`. This will give you a working environment for the below command, mapping your local disk inside the docker container.
 
@@ -42,4 +42,3 @@ Thank you, we are looking forward to your contribution! :)
 The MEGAfm firmware under `src/` and `include/` is free software. It is released under the terms of
 the [ISC License](LICENSE.md). The libraries and tools distributed in the `3rdparty/` and `lib/`
 directories have their own copyright and license notes.
-
