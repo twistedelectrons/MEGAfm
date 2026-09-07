@@ -717,6 +717,14 @@ static void handleNoteOff(byte channel, byte note) {
 byte lastData1, lastData2;
 
 void handleControlChange(byte channel, byte number, byte val) {
+	if (channel < 1 || channel > 16)
+		return;
+	// Channel-mode messages must never be interpreted as knob indices.
+	if (number >= 120) {
+		if (number == 123)
+			pedal_adapter.all_notes_off(channel);
+		return;
+	}
 	byte temp;
 
 	if (number == 74) {
@@ -926,7 +934,7 @@ void handleControlChange(byte channel, byte number, byte val) {
 
 			if (number == 64) {
 				if (mpe) {
-					for (int ch = 0; ch < 16; ch++)
+					for (int ch = 1; ch <= 16; ch++)
 						pedal_adapter.set_pedal(ch, val >> 6);
 				} else {
 					pedal_adapter.set_pedal(channel, val >> 6);

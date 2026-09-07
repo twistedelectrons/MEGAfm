@@ -43,23 +43,28 @@ struct BooleanArray128 {
 class MidiPedalAdapter {
 	public:
 		MidiPedalAdapter(note_on_callback_t note_on_callback, note_off_callback_t note_off_callback)
-		    : pedal_down{0}, note_on_callback(note_on_callback), note_off_callback(note_off_callback) {}
+		    : pedal_down{0}, pedal_downLast{0}, note_on_callback(note_on_callback),
+		      note_off_callback(note_off_callback) {}
 
+		// Public MIDI channels and callbacks are 1-based; storage is 0-based.
 		void set_pedal(uint8_t channel, bool pedal) {
-			if (pedal_downLast[channel] != pedal) {
-				pedal_downLast[channel] = pedal;
-				this->pedal_down[channel] = pedal;
+			if (channel < 1 || channel > 16)
+				return;
+			const uint8_t slot = channel - 1;
+			if (pedal_downLast[slot] != pedal) {
+				pedal_downLast[slot] = pedal;
+				this->pedal_down[slot] = pedal;
 
 				// when pedal goes down, we want to transfer the notes that are held to sustained
 				if (pedal) {
 					for (int i = 0; i < 128; i++) {
-						sustainedNotes[channel].set(i, heldNotes[channel].get(i));
+						sustainedNotes[slot].set(i, heldNotes[slot].get(i));
 					}
 				} else {
 
 					// when pedal goes up, we want to kill the notes that are sustained
 					for (int i = 0; i < 128; i++) {
-						if (!heldNotes[channel].get(i) && sustainedNotes[channel].get(i)) {
+						if (!heldNotes[slot].get(i) && sustainedNotes[slot].get(i)) {
 							//*(only if not held by fingers)
 							note_off_callback(channel, i);
 						}
@@ -67,20 +72,23 @@ class MidiPedalAdapter {
 
 					// clear sustained notes
 					for (int i = 0; i < 128; i++) {
-						sustainedNotes[channel].set(i, 0);
+						sustainedNotes[slot].set(i, 0);
 					}
 				}
 			}
 		}
 
 		void note_on(uint8_t channel, uint8_t note, uint8_t velocity) {
+			if (channel < 1 || channel > 16 || note > 127)
+				return;
+			const uint8_t slot = channel - 1;
 			if (velocity == 0) {
 				note_off(channel, note);
 				return;
 			}
 
 			// is the note already singing? Retrigger
-			if (sustainedNotes[channel].get(note)) {
+			if (sustainedNotes[slot].get(note)) {
 
 				note_off_callback(channel, note);
 			}
@@ -89,21 +97,34 @@ class MidiPedalAdapter {
 			note_on_callback(channel, note, velocity);
 
 			// add note to held array
-			heldNotes[channel].set(note, true);
+			heldNotes[slot].set(note, true);
 
-			if (pedal_down[channel]) {
+			if (pedal_down[slot]) {
 				// pedal is down so we want to sustain the note
-				sustainedNotes[channel].set(note, true);
+				sustainedNotes[slot].set(note, true);
 			}
 		}
 
 		void note_off(uint8_t channel, uint8_t note) {
+			if (channel < 1 || channel > 16 || note > 127)
+				return;
+			const uint8_t slot = channel - 1;
 
 			// remove note from held array
-			heldNotes[channel].set(note, 0);
+			heldNotes[slot].set(note, 0);
 
-			if (!pedal_down[channel]) {
+			if (!pedal_down[slot]) {
 				note_off_callback(channel, note);
+			}
+		}
+
+		// All Notes Off releases held keys while respecting the sustain pedal.
+		void all_notes_off(uint8_t channel) {
+			if (channel < 1 || channel > 16)
+				return;
+			for (uint8_t note = 0; note < 128; ++note) {
+				if (heldNotes[channel - 1].get(note))
+					note_off(channel, note);
 			}
 		}
 

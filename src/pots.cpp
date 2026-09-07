@@ -56,6 +56,8 @@ void showNumberCond(byte movedPotOrFader, byte value, bool isMidi) {
 }
 
 void movedPot(byte number, byte data, bool isMidi) {
+	if (number >= sizeof(pickup) / sizeof(pickup[0]))
+		return;
 	if (secPast) {
 
 		bool isFader = false; // only display SSGEG if we move a fader
