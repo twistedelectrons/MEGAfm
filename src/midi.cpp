@@ -978,7 +978,8 @@ void handleControlChange(byte channel, byte number, byte val) {
 					nrpn_data = 0;
 					nrpn_state = 0;
 					// NRPN DONE //////////////////////////////////////
-				} else {
+				} else if (number != 7) {
+					// Ignore CC7 volume: DAWs may send zero at clip start.
 					byte pot = number;
 					// Rewrite CC -> POT for some
 					if (number == 50)
@@ -987,8 +988,6 @@ void handleControlChange(byte channel, byte number, byte val) {
 						pot = 7;
 					else if (number == 49)
 						pot = 8;
-					else if (number == 7)
-						pot = 1;
 
 					movedPot(pot, val << 1, 1);
 				}

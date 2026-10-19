@@ -2,6 +2,10 @@
 
 [Friends don't let friends dump git logs into changelogs.](https://keepachangelog.com/en/1.1.0/).
 
+5.2 (October 19, 2026)
+
+- Ignore MIDI CC7 volume messages so DAW clip-start resets cannot silence MEGAfm. Physical volume and NRPN volume control remain available.
+
 5.1 (October 19, 2026)
 
 - Fix swapped Op2/Op3 loop-envelope controls on the panel and via MIDI NRPN; report the matching operator in SysEx dumps. Preserve existing preset storage and playback.
