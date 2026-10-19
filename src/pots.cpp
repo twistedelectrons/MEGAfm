@@ -929,10 +929,10 @@ void movedPot(byte number, byte data, bool isMidi) {
 							lastOperator = 0;
 							showSSEG();
 						} else if ((targetPot > 8) && (targetPot < 18)) {
-							lastOperator = 2;
+							lastOperator = 1;
 							showSSEG();
 						} else if ((targetPot > 17) && (targetPot < 27)) {
-							lastOperator = 1;
+							lastOperator = 2;
 							showSSEG();
 						} else if ((targetPot > 26) && (targetPot < 36)) {
 							lastOperator = 3;

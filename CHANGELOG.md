@@ -2,8 +2,9 @@
 
 [Friends don't let friends dump git logs into changelogs.](https://keepachangelog.com/en/1.1.0/).
 
-5.1 (Unreleased)
+5.1 (October 19, 2026)
 
+- Fix swapped Op2/Op3 loop-envelope controls on the panel and via MIDI NRPN; report the matching operator in SysEx dumps. Preserve existing preset storage and playback.
 - Fix sustain-pedal memory corruption on MIDI channel 16; consistently map channels 1–16 to internal slots 0–15, including MPE sustain broadcasts.
 - Handle CC123 (All Notes Off) as key releases, respecting sustain. Ignore other unsupported channel-mode messages instead of treating them as knob movements.
 - Reject out-of-range knob indices and invalid pedal-adapter channels/notes before accessing arrays.

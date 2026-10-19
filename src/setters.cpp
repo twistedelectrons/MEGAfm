@@ -108,7 +108,12 @@ void setBrightness(byte brightness) {
 	EEPROM.write(3965, brightness);
 }
 
+// Public operator numbers are in panel order; SSEG and presets use YM slot order.
+// Keep the stored order unchanged so existing patches retain their sound.
+static byte envelopeOperatorSlot(byte op) { return op == 1 ? 2 : (op == 2 ? 1 : op); }
+
 void setOperatorEnvelopeMode(byte op, kEnvelopeMode mode) {
+	op = envelopeOperatorSlot(op);
 	switch (mode) {
 		case kEnvelopeOff:
 			if (bitRead(SSEG[op], 1))
@@ -131,6 +136,7 @@ void setOperatorEnvelopeMode(byte op, kEnvelopeMode mode) {
 }
 
 kEnvelopeMode getOperatorEnvelopeMode(byte op) {
+	op = envelopeOperatorSlot(op);
 	if (bitRead(SSEG[op], 1)) {
 		if (bitRead(SSEG[op], 0)) {
 			return kEnvelopPingPong;
