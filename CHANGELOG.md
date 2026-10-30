@@ -2,6 +2,11 @@
 
 [Friends don't let friends dump git logs into changelogs.](https://keepachangelog.com/en/1.1.0/).
 
+5.3 (October 30, 2026)
+
+- Keep envelope rate scaling consistent when toggling looping and reloading presets; remove the hidden maximum-rate override without changing the preset format.
+- Apply the current rate-scaling fader value immediately instead of the previous value.
+
 5.2 (October 19, 2026)
 
 - Ignore MIDI CC7 volume messages so DAW clip-start resets cannot silence MEGAfm. Physical volume and NRPN volume control remain available.

@@ -282,8 +282,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							if (loopHeld) {
 								loopChanged = true;
-								updateFMifNecessary(3);
 								fmBase[3] = data;
+								updateFMifNecessary(3);
 								ledNumberCond(data >> 6, isMidi);
 								sendNRPN(NRPN_OP1_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
@@ -385,8 +385,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							if (loopHeld) {
 								loopChanged = true;
-								updateFMifNecessary(12);
 								fmBase[12] = data;
+								updateFMifNecessary(12);
 								ledNumberCond(data >> 6, isMidi);
 								sendNRPN(NRPN_OP2_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
@@ -488,8 +488,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 
 							if (loopHeld) {
 								loopChanged = true;
-								updateFMifNecessary(21);
 								fmBase[21] = data;
+								updateFMifNecessary(21);
 								ledNumberCond(data >> 6, isMidi);
 								sendNRPN(NRPN_OP3_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
@@ -590,8 +590,8 @@ void movedPot(byte number, byte data, bool isMidi) {
 							showPickupAnimation = false;
 							if (loopHeld) {
 								loopChanged = true;
-								updateFMifNecessary(30);
 								fmBase[30] = data;
+								updateFMifNecessary(30);
 								ledNumberCond(data >> 6, isMidi);
 								sendNRPN(NRPN_OP4_BASE + NRPN_OP_RATE_SCALE, data);
 							} else {
