@@ -24,7 +24,7 @@ void updateSSEG(byte op) {
 	bitWrite(temp, 1, !bitRead(SSEG[op], 0)); // set waveform
 	bitWrite(temp, 2, !bitRead(SSEG[op], 0)); // set waveform
 	ym.setSSG_EG(temp);
-	ym.setRateScaling(3);
+	// Rate scaling belongs to the preset; changing SSG-EG must not override it.
 }
 
 void updateFine() {

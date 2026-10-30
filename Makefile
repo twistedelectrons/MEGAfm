@@ -28,3 +28,9 @@ test_midi:
 	"$$test_binary"
 
 .PHONY: test_midi
+
+# Exercise production envelope handlers without synth hardware.
+test_envelope:
+	python3 test/native/envelope_rate_test.py
+
+.PHONY: test_envelope
